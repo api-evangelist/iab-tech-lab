@@ -1,0 +1,16 @@
+generated: '2026-09-17'
+method: generated
+source: openapi/ contracts in this repository; no provider-published Agent Skills or AGENTS.md were found for IAB Tech Lab itself (the agent repos carry CLAUDE.md/AGENTS.md for their own contributors, not for API consumers).
+skills:
+- name: iab-tech-lab-quote-to-book-deal
+  file: skills/iab-tech-lab-quote-to-book-deal.md
+  api: iab-tech-lab:seller-agent-api
+  operations: 8
+- name: iab-tech-lab-negotiate-deal
+  file: skills/iab-tech-lab-negotiate-deal.md
+  api: iab-tech-lab:seller-agent-api
+  operations: 7
+- name: iab-tech-lab-opendirect-book-line
+  file: skills/iab-tech-lab-opendirect-book-line.md
+  api: iab-tech-lab:opendirect-api
+  operations: 11

@@ -1,0 +1,109 @@
+generated: '2026-09-17'
+method: searched
+source: >-
+  Read from the contracts saved in this repo (grpc/, openapi/, json-schema/, xsd/, mcp/) and the
+  provider's own docs (openrtb2.x README, seller-agent MCP + authentication pages, mcp-config README,
+  iab-agentic-primitives CONFORMANCE.md). IAB Tech Lab is the AUTHOR of several of the domain standards
+  below; entries marked author record that the published contract is the normative definition itself.
+standards:
+- id: openrtb
+  conforms: true
+  role: author
+  evidence: >-
+    grpc/iab-tech-lab-openrtb-v2.proto declares package com.iabtechlab.openrtb.v2 with message
+    BidRequest / BidResponse (69 messages, OpenRTB 2.6-202606); the proto README states it is "an exact
+    representation of the OpenRTB standard in Protocol Buffers" maintained in lockstep with the spec.
+    Domain-standard signature for real-time bidding.
+- id: adcom
+  conforms: true
+  role: author
+  evidence: >-
+    grpc/adcom/*.proto declares package com.iabtechlab.adcom.v1 (media, placement, context, enums) —
+    AdCOM 1.0-202607 release on github.com/InteractiveAdvertisingBureau/AdCOM.
+- id: opendirect
+  conforms: true
+  role: author
+  evidence: >-
+    openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml (Swagger 2.0, 51 operations, basePath /v1.5.1)
+    and mcp/iab-tech-lab-opendirect-mcp-tools.json (metadata.specification "OpenDirect v2.1 Final").
+- id: vast
+  conforms: true
+  role: author
+  evidence: xsd/iab-tech-lab-vast-4.1.xsd, -4.2.xsd, -4.4.xsd (XML Schema for VAST) and xsd/iab-tech-lab-vmap-1.0.xsd.
+- id: sellers-json
+  conforms: true
+  role: author
+  evidence: >-
+    seller-agent operation get_supply_chain_api_v1_supply_chain_get and MCP tool get_supply_chain return
+    "supply chain transparency info (sellers.json format)"; the Supply Chain API aggregates crawled
+    ads.txt / app-ads.txt / sellers.json (iabtechlab.com/software/iab-tech-lab-supply-chain-api/).
+- id: iab-deals-api
+  conforms: true
+  role: author
+  evidence: >-
+    MCP tool push_deal_to_buyers "IAB Deals API v1.0 push to buyer endpoints" backed by
+    deals_push_api_v1_deals_push_post; spec at github.com/IABTechLab/deal-api (deal1.0.md).
+- id: a2a
+  conforms: true
+  evidence: >-
+    openapi/iab-tech-lab-agentic-advertising-api-openapi.yaml declares GET /.well-known/agent.json
+    (getAgentCard) and POST /a2a/jsonrpc (a2aMessageSend); mcp-config README claims A2A Protocol v0.3.0
+    compliance (agent card discovery, JSON-RPC 2.0 and HTTP+JSON transports). Cards are served only by
+    self-hosted agents — nothing on an IAB Tech Lab host — so no AgentCard artifact is recorded here.
+- id: mcp
+  conforms: true
+  evidence: >-
+    seller-agent /mcp/ Streamable HTTP transport, protocol 2025-06-18 (legacy 2024-11-05 HTTP+SSE at
+    /mcp-sse/sse, deprecated) — https://iabtechlab.github.io/seller-agent/api/mcp/; 33 OpenDirect tools
+    with inputSchema in mcp/iab-tech-lab-opendirect-mcp-tools.json.
+- id: grpc
+  conforms: true
+  evidence: >-
+    grpc/agentic-rtb-framework/iab-tech-lab-agenticrtbframeworkservices.proto declares service
+    RTBExtensionPoint { rpc GetMutations } (proto3); ARTF 1.0 mandates gRPC for service-to-service calls.
+- id: openapi-3.1
+  conforms: true
+  evidence: seller-agent (87 ops), buyer-agent (14 ops) and IAB Agentic Advertising API (13 ops) are openapi 3.1.0 documents.
+- id: json-schema
+  conforms: true
+  evidence: >-
+    sixteen primitives in json-schema/ (Deal, Order, Line, Product, Proposal, Negotiation, MediaKit,
+    Agent, ...) from iab-agentic-primitives/spec/jsonschema, with golden conformance vectors in the
+    same repository (CONFORMANCE.md).
+- id: oauth2
+  conforms: false
+  evidence: >-
+    The OpenDirect 1.5.1 securityDefinitions block is labelled "Example of one of OAuth 2.0
+    authorization flow" with authorizationUrl https://opendirect.example.com/connect/authorize and one
+    example scope — illustrative, left to each implementer. The seller-agent authenticates with static
+    API keys (Bearer or X-Api-Key); the gated Core API advertises a /docs/oauth page behind login that
+    could not be read. Not asserted.
+- id: oidc
+  conforms: false
+  evidence: No /.well-known/openid-configuration on iabtechlab.com (404) or the Core API hosts (302 to /login).
+- id: idempotency
+  conforms: true
+  evidence: >-
+    seller-agent bookDeal (POST /api/v1/deals) carries a required idempotency_key — "A replay with a key
+    already booked returns the same Deal without minting a second one"; CHANGELOG 2.4.2 extends FD-12
+    idempotency to POST /api/v1/quotes. Scoped to those writes, not the whole surface (see conventions/).
+- id: pagination
+  conforms: true
+  evidence: seller-agent list operations take limit / offset query parameters (offset pagination); no cursor scheme.
+- id: rfc9457
+  conforms: false
+  evidence: >-
+    Errors are FastAPI-shaped — 422 HTTPValidationError {detail:[{loc,msg,type,input,ctx}]}; OpenDirect
+    1.5.1 declares 400/401/404/500 with no application/problem+json media type.
+- id: tcf
+  conforms: true
+  role: author
+  evidence: >-
+    @iabtechlabtcf/core, cmpapi, stub 1.5.22 (npm, 2026-09-01) implement the Transparency and Consent
+    Framework v2 TC string and __tcfapi CMP API from github.com/InteractiveAdvertisingBureau/iabtcf-es.
+- id: gpp
+  conforms: true
+  role: author
+  evidence: >-
+    @iabgpp/cmpapi 3.2.0 (npm, 2026-08-03) and com.iabgpp:iabgpp-core 3.2.4 (Maven) implement the Global
+    Privacy Platform string and __gpp CMP API; specification at github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform.

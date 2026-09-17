@@ -1,0 +1,15 @@
+generated: '2026-09-17'
+method: searched
+source: >-
+  https://iabtechlab.github.io/seller-agent/reference/endpoints/, https://iabtechlab.github.io/seller-agent/api/authentication/,
+  openapi/iab-tech-lab-seller-agent-openapi.json and openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml
+  (no 429 response, no X-RateLimit-* / RateLimit-* / Retry-After header declared in any contract), and
+  https://iabtechlab.com/software/iab-tech-lab-supply-chain-api/ (crawl cadence only, no request limits).
+limit_count: 0
+note: >-
+  No published request rate limits. The Supply Chain API tiers are differentiated by data refresh
+  cadence (3 vs 5 crawls per week) rather than request quotas, and its contract is gated behind the
+  Tools Portal login so any per-key limit could not be read. The self-hosted reference agents declare no
+  429 or rate-limit headers.
+headers: []
+limits: []

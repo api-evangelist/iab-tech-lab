@@ -1,0 +1,21 @@
+generated: '2026-09-17'
+method: derived
+source: openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml
+schemes:
+- name: OauthSecurity
+  source: openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml
+  flows:
+  - flow: implicit
+    authorizationUrl: https://opendirect.example.com/connect/authorize
+  description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+scopes:
+- scope: https://opendirect.example.com/scope/example
+  description: Example scope
+  flows:
+  - implicit
+  sources:
+  - openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml
+note: 'The OpenDirect 1.5.1 securityDefinitions is explicitly illustrative (''Example of one of OAuth 2.0 authorization
+  flow''): the one scope, https://opendirect.example.com/scope/example, is a placeholder. OpenDirect leaves the
+  OAuth authorization server and scopes to each implementing seller, so no real scope catalog exists to search for;
+  the seller-agent reference implementation uses static API keys with buyer/operator roles instead (authentication/).'

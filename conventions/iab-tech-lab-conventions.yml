@@ -1,0 +1,96 @@
+generated: '2026-09-17'
+method: searched
+source: >-
+  https://iabtechlab.github.io/seller-agent/api/authentication/ and /api/mcp/, the bookDeal description in
+  openapi/iab-tech-lab-seller-agent-openapi.json, the ?book / ?reserve / ?cancel / ?reset line operations
+  in openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml, and the seller-agent CHANGELOG.
+description: >-
+  Cross-cutting runtime semantics of IAB Tech Lab's published REST contracts. Two surfaces are covered:
+  the OpenDirect 1.5.1 standard (implemented by each seller) and the seller-agent reference
+  implementation (self-hosted). Neither is hosted by IAB Tech Lab.
+base_url: null
+api_style: REST over HTTPS, JSON request and response bodies
+
+authentication:
+  seller_agent:
+    scheme: static API key as Authorization Bearer or X-Api-Key header; anonymous allowed on most buyer-facing reads (public pricing tier)
+    roles: [buyer (tiered data access, no control plane), operator (admin REST + admin MCP tools over HTTP)]
+    bootstrap: first operator key minted out-of-band with `ad-seller create-operator-key`
+    docs: https://iabtechlab.github.io/seller-agent/api/authentication/
+  opendirect:
+    scheme: OAuth 2.0 (flow and scopes left to the implementer; the contract's securityDefinitions is an explicit example)
+  detail: authentication/iab-tech-lab-authentication.yml
+
+idempotency:
+  supported: true
+  coverage: partial
+  scope:
+  - create_deal_api_v1_deals_post
+  - create_quote_api_v1_quotes_post
+  mechanism: required idempotency_key field in the request body (seller-agent "FD-12")
+  conflict_behavior: >-
+    A replay with an already-booked key returns the same Deal without minting a second one (no duplicate
+    side effect); the same rule was extended to POST /api/v1/quotes in 2.4.2.
+  retention: not stated
+  opendirect: no idempotency mechanism is defined in the 1.5.1 contract (booking is asynchronous and state-gated instead)
+  docs: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+
+reversibility:
+  grade: verified
+  na: false
+  surfaces:
+  - write: book or reserve an OpenDirect line (PUT .../lines/{lineId}?book, ?reserve)
+    reversal: 'PUT /accounts/{accountId}/orders/{orderId}/lines/{lineId}?cancel'
+    window: >-
+      "To cancel a line, the line must be in the Reserved, Booked, or InFlight state. If successfully
+      canceled, the line moves to the Canceled state. If the status was InFlight, StateChangedReason is
+      set." A state window, not a time window — once a line has finished delivering it is no longer cancellable.
+    docs: 'openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml (paths./accounts/{accountId}/orders/{orderId}/lines/{lineId}?cancel)'
+  - write: reserve / decline / expire an OpenDirect line
+    reversal: 'PUT /accounts/{accountId}/orders/{orderId}/lines/{lineId}?reset (back to Draft)'
+    window: "To reset a line, the line must be in the Reserved, Declined, or Expired booking state."
+    docs: openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml (paths ...?reset)
+  - write: submit an OpenDirect change request
+    reversal: 'PUT .../changerequest/{changerequestId}?reject (seller) or DELETE .../changerequest/{changerequestId}'
+    window: not stated beyond the pending state
+  - write: book a seller-agent deal (create_deal_api_v1_deals_post)
+    reversal: 'POST /api/v1/deals/{deal_id}/deprecate (sunset with reason) or /migrate (replace with lineage); no cancel endpoint'
+    window: >-
+      per-deal CancellationTerms carried on linear-TV quotes: notice_days, cancellable_pct (0.0-1.0), an
+      optional absolute deadline and force_majeure — the window is data the seller states on each quote,
+      not a fixed policy.
+    docs: openapi/iab-tech-lab-seller-agent-openapi.json (components.schemas.CancellationTerms)
+  note: >-
+    OpenDirect defines the reversal AND the state window in the contract text, which is the basis for the
+    verified grade; the seller-agent deal surface is documented-only (deprecate/migrate exist, the window is
+    per-deal data).
+
+dry_run_mode:
+  supported: partial
+  mechanism: OpenDirect ?reserve holds inventory without booking; seller-agent request_quote / POST /api/v1/quotes issues a non-binding quote before bookDeal commits; POST /products/avails checks availability.
+
+pagination:
+  style: offset
+  request_params: {limit: page size, offset: rows to skip}
+  response_fields: implementation-specific list envelopes (e.g. ProductListResponse)
+  opendirect: list responses return collection objects (Accounts, Orders, Lines ...) without a declared paging scheme
+
+versioning:
+  scheme: URL path (/v1.5.1 basePath in OpenDirect; /api/v1/ prefix in the seller-agent) and date-coded standard releases (OpenRTB 2.6-YYYYMM)
+  detail: lifecycle/iab-tech-lab-lifecycle.yml
+
+error_envelope:
+  seller_agent: 'FastAPI {detail: [{loc, msg, type, input, ctx}]} on 422; structured errors[] on failed proposals since 2.4.0'
+  opendirect: implementer-defined
+  detail: errors/iab-tech-lab-problem-types.yml
+
+rate_limit_signaling:
+  headers: none documented
+  detail: rate-limits/iab-tech-lab-rate-limits.yml
+
+request_tracing:
+  supported: false
+  note: no request-id header documented; the seller-agent logs an audience_plan_id hash at booking as the cross-system dispute anchor
+
+field_expansion:
+  supported: false

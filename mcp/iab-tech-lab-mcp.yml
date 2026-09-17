@@ -1,0 +1,337 @@
+generated: '2026-09-17'
+method: searched
+status: published
+source: https://iabtechlab.github.io/seller-agent/api/mcp/ (transport + auth), https://iabtechlab.github.io/seller-agent/reference/mcp-tools/
+  (46 tools), https://github.com/InteractiveAdvertisingBureau/mcp-config (OpenDirect MCP schema with published inputSchemas),
+  https://github.com/IABTechLab/agentic-real-time-framework/blob/main/docs/01-MCP.md
+description: 'IAB Tech Lab publishes three MCP servers, all as open-source reference implementations that an operator
+  runs on their own host — none is hosted by IAB Tech Lab, so no agent can reach them without a human deploying
+  one first. (1) seller-agent: the primary interface of the publisher-side agent, 46 tools over Streamable HTTP
+  at /mcp/ (protocol 2025-06-18) or local stdio, legacy HTTP+SSE at /mcp-sse/sse. (2) mcp-config: OpenDirect v2.1
+  MCP with 33 schema-generated CRUD tools whose inputSchemas are published verbatim in opendirect-mcp-schema.json
+  (saved here as iab-tech-lab-opendirect-mcp-tools.json), served over SSE at localhost:3000/schema/mcp/sse. (3)
+  agentic-real-time-framework: the RTBExtensionPoint gRPC service re-exposed as one MCP tool, "Extend RTB", on :50052
+  (Streamable HTTP).'
+deployment:
+  mode: local-stdio
+  endpoint: null
+  install: git clone https://github.com/IABTechLab/seller-agent && cd seller-agent && uv sync --locked && uv run
+    uvicorn ad_seller.interfaces.api.main:app --port 8000
+  package: https://github.com/IABTechLab/seller-agent
+  auth: api-key
+  verified: searched
+  note: 'Self-hosted. The seller-agent MCP is reached at http://localhost:8000/mcp/ (Streamable HTTP, trailing slash
+    required) or over stdio once the operator runs it; the docs use https://your-server.example.com/mcp/ as the
+    placeholder for a deployed instance. Operator API key (Authorization: Bearer or X-Api-Key) gates admin tools
+    over HTTP; stdio is trusted like the CLI. No IAB Tech Lab-hosted endpoint exists, so mode is local: a human
+    must install and run it before any agent sees it.'
+servers:
+- name: seller-agent
+  repository: https://github.com/IABTechLab/seller-agent
+  docs: https://iabtechlab.github.io/seller-agent/api/mcp/
+  transport:
+  - streamable-http (/mcp/, protocol 2025-06-18)
+  - stdio
+  - http+sse (/mcp-sse/sse, protocol 2024-11-05, deprecated)
+  protocol_version: '2025-06-18'
+  tool_count: 46
+  auth: operator API key over HTTP (Bearer or X-Api-Key); anonymous = public tier; stdio trusted
+  clients_documented:
+  - Claude Desktop/Web
+  - ChatGPT
+  - Codex
+  - Cursor
+  version: v2.4.2 (2026-08-18)
+- name: opendirect-mcp-server
+  repository: https://github.com/InteractiveAdvertisingBureau/mcp-config
+  transport:
+  - http+sse (localhost:3000/schema/mcp/sse, /agenticdirect/mcp/sse, /mcp/sse)
+  tool_count: 33
+  schema_file: mcp/iab-tech-lab-opendirect-mcp-tools.json
+  spec: OpenDirect v2.1 Final
+  version: 2.1.0
+  auth: none documented (local)
+  note: Also 10 hand-written OpenDirect tools and 8 API-testing tools per the README; only the 33 schema-driven
+    tools have published inputSchemas.
+- name: agentic-rtb-framework
+  repository: https://github.com/IABTechLab/agentic-real-time-framework
+  docs: https://github.com/IABTechLab/agentic-real-time-framework/blob/main/docs/01-MCP.md
+  transport:
+  - streamable-http (:50052)
+  tool_count: 1
+  tools:
+  - Extend RTB (RTBExtensionPoint.GetMutations)
+  auth: OAuth supported per MCP 2025-06-18 (per docs); not probed
+tool_count: 46
+tools:
+- name: get_setup_status
+  category: setup
+  description: Check what's configured vs missing — triggers setup wizard on first run
+- name: health_check
+  category: setup
+  description: System health — storage, ad server, SSPs
+- name: get_config
+  category: setup
+  description: Current configuration summary (no secrets)
+- name: set_publisher_identity
+  category: setup
+  description: Set publisher name, domain, org ID
+- name: list_agents
+  category: setup
+  description: Show the 3-level agent hierarchy and their roles
+- name: list_products
+  category: inventory
+  description: Browse the product catalog
+- name: list_inventory
+  category: inventory
+  description: List raw inventory from ad server
+- name: sync_inventory
+  category: inventory
+  description: Trigger inventory sync from ad server (GAM or FreeWheel)
+- name: get_sync_status
+  category: inventory
+  description: Check sync scheduler status
+- name: list_packages
+  category: media-kit
+  description: Browse media kit packages
+- name: create_package
+  category: media-kit
+  description: Create a curated package
+- name: get_rate_card
+  category: pricing
+  description: Current rate card (base CPMs by inventory type)
+- name: update_rate_card
+  category: pricing
+  description: Update rate card entries
+- name: get_pricing
+  category: pricing
+  description: Calculate tiered price for a product with buyer context
+- name: request_quote
+  category: deals
+  description: Request a non-binding price quote
+- name: create_deal_from_template
+  category: deals
+  description: One-step deal creation (no quote needed)
+- name: create_curated_deal
+  category: deals
+  description: Deal with curator overlay (base CPM + curator fee)
+- name: push_deal_to_buyers
+  category: deals
+  description: IAB Deals API v1.0 push to buyer endpoints
+- name: distribute_deal_via_ssp
+  category: deals
+  description: Route deal through SSP (PubMatic, Index Exchange)
+- name: get_deal_performance
+  category: deals
+  description: Delivery and performance metrics
+- name: get_deal_lineage
+  category: deals
+  description: Lineage chain for a deal — parents and replacements
+- name: migrate_deal
+  category: deals
+  description: Replace an existing deal with a new one; creates lineage tracking
+- name: deprecate_deal
+  category: deals
+  description: Mark a deal as deprecated with reason and optional replacement
+- name: export_deals
+  category: deals
+  description: Export deals in DSP-native format (generic, ttd, dv360, amazon, xandr)
+- name: bulk_deal_operations
+  category: deals
+  description: Process multiple deal operations in one batch
+- name: troubleshoot_deal
+  category: deals
+  description: Diagnose deal performance issues via SSP diagnostics
+- name: list_orders
+  category: orders
+  description: List orders and their current states
+- name: transition_order
+  category: orders
+  description: Transition an order to a new state (draft→approved→delivering)
+- name: get_inbound_queue
+  category: approvals
+  description: 'Everything waiting for publisher action: pending approvals, unresolved items'
+- name: list_pending_approvals
+  category: approvals
+  description: Pending approval requests waiting for a human decision
+- name: approve_or_reject
+  category: approvals
+  description: 'Submit an approval decision: approve, reject, or counter'
+- name: set_approval_gates
+  category: approvals
+  description: Configure approval gates (required_flows)
+- name: list_configurable_flows
+  category: approvals
+  description: 'Introspect automation config: approval gates, guard conditions'
+- name: list_sessions
+  category: sessions
+  description: Active buyer conversation sessions
+- name: get_buyer_activity
+  category: sessions
+  description: 'Buyer agent engagement: who accessed inventory, initiated deals'
+- name: list_buyer_agents
+  category: registry
+  description: Registered buyer agents and their trust levels
+- name: register_buyer_agent
+  category: registry
+  description: Discover and register a buyer agent by URL
+- name: set_agent_trust
+  category: registry
+  description: Set trust level for a buyer agent
+- name: list_curators
+  category: registry
+  description: Registered curators
+- name: list_ssps
+  category: registry
+  description: Configured SSP connectors and routing rules
+- name: list_gam_orders
+  category: ad-server
+  description: List orders from Google Ad Manager
+- name: get_gam_delivery_report
+  category: ad-server
+  description: Pull a delivery report from Google Ad Manager
+- name: get_supply_chain
+  category: supply-chain
+  description: Seller's supply chain transparency info (sellers.json format)
+- name: create_api_key
+  category: auth
+  description: Create a buyer API key (operator auth required over HTTP)
+- name: list_api_keys
+  category: auth
+  description: List active API keys
+- name: revoke_api_key
+  category: auth
+  description: Revoke an API key
+opendirect_tools:
+- name: create_account
+  category: account
+  description: Create a new Account. Defines a buyer-advertiser relationship for managing orders
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: update_account
+  category: account
+  description: Update an existing Account
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: get_account
+  category: account
+  description: Get a specific Account by ID
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: list_accounts
+  category: account
+  description: List all Accounts
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: create_order
+  category: order
+  description: Create a new Order. Specifies campaign plan with dates, budget, and currency for all line items
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: update_order
+  category: order
+  description: Update an existing Order
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: get_order
+  category: order
+  description: Get a specific Order by ID
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: list_orders
+  category: order
+  description: List all Orders
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: create_line
+  category: line
+  description: Create a new Line. Line items providing details about products being booked
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: update_line
+  category: line
+  description: Update an existing Line
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: get_line
+  category: line
+  description: Get a specific Line by ID
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: list_lines
+  category: line
+  description: List all Lines
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: create_creative
+  category: creative
+  description: Create a new Creative. Ad creative to be displayed for order lines
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: update_creative
+  category: creative
+  description: Update an existing Creative
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: get_creative
+  category: creative
+  description: Get a specific Creative by ID
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: list_creatives
+  category: creative
+  description: List all Creatives
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: create_assignment
+  category: assignment
+  description: Create a new Assignment. Associates a creative with an order line
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: delete_assignment
+  category: assignment
+  description: Delete a Assignment
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: get_assignment
+  category: assignment
+  description: Get a specific Assignment by ID
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: list_assignments
+  category: assignment
+  description: List all Assignments
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: create_organization
+  category: organization
+  description: Create a new Organization. Represents an advertiser, agency, or publisher
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: update_organization
+  category: organization
+  description: Update an existing Organization
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: get_organization
+  category: organization
+  description: Get a specific Organization by ID
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: list_organizations
+  category: organization
+  description: List all Organizations
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: get_product
+  category: product
+  description: Get a specific Product by ID
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: list_products
+  category: product
+  description: List all Products
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: search_products
+  category: products
+  description: Search Products
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: create_changerequest
+  category: changerequest
+  description: Create a new ChangeRequest. Request to modify an existing order
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: get_changerequest
+  category: changerequest
+  description: Get a specific ChangeRequest by ID
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: list_changerequests
+  category: changerequest
+  description: List all ChangeRequests
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: create_message
+  category: message
+  description: Create a new Message. Communication between buyer and seller
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: get_message
+  category: message
+  description: Get a specific Message by ID
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)
+- name: list_messages
+  category: message
+  description: List all Messages
+  inputSchema: published (see mcp/iab-tech-lab-opendirect-mcp-tools.json)

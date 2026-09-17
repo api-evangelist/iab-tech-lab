@@ -1,0 +1,71 @@
+generated: '2026-09-17'
+method: probed
+description: >-
+  Results of probing the /.well-known/ discovery surface (plus /llms.txt and the A2A agent-card paths)
+  on every host the record knows: the registrable domain and www, the Tools Portal, the Core API host
+  and its coreapi alias, the Transparency Center host, and the GitHub Pages docs host. No host served a
+  real document. tools.iabtechlab.com is a React SPA whose catch-all answers 200 with the same
+  11,490-byte text/html shell for every path, so its 200s are recorded as not-a-document; the Core API
+  hosts 302 every unauthenticated path to /login. No WellKnown/SecurityTxt pointer is emitted.
+hosts:
+- host: https://iabtechlab.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /llms.txt
+    status: 404
+- host: https://www.iabtechlab.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+    note: www redirects to the apex host; same WordPress 404 page.
+- host: https://tools.iabtechlab.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    type: text/html
+    note: SPA catch-all shell (11,490 bytes of HTML), not a security.txt — treated as a miss.
+  - path: /.well-known/agent-card.json
+    status: 200
+    type: text/html
+    note: SPA catch-all shell, not an agent card — treated as a miss.
+- host: https://api.iabtechlab.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 302
+    note: redirects to /login
+  - path: /.well-known/agent-card.json
+    status: 302
+    note: redirects to /login
+  - path: /openapi.json
+    status: 302
+    note: redirects to /login; /health answers 200 {"status":"ok","db":"connected"}
+- host: https://coreapi.iabtechlab.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 302
+    note: redirects to /login
+  - path: /.well-known/openid-configuration
+    status: 302
+    note: redirects to /login
+  - path: /.well-known/agent-card.json
+    status: 302
+    note: redirects to /login
+- host: https://transparencycenter.iabtechlab.com
+  documents:
+  - path: /
+    status: 200
+    type: text/html
+    note: 615-byte landing shell only; no well-known documents probed further because the host carries no content.

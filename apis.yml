@@ -1,20 +1,371 @@
 aid: iab-tech-lab
 name: IAB Tech Lab
-description: 'IAB Tech Lab is a company surfaced via the API Evangelist harvest backlog (source: operator-attribution)
-  and added to the network as a stub for full-pipeline profiling.'
+description: 'IAB Technology Laboratory (IAB Tech Lab) is the non-profit consortium that writes the technical standards
+  the digital advertising supply chain runs on — OpenRTB (real-time bidding), AdCOM, OpenDirect (programmatic direct),
+  VAST and VMAP (video ad serving), the Transparency and Consent Framework and Global Privacy Platform (consent
+  signals), ads.txt, app-ads.txt and sellers.json (supply-chain transparency), the Open Measurement SDK and the
+  content/audience/ad-product taxonomies. Its machine-readable contracts are published in the open on GitHub: an
+  OpenRTB 2.x Protocol Buffers definition, the AdCOM protobuf, an OpenDirect Swagger specification, VAST XSDs, and
+  an agentic-advertising stack (buyer-agent, seller-agent, Deals API, Agentic RTB Framework gRPC) that ships OpenAPI
+  3.1 contracts, JSON Schema primitives, MCP servers and A2A agent cards as reference implementations. The Tech
+  Lab Tools Portal and its Core API sit behind a member login.'
 url: https://raw.githubusercontent.com/api-evangelist/iab-tech-lab/refs/heads/main/apis.yml
+image: https://iabtechlab.com/wp-content/uploads/2017/08/IABTL_Logo_512.png
 x-type: company
 x-source: harvest:operator-attribution
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment-local-v3
 specificationVersion: '0.20'
 created: '2026-09-17'
 modified: '2026-09-17'
 tags:
 - Company
-apis: []
+- Advertising
+- Ad Tech
+- Standards
+- Programmatic
+- Real-Time Bidding
+- Consent
+- Privacy
+- Video Ads
+- Agentic Advertising
+- Non-Profit
+apis:
+- aid: iab-tech-lab:opendirect-api
+  name: OpenDirect API
+  description: 'OpenDirect is IAB Tech Lab''s standard REST API for programmatic direct (guaranteed) media buying:
+    organizations, accounts, products, orders, lines, creatives, assignments, change requests and messages exchanged
+    between buyer and seller systems. The 1.5.1 Swagger 2.0 contract is published verbatim; OpenDirect 2.1 is published
+    as prose plus an MCP tool catalog (33 tools) in the mcp-config reference implementation. There is no IAB Tech
+    Lab-hosted instance — every seller hosts its own endpoint, which is why the contract''s host is a placeholder.'
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  x-base-url-note: No hosted base URL. The specification names host opendirect.example.com (1.5.1) and https://opendirect.example.com/v2.1
+    (2.1) as placeholders; each implementing seller publishes its own.
+  tags:
+  - Programmatic Direct
+  - Media Buying
+  - Orders
+  properties:
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml
+  - type: MCPServer
+    url: mcp/iab-tech-lab-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Overlay
+    url: overlays/iab-tech-lab-opendirect-1-5-1-overlay.yaml
+  - type: AgentSkill
+    url: skills/iab-tech-lab-opendirect-book-line.md
+- aid: iab-tech-lab:agentic-advertising-api
+  name: IAB Agentic Advertising API
+  description: The canonical wire protocol between IAB Tech Lab's buyer and seller agents, published from the iab-agentic-primitives
+    repository as an OpenAPI 3.1 document (catalog, quote-to-book deal flow, negotiation, change requests, A2A JSON-RPC
+    messaging and Agent Card discovery) plus sixteen JSON Schema primitives (Account, Agent, Deal, Line, MediaKit,
+    Negotiation, Order, Product, Proposal and others). Pre-release (0.1.0 / v0.5.1 tag) ahead of a 1.0 IAB Tech
+    Lab standardization.
+  humanURL: https://github.com/IABTechLab/iab-agentic-primitives
+  x-base-url-note: No hosted base URL; the spec declares no servers[] and is implemented by each seller agent.
+  tags:
+  - Agentic Advertising
+  - Deals
+  - Negotiation
+  properties:
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-agentic-advertising-api-openapi.yaml
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Overlay
+    url: overlays/iab-tech-lab-agentic-advertising-api-overlay.yaml
+- aid: iab-tech-lab:seller-agent-api
+  name: Seller Agent API
+  description: 'IAB Tech Lab''s reference seller agent for publishers: an OpenAPI 3.1 REST surface (87 operations
+    — products and avails, tiered pricing, quotes, deal booking, negotiation, change requests, orders, packages,
+    curators, SSP distribution, GAM/FreeWheel inventory sync, operator API keys), an MCP server with 46 tools at
+    /mcp/ (Streamable HTTP) or stdio, and an A2A agent card at /.well-known/agent.json. Self-hosted by each publisher;
+    IAB Tech Lab publishes the code and docs, not a hosted instance.'
+  humanURL: https://iabtechlab.github.io/seller-agent/
+  x-base-url-note: Self-hosted (uvicorn on the publisher's own host); docs use http://localhost:8000 and https://your-server.example.com
+    as placeholders. No IAB Tech Lab-hosted instance was found.
+  tags:
+  - Agentic Advertising
+  - Publishers
+  - Deals
+  - MCP
+  properties:
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-seller-agent-openapi.json
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: Overlay
+    url: overlays/iab-tech-lab-seller-agent-overlay.yaml
+  - type: MCPServer
+    url: mcp/iab-tech-lab-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: AgentSkill
+    url: skills/iab-tech-lab-quote-to-book-deal.md
+  - type: AgentSkill
+    url: skills/iab-tech-lab-negotiate-deal.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+- aid: iab-tech-lab:buyer-agent-api
+  name: Buyer Agent API
+  description: 'IAB Tech Lab''s reference buyer agent for DSPs, agencies and advertisers: an OpenAPI 3.1 REST surface
+    (14 operations — orders and audit trails, booking jobs and approvals, product search, events, reports and campaign
+    metadata) that drives MCP, A2A and REST clients against seller agents to browse media kits, negotiate and book
+    OpenDirect 2.1 deals. Self-hosted; no IAB Tech Lab-hosted instance.'
+  humanURL: https://iabtechlab.github.io/buyer-agent/
+  x-base-url-note: Self-hosted; the spec declares no servers[]. No IAB Tech Lab-hosted instance was found.
+  tags:
+  - Agentic Advertising
+  - Media Buying
+  - Deals
+  properties:
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-buyer-agent-openapi.json
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+  - type: Overlay
+    url: overlays/iab-tech-lab-buyer-agent-overlay.yaml
+- aid: iab-tech-lab:openrtb
+  name: OpenRTB 2.x Protocol
+  description: OpenRTB is the real-time bidding protocol between ad exchanges and bidders. IAB Tech Lab publishes
+    the 2.x specification (current release 2.6-202606) with a Protocol Buffers definition (package com.iabtechlab.openrtb.v2,
+    69 messages) that is maintained in lockstep with the specification and is the standard binary encoding for OpenRTB.
+  humanURL: https://iabtechlab.com/standards/openrtb/
+  x-base-url-note: A protocol, not a hosted endpoint — every exchange and bidder pair runs its own OpenRTB bid request/response
+    exchange.
+  tags:
+  - Real-Time Bidding
+  - Programmatic
+  - Protocol Buffers
+  properties:
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/openrtb2.x
+  - type: Protobuf
+    url: grpc/iab-tech-lab-openrtb-v2.proto
+  - type: ChangeLog
+    url: https://github.com/InteractiveAdvertisingBureau/openrtb2.x/releases
+  - type: Protobuf
+    url: grpc/iab-tech-lab-grpc-index.yml
+- aid: iab-tech-lab:adcom
+  name: AdCOM Protobuf
+  description: Advertising Common Object Model (AdCOM) 1.0 is the shared object layer beneath OpenRTB 3.0, OpenDirect
+    and the Ad Management API — media (ads, assets), placement, context (site, app, user, device, geo) and the standard
+    enumerations. Published as five Protocol Buffers files under package com.iabtechlab.adcom.v1 in the IABTechLab/adcom-proto
+    repository.
+  humanURL: https://github.com/IABTechLab/adcom-proto
+  x-base-url-note: A data model, not a hosted endpoint.
+  tags:
+  - Data Model
+  - Protocol Buffers
+  properties:
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/AdCOM
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-adcom.proto
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-media.proto
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-placement.proto
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-context.proto
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-enums.proto
+- aid: iab-tech-lab:agentic-rtb-framework
+  name: Agentic RTB Framework gRPC
+  description: The Agentic Real-Time Framework (ARTF) 1.0 defines gRPC extension points an exchange calls during
+    an auction so that agents can mutate the bidstream. The RTBExtensionPoint service (package com.iabtechlab.bidstream.mutation.services.v1)
+    exposes a GetMutations RPC over OpenRTB 2.6 messages; the reference implementation also exposes the same service
+    as an MCP "Extend RTB" tool over Streamable HTTP. Published as proto3 files with a Rust reference implementation.
+  humanURL: https://github.com/IABTechLab/agentic-real-time-framework
+  x-base-url-note: Self-hosted gRPC (reference implementation listens on :50051); no hosted endpoint.
+  tags:
+  - Real-Time Bidding
+  - gRPC
+  - Agentic Advertising
+  properties:
+  - type: Documentation
+    url: https://github.com/IABTechLab/agentic-real-time-framework/blob/main/Agentic_Real_Time_Framework_Version_1_0_FINAL.md
+  - type: Protobuf
+    url: grpc/agentic-rtb-framework/iab-tech-lab-agenticrtbframeworkservices.proto
+  - type: Protobuf
+    url: grpc/agentic-rtb-framework/iab-tech-lab-agenticrtbframework.proto
+- aid: iab-tech-lab:vast
+  name: VAST and VMAP Schemas
+  description: Video Ad Serving Template (VAST) is the XML contract between video players and ad servers; VMAP (Video
+    Multiple Ad Playlist) schedules ad breaks around content. IAB Tech Lab publishes XML Schema definitions for
+    VAST 4.1, 4.2 and 4.4 and VMAP 1.0 in its GitHub repositories (the vast_4.3.xsd file in the repository is empty
+    upstream).
+  humanURL: https://iabtechlab.com/standards/vast/
+  x-base-url-note: An XML document format exchanged between players and ad servers, not a hosted endpoint.
+  tags:
+  - Video Ads
+  - XML
+  properties:
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/VAST
+  - type: XMLSchema
+    url: xsd/iab-tech-lab-vast-4.4.xsd
+  - type: XMLSchema
+    url: xsd/iab-tech-lab-vast-4.2.xsd
+  - type: XMLSchema
+    url: xsd/iab-tech-lab-vast-4.1.xsd
+  - type: XMLSchema
+    url: xsd/iab-tech-lab-vmap-1.0.xsd
+- aid: iab-tech-lab:supply-chain-api
+  name: Supply Chain API
+  description: 'IAB Tech Lab''s hosted, subscription API for aggregated supply-chain data: crawled and validated
+    ads.txt, app-ads.txt and sellers.json files, plus the Transparency Center''s compliance and identifier registries
+    (OM SDK and podcast compliance, MSPA signatory IDs, SKAdNetwork IDs, GPP data). Access is provisioned through
+    the Tech Lab Tools Portal (tools.iabtechlab.com, free login) at /transparencycenter/apiAccess/all; the backing
+    host api.iabtechlab.com (alias coreapi.iabtechlab.com) identifies itself as ''IAB Tech Lab Core API'' and answers
+    /health, but /docs, /docs/oauth and /openapi.json all 302 to /login, so the contract is gated behind a subscription.
+    Basic tier is $2,500/yr for members and $4,500/yr for non-members; API+ adds $2,500/yr.'
+  humanURL: https://iabtechlab.com/software/iab-tech-lab-supply-chain-api/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Supply Chain
+  - ads.txt
+  - sellers.json
+  - Transparency
+  - Compliance
+  properties:
+  - type: Documentation
+    url: https://iabtechlab.com/software/transparency-center/
+  - type: Pricing
+    url: https://iabtechlab.com/software/iab-tech-lab-supply-chain-api/
+  - type: SignUp
+    url: https://tools.iabtechlab.com/
+  - type: Portal
+    url: https://tools.iabtechlab.com/
+  - type: Plans
+    url: plans/iab-tech-lab-plans-pricing.yml
+  x-base-url-note: api.iabtechlab.com is the host the Tools Portal SDK (iabtechlab-sdk_v1.7.3.js) calls and the
+    one that names itself IAB Tech Lab Core API; coreapi.iabtechlab.com serves the identical page. The contract
+    behind /docs is gated (302 -> /login).
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+common:
+- type: DomainSecurity
+  url: security/iab-tech-lab-domain-security.yml
+- type: OAuthScopes
+  url: scopes/iab-tech-lab-scopes.yml
+- type: Authentication
+  url: authentication/iab-tech-lab-authentication.yml
+- type: Website
+  url: https://iabtechlab.com/
+- type: Documentation
+  url: https://iabtechlab.com/standards/
+- type: GitHubOrganization
+  url: https://github.com/IABTechLab
+- type: GitHubOrganization
+  url: https://github.com/InteractiveAdvertisingBureau
+- type: Blog
+  url: https://iabtechlab.com/category/blog/
+- type: BlogRSS
+  url: https://iabtechlab.com/feed/
+- type: Support
+  url: https://iabtechlab.com/contact-us/
+- type: TermsOfService
+  url: https://iabtechlab.com/terms-of-use/
+- type: PrivacyPolicy
+  url: https://iabtechlab.com/privacy-policy/
+- type: Pricing
+  url: https://iabtechlab.com/membership/
+- type: Login
+  url: https://tools.iabtechlab.com/
+- type: Portal
+  url: https://tools.iabtechlab.com/
+- type: Software
+  url: https://iabtechlab.com/software/
+- type: Events
+  url: https://iabtechlab.com/events/
+- type: PressReleases
+  url: https://iabtechlab.com/press-releases/
+- type: Packages
+  url: packages/iab-tech-lab-packages.yml
+- type: SDKs
+  url: packages/iab-tech-lab-packages.yml
+- type: MCPServer
+  url: mcp/iab-tech-lab-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/iab-tech-lab-tool-crosswalk.yml
+- type: LLMsTxt
+  url: llms/iab-tech-lab-llms.txt
+- type: Conformance
+  url: conformance/iab-tech-lab-conformance.yml
+- type: ErrorCatalog
+  url: errors/iab-tech-lab-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/iab-tech-lab-lifecycle.yml
+- type: Conventions
+  url: conventions/iab-tech-lab-conventions.yml
+- type: Idempotency
+  url: conventions/iab-tech-lab-conventions.yml
+- type: ChangeLog
+  url: changelog/iab-tech-lab-changelog.yml
+- type: CLI
+  url: cli/iab-tech-lab-cli.yml
+- type: DataModel
+  url: data-model/iab-tech-lab-data-model.yml
+- type: Plans
+  url: plans/iab-tech-lab-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/iab-tech-lab-rate-limits.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Protobuf
+  url: grpc/iab-tech-lab-openrtb-v2.proto
+x-enrichment:
+  date: '2026-09-17'
+  status: enriched
+  artifacts_added: 66
+  pass: local-v3

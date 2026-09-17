@@ -1,0 +1,56 @@
+generated: '2026-09-17'
+method: searched
+source: openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml (securityDefinitions) upgraded with https://iabtechlab.github.io/seller-agent/api/authentication/ and https://iabtechlab.github.io/seller-agent/api/mcp/
+docs: https://iabtechlab.github.io/seller-agent/api/authentication/
+summary:
+  types:
+  - apiKey
+  - http-bearer
+  - oauth2
+  oauth2_flows:
+  - implicit (illustrative example in the OpenDirect contract)
+schemes:
+- name: seller-agent bearer
+  type: http
+  scheme: bearer
+  header: 'Authorization: Bearer <api_key>'
+  description: Static API key presented as a bearer token; accepted on any endpoint. Anonymous requests are allowed on most buyer-facing reads and receive public-tier data only.
+  roles:
+  - buyer — tiered data access (seat / agency / advertiser pricing), no control-plane rights
+  - operator — required for admin REST routes and admin MCP tools over HTTP (anonymous -> 401, buyer key -> 403)
+  bootstrap: 'first operator key minted out-of-band with `ad-seller create-operator-key` (printed once); later keys via POST /auth/api-keys with an operator credential'
+  sources:
+  - https://iabtechlab.github.io/seller-agent/api/authentication/
+  - openapi/iab-tech-lab-seller-agent-openapi.json (Authentication tag: /auth/api-keys)
+- name: seller-agent X-Api-Key
+  type: apiKey
+  in: header
+  header: X-Api-Key
+  description: Same keys and roles as the bearer form; when both headers are present whichever is found first is validated.
+  sources:
+  - https://iabtechlab.github.io/seller-agent/api/authentication/
+- name: seller-agent MCP stdio
+  type: none
+  description: Local stdio MCP access is trusted like the CLI and requires no header; HTTP MCP transports use the bearer / X-Api-Key operator key for admin tools.
+  sources:
+  - https://iabtechlab.github.io/seller-agent/api/mcp/
+- name: OauthSecurity
+  type: oauth2
+  flows:
+  - flow: implicit
+    authorizationUrl: https://opendirect.example.com/connect/authorize
+    scopes: 1
+  description: >-
+    "Example of one of OAuth 2.0 authorization flow that can be used according to specification." The
+    OpenDirect 1.5.1 contract leaves the authorization server, flow and scopes to each implementing seller.
+  sources:
+  - openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- name: Supply Chain API (gated)
+  type: unknown
+  description: api.iabtechlab.com advertises /docs/oauth behind /login; the mechanism could not be read without a subscription.
+  sources:
+  - https://api.iabtechlab.com/ (nav link /docs/oauth -> 302 /login)
+note: >-
+  The securitySchemes block of the seller-agent OpenAPI is empty — the auth described above comes from the
+  provider's documentation, not the contract. The seller-agent additionally performs OAuth 2.1 PKCE
+  against FreeWheel (ad-server side, `ad-seller freewheel-login`), which is outbound and not part of its own API.

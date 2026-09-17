@@ -1,0 +1,43 @@
+generated: '2026-09-17'
+method: searched
+source: >-
+  https://github.com/InteractiveAdvertisingBureau/openrtb2.x (README versioning policy + releases),
+  https://github.com/IABTechLab/iab-agentic-primitives (README versioning policy),
+  https://iabtechlab.github.io/seller-agent/api/mcp/ (transport deprecation), seller-agent CHANGELOG.
+versioning:
+  openrtb:
+    scheme: major.minor-YYYYMM date code (e.g. 2.6-202606); version number increments only on breaking changes since 2.6-202211
+    current: 2.6-202606 (released 2026-06-11)
+    cadence: non-breaking updates roughly monthly; each release paired with a git tag "2.6-YYYYMM"
+    policy_url: https://github.com/InteractiveAdvertisingBureau/openrtb2.x#versioning-policy
+  adcom:
+    scheme: 1.0-YYYYMM
+    current: AdCOM1.0-202607 (2026-07-16)
+  opendirect:
+    current: 2.1 (OpenDirect.v2.1.final.md); 1.5.1 is the last version with a Swagger contract
+  vast:
+    current: VAST 4.3 (schemas/ directory) with XSDs published for 4.1, 4.2 and 4.4
+  agentic_primitives:
+    scheme: semver; a breaking schema change (any golden fixture or wire-shape change) is a major bump; agents pin a compatible range
+    current: v0.5.1 (2026-08-10), pre-release ahead of 1.0 standardization
+  seller_agent:
+    scheme: semver, tagged GitHub releases, Keep-a-Changelog CHANGELOG.md
+    current: v2.4.2 (2026-08-18)
+deprecations:
+- surface: seller-agent MCP HTTP+SSE transport (/mcp-sse/sse, protocol 2024-11-05)
+  status: deprecated, kept for backwards compatibility
+  replacement: /mcp/ Streamable HTTP (protocol 2025-06-18)
+  source: https://iabtechlab.github.io/seller-agent/api/mcp/
+- surface: seller-agent admin routes without operator credentials
+  status: breaking change in 2.4.0 (2026-08-04) — API key lifecycle, event log, rate-card writes, registry and package mutations now require an operator key
+  source: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+- surface: OpenRTB 2.x community extension deprecation labels
+  status: extensions carry an explicit deprecation test label process (extensions/community_extensions/deprecation_test_label.md)
+  source: https://github.com/InteractiveAdvertisingBureau/openrtb/tree/main/extensions/community_extensions
+deprecated_operations: []
+deprecation_policy: >-
+  No single published deprecation or sunset policy (no Sunset / Deprecation headers documented). Standards
+  evolve through working groups with public-comment periods; OpenRTB's README states versions increment only
+  on breaking changes, and the primitives README makes any wire-shape change a major bump.
+status_page: null
+sla: null

@@ -1,0 +1,53 @@
+generated: '2026-09-17'
+method: derived
+source: >-
+  Derived from the 4xx/5xx responses declared in openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml
+  (400 x26, 401 x51, 404 x43, 500 x51 across 51 operations) and
+  openapi/iab-tech-lab-seller-agent-openapi.json (422 HTTPValidationError on 76 of 87 operations), plus
+  the seller-agent authentication page (401/403 rules) and CHANGELOG (409 on repeat migration).
+format: json
+note: >-
+  Neither contract uses application/problem+json (RFC 9457). OpenDirect leaves the error body to the
+  implementer; the seller-agent uses FastAPI's {detail: [...]} envelope and, since 2.4.0, structured
+  errors[] on failed proposals.
+envelope:
+  seller_agent: '{"detail": [{"loc": [...], "msg": "...", "type": "...", "input": ..., "ctx": {...}}]}'
+  opendirect: implementer-defined (schema not declared in the 1.5.1 contract)
+problem_types:
+- status: 400
+  title: Bad Request
+  surface: opendirect
+  operations: 26
+  remediation: Validate required fields and enumerations (AdFormatType, RateType, DeliveryType ...) against the definitions block before retrying.
+- status: 401
+  title: Unauthorized
+  surface: opendirect, seller-agent
+  operations: 51
+  remediation: >-
+    OpenDirect: obtain a token from the seller's OAuth 2.0 authorization server. seller-agent: send
+    Authorization: Bearer <api_key> or X-Api-Key; anonymous callers get public-tier reads only and 401 on
+    operator routes.
+- status: 403
+  title: Forbidden
+  surface: seller-agent
+  remediation: A buyer-role key hit an operator-only route (API keys, rate card writes, inventory sync, deal push/distribute, GAM reports). Use an operator key minted with `ad-seller create-operator-key`.
+- status: 404
+  title: Not Found
+  surface: opendirect
+  operations: 43
+  remediation: The accountId / orderId / lineId / creativeId path segment does not exist under this account.
+- status: 409
+  title: Conflict
+  surface: seller-agent
+  remediation: Migrating an already-migrated deal returns 409 (CHANGELOG 2.4.2); follow get_deal_lineage to the replacement deal instead.
+- status: 422
+  title: Unprocessable Entity (validation error)
+  surface: seller-agent
+  operations: 76
+  schema: HTTPValidationError
+  remediation: Read detail[].loc for the failing field and detail[].msg for the rule; fix the body or query parameter and resend.
+- status: 500
+  title: Internal Server Error
+  surface: opendirect
+  operations: 51
+  remediation: Retry with backoff; OpenDirect booking and reservation are asynchronous, so re-read the line state before re-issuing ?book or ?reserve.

@@ -1,0 +1,52 @@
+generated: '2026-09-17'
+method: searched
+source: >-
+  https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md (Keep-a-Changelog, dated) and the
+  GitHub releases of openrtb2.x and AdCOM (https://github.com/InteractiveAdvertisingBureau/openrtb2.x/releases).
+scheme: semver (seller-agent / buyer-agent / iab-agentic-primitives) and date-coded standard releases (OpenRTB 2.6-YYYYMM, AdCOM 1.0-YYYYMM)
+current_version:
+  seller_agent: 2.4.2
+  buyer_agent: 2.4.2
+  iab_agentic_primitives: 0.5.1
+  openrtb: 2.6-202606
+  adcom: 1.0-202607
+entries:
+- version: seller-agent Unreleased
+  date: null
+  breaking: true
+  highlights:
+  - Booking (POST /api/v1/deals) now requires a verified buyer key matching the quote; the MCP deal-from-template tool is operator-gated
+  - Operator rate card now drives pricing (matching entries override catalog base CPM for quotes, bookings, negotiation anchors)
+  - Internal deal statuses mapped to the shared wire enum on read (confirmed -> booked, deprecated -> cancelled)
+  - API root and /.well-known/agent.json now report the package version instead of a hardcoded literal
+- version: seller-agent 2.4.2
+  date: '2026-08-17'
+  breaking: false
+  highlights:
+  - Operator key CLI management (ad-seller list-operator-keys, delete-operator-key)
+  - FD-12 idempotency now enforced on POST /api/v1/quotes; migrating an already-migrated deal returns 409
+  - Pricing fix - a higher-priority discount-only rule no longer stacks
+  - iab-agentic-primitives pinned to v0.5.1
+- version: seller-agent 2.4.1
+  date: '2026-08-05'
+  breaking: false
+  highlights:
+  - CREW_MEMORY_ENABLED now defaults to false; embedder options documented
+  - README documents the locked uv workflow
+- version: seller-agent 2.4.0
+  date: '2026-08-04'
+  breaking: true
+  highlights:
+  - Admin surface now requires operator credentials (API key lifecycle, event log, rate-card writes, registry and package mutations, inventory sync trigger, deal push/distribution, order transitions, change-request decisions)
+  - Failed proposals report structured errors[]
+  - ANTHROPIC_API_KEY optional at startup
+- version: OpenRTB 2.6-202606
+  date: '2026-06-11'
+  breaking: false
+  highlights:
+  - Monthly non-breaking release of the OpenRTB 2.6 specification and openrtb.proto (previous releases 2.6-202505, 2.6-202501, 2.6-202409)
+- version: AdCOM 1.0-202607
+  date: '2026-07-16'
+  breaking: false
+  highlights:
+  - Monthly non-breaking AdCOM 1.0 release (previous 1.0-202606)

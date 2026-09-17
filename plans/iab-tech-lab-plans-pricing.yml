@@ -1,0 +1,32 @@
+generated: '2026-09-17'
+method: searched
+source: https://iabtechlab.com/software/iab-tech-lab-supply-chain-api/
+currency: USD
+plan_count: 2
+description: >-
+  The only priced API product IAB Tech Lab sells is the Supply Chain API (aggregated ads.txt,
+  app-ads.txt and sellers.json crawls plus Transparency Center registries), provisioned through the
+  Tools Portal after a free login. Every standard, contract, library and reference agent in this profile
+  is free and open source. Membership itself (https://iabtechlab.com/membership/) is priced by tier on
+  request and is not an API plan.
+plans:
+- name: Supply Chain API Basic
+  price: 2500
+  currency: USD
+  billing_period: year
+  audience: IAB Tech Lab members
+  non_member_price: 4500
+  included: Ads.txt, app-ads.txt and sellers.json — 3 crawls per week each; Transparency Center data sets
+  note: Free for Board members (included benefit)
+- name: Supply Chain API+ (Enterprise)
+  price: 2500
+  currency: USD
+  billing_period: year
+  audience: members and non-members, in addition to Basic
+  included: 5 crawls per week for each data set, with daily weekday updates of ads.txt data
+free_tier:
+  name: Transparency Center Data Explorer
+  price: 0
+  note: Free browsing of the same data sets via https://tools.iabtechlab.com/ after registration; no API access.
+signup: https://tools.iabtechlab.com/transparencycenter/apiAccess/all
+contact: techlab@iabtechlab.com

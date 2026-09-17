@@ -1,0 +1,127 @@
+generated: '2026-09-17'
+method: derived
+source: >-
+  Derived from the definitions block and path hierarchy of
+  openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml (44 definitions; every resource is nested under
+  /accounts/{accountId}) and the $ref graph of openapi/iab-tech-lab-seller-agent-openapi.json (91 schemas),
+  cross-checked with the sixteen primitives in json-schema/ and the resource descriptions in
+  mcp/iab-tech-lab-opendirect-mcp-tools.json.
+description: >-
+  Two entity graphs: the OpenDirect programmatic-direct model (organization -> account -> order -> line,
+  with creatives assigned to lines) and the agentic deal model (product -> quote -> deal, with proposals,
+  negotiations and change requests wrapped around it).
+entities:
+- name: Organization
+  surface: opendirect
+  description: An advertiser, agency or publisher (MCP resource opendirect://organizations)
+- name: Account
+  surface: opendirect
+  description: A buyer-advertiser relationship for managing orders
+- name: Order
+  surface: opendirect
+  description: Campaign plan with dates, budget and currency for all line items
+- name: Line
+  surface: opendirect
+  description: Line item booking a Product; states Draft, Reserved, Booked, InFlight, Declined, Expired, Canceled
+- name: Product
+  surface: opendirect, seller-agent
+  description: Catalog item from a single ad placement to Run of Network
+- name: Creative
+  surface: opendirect
+- name: Assignment
+  surface: opendirect
+  description: Associates a creative with an order line
+- name: ChangeRequest
+  surface: opendirect, seller-agent
+- name: Message
+  surface: opendirect 2.x
+  description: Communication between buyer and seller (absent from the 1.5.1 contract)
+- name: Quote
+  surface: seller-agent
+- name: Deal
+  surface: seller-agent
+  description: Booked quote with a Deal ID for DSP activation; carries parent_deal_id lineage on migration
+- name: Proposal
+  surface: seller-agent
+- name: Negotiation
+  surface: seller-agent
+- name: MediaKit
+  surface: seller-agent
+- name: Package
+  surface: seller-agent
+relationships:
+- from: Account
+  to: Organization
+  type: belongs_to
+  via: advertiserid
+- from: Account
+  to: Organization
+  type: belongs_to
+  via: buyerid
+- from: Account
+  to: Order
+  type: has_many
+  via: /accounts/{accountId}/orders
+- from: Order
+  to: Line
+  type: has_many
+  via: /accounts/{accountId}/orders/{orderId}/lines
+- from: Line
+  to: Product
+  type: belongs_to
+  via: productId
+- from: Account
+  to: Creative
+  type: has_many
+  via: /accounts/{accountId}/creatives
+- from: Assignment
+  to: Line
+  type: belongs_to
+  via: lineId
+- from: Assignment
+  to: Creative
+  type: belongs_to
+  via: creativeId
+- from: Account
+  to: ChangeRequest
+  type: has_many
+  via: /accounts/{accountId}/changerequest
+- from: ChangeRequest
+  to: Line
+  type: has_many
+  via: /accounts/{accountId}/changerequest/{changerequestId}/lines
+- from: Quote
+  to: Product
+  type: belongs_to
+  via: ProductRef ($ref in Quote)
+- from: Deal
+  to: Product
+  type: belongs_to
+  via: ProductRef ($ref in Deal)
+- from: Deal
+  to: Quote
+  type: belongs_to
+  via: DealBookingRequest.quote_id
+- from: Deal
+  to: Deal
+  type: belongs_to
+  via: parent_deal_id (lineage after migrate/deprecate)
+- from: Deal
+  to: ConsentContext
+  type: has_one
+  via: $ref ConsentContext
+- from: Deal
+  to: SupplyChain
+  type: has_one
+  via: $ref SupplyChain (sellers.json-shaped)
+- from: NegotiationRound
+  to: Negotiation
+  type: belongs_to
+  via: negotiation_id
+- from: Package
+  to: Product
+  type: has_many
+  via: PackageCreateRequest.product_ids
+id_scheme:
+  opendirect: implementer-issued string ids (accountId, orderId, lineId, creativeId, organizationId, changerequestId)
+  seller_agent: 'deal_id / quote_id / proposal_id / negotiation_id strings; API keys are shown as key-<8 hex> (e.g. key-a1b2c3d4)'

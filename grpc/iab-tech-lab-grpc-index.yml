@@ -1,0 +1,50 @@
+generated: '2026-09-17'
+method: searched
+source: >-
+  https://github.com/InteractiveAdvertisingBureau/openrtb2.x (proto/src/main/com/iabtechlab/openrtb/v2/openrtb.proto, ref main),
+  https://github.com/IABTechLab/adcom-proto (proto/com/iabtechlab/adcom/v1/*.proto, ref main),
+  https://github.com/IABTechLab/agentic-real-time-framework (proto/agenticrtbframework.proto + agenticrtbframeworkservices.proto, ref main) — all fetched 2026-09-17.
+format: edition 2023 (openrtb.proto), proto3 (adcom, ARTF)
+transport: gRPC (ARTF RTBExtensionPoint); OpenRTB and AdCOM are wire-format message definitions used over HTTP or gRPC by implementers
+license: Apache-2.0
+note: >-
+  Copied verbatim; file names carry the iab-tech-lab- prefix. openrtb.proto imports google/protobuf/struct.proto;
+  the ARTF services proto imports the OpenRTB 2.6 messages (the repository vendors a copy under
+  proto/com/iabtechlab/openrtb/v2/). adcom.proto is a 381-byte aggregator that imports the four sub-files.
+summary:
+  files: 8
+  services: 1
+  rpcs: 1
+  messages: 96  # top-level message declarations; nested messages (Media.Ad.Display etc.) not counted
+files:
+- file: iab-tech-lab-openrtb-v2.proto
+  package: com.iabtechlab.openrtb.v2
+  messages: 69
+  services: []
+  note: OpenRTB 2.6-202606; extension ranges reserved 500-max per extensible object
+- file: adcom/iab-tech-lab-adcom-adcom.proto
+  package: com.iabtechlab.adcom.v1
+  messages: 0
+  imports: [context, enums, media, placement]
+- file: adcom/iab-tech-lab-adcom-context.proto
+  package: com.iabtechlab.adcom.v1.context
+  messages: 13
+- file: adcom/iab-tech-lab-adcom-enums.proto
+  package: com.iabtechlab.adcom.v1.enums
+  messages: 1
+- file: adcom/iab-tech-lab-adcom-media.proto
+  package: com.iabtechlab.adcom.v1.media
+  messages: 1
+- file: adcom/iab-tech-lab-adcom-placement.proto
+  package: com.iabtechlab.adcom.v1.placement
+  messages: 1
+- file: agentic-rtb-framework/iab-tech-lab-agenticrtbframework.proto
+  package: com.iabtechlab.bidstream.mutation.v1
+  messages: 11
+- file: agentic-rtb-framework/iab-tech-lab-agenticrtbframeworkservices.proto
+  package: com.iabtechlab.bidstream.mutation.services.v1
+  messages: 0
+  services:
+  - RTBExtensionPoint
+  rpcs:
+  - GetMutations

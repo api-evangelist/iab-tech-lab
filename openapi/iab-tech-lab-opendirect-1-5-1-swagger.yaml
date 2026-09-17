@@ -1,0 +1,2921 @@
+swagger: "2.0"
+
+info:
+  version: 1.5.1
+  title: OpenDirect
+  description: OpenDirect enables publishers to offer premium inventory using a programmatic interface that partners and vendors build according to the OpenDirect specifications.
+
+schemes:
+   - https
+host: opendirect.example.com
+basePath: /v1.5.1
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  OauthSecurity:
+    type: oauth2
+    description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+    flow: implicit
+    authorizationUrl: https://opendirect.example.com/connect/authorize
+    scopes:
+      https://opendirect.example.com/scope/example: Example scope
+
+security:
+  - OauthSecurity:
+    - https://opendirect.example.com/scope/example
+
+paths:
+  # Accounts
+  /accounts:
+    get:
+      tags: ["Accounts"]
+      description: |
+        Gets a list of all accounts.
+        For an advertiser, the list of accounts will include only accounts that they own. However, for an agency, the list of accounts will include the accounts that they own and the accounts that they manage on behalf of advertisers.
+        User should be able to filter the accounts by any of the fields or field values of the owned account. Logical AND/OR condition of the fields shall be allowed.
+      parameters:
+       - $ref: "#/parameters/count"
+       - $ref: "#/parameters/offset"
+       - name: $filter
+         in: query
+         description: |
+          Allows to get a list of accounts that match the specified filter criteria. The user may use OData expressions with the following Account properties:
+          - AdvertiserId
+          - BuyerId
+          May also support getting a list of IDs.
+         type: string
+      responses:
+        200:
+          $ref: "#/responses/AccountsResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags: ["Accounts"]
+      description: |
+        Adds an account.
+        An advertiser or agency may add accounts to only the organization they own; an agency may not add accounts to an advertiser’s organization. If an advertiser wants an agency to manage an account on their behalf, the advertiser must add the account and set the account’s BuyerId to the agency’s organization ID.
+        An organization may add as many accounts as needed to create a buying structure that supports their needs. For example, the organization may create a single account, an account for each region, an account for each brand, and so on.
+      parameters:
+        - name: Account
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Account"
+      responses:
+        201:
+          $ref: "#/responses/AccountResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}:
+    get:
+      tags: ["Accounts"]
+      description: |
+        Gets the specified account.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the accounts that they own. In addition, an agency may get the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+      responses:
+        200:
+          $ref: "#/responses/AccountResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  # Assignments
+  /accounts/{accountId}/assignments:
+    get:
+      tags: ["Assignments"]
+      description: |
+        Gets a list of all assignments that belong to the account.
+        For advertisers, the list will include only assignments that they own. For agencies, the list will include the assignments that they own and the assignments that belong to accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/count"
+        - $ref: "#/parameters/offset"
+        - name: $filter
+          in: query
+          description: |
+            Allows to get a list of assignments that match the specified filter criteria. The caller may use OData expressions with the following Assignment properties:
+            - CreativeId
+            - LineId
+            - StartDate
+            - EndDate
+            The user must have permissions to access the assignment. For example, advertisers and agencies may get assignments that they own. In addition, an agency may get assignments that belong to the accounts that they manage on behalf of advertisers.
+          type: string
+      responses:
+        200:
+          $ref: "#/responses/AssignmentsResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags: ["Assignments"]
+      description: |
+        Adds an assignment to the specified account. To add an assignment, the creative must be approved. An assignment may be added at any time prior to the order finishing its flight.
+        An advertiser or agency may add assignments to accounts that they own. In addition; an agency may add assignments to accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - name: Assignment
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Assignment"
+      responses:
+        201:
+          $ref: "#/responses/AssignmentResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/assignments/{assignmentId}:
+    get:
+      tags: ["Assignments"]
+      description: |
+        Gets the specified assignment.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the assignments that they own. In addition, an agency may get assignments that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/assignmentId"
+      responses:
+        200:
+          $ref: "#/responses/AssignmentResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    put:
+      tags: ["Assignments"]
+      description: |
+        Updates the specified assignment.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may update the assignments that they own. In addition, an agency may update assignments that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/assignmentId"
+      responses:
+        200:
+          $ref: "#/responses/AssignmentResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags: ["Assignments"]
+      description: |
+        Deletes the specified assignment. May delete an assignment only if it has never delivered impressions.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may delete the assignments that they own. In addition, an agency may delete assignments that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/assignmentId"
+      responses:
+        204:
+          description: Assignment successfully deleted.
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/assignments/{assignmentId}?disable:
+    put:
+      tags: ["Assignments"]
+      description: |
+        Changes the status to “Inactive”.
+        The user must have permissions to access the assignment. For example, advertisers and agencies may disable Assignments that they own. In addition, an agency may disable assignments that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/assignmentId"
+      responses:
+        200:
+          $ref: "#/responses/AssignmentResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  # Creatives
+  /accounts/{accountId}/creatives:
+    get:
+      tags: ["Creatives"]
+      description: |
+        Gets a list of all creatives that belong to the account.
+        For advertisers, the list will include only creatives that they own. For agencies, the list will include the creatives that they own and the creatives that belong to accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/count"
+        - $ref: "#/parameters/offset"
+        - name: $filter
+          in: query
+          description: |
+            Allows to get a list of creatives that match the specified filter criteria. The user may use OData expressions with the following Creative properties:
+            - AdStatus
+            May support getting a list by IDs.
+          type: string
+      responses:
+        200:
+          $ref: "#/responses/CreativesResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags: ["Creatives"]
+      description: |
+        Adds an assignment to the specified account. To add an assignment, the creative must be approved. An assignment may be added at any time prior to the order finishing its flight.
+        An advertiser or agency may add assignments to accounts that they own. In addition; an agency may add assignments to accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - name: Creative
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Creative"
+      responses:
+        201:
+          $ref: "#/responses/CreativeResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/creatives/{creativeId}:
+    get:
+      tags: ["Creatives"]
+      description: |
+        Gets the specified assignment.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the assignments that they own. In addition, an agency may get assignments that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/creativeId"
+      responses:
+        200:
+          $ref: "#/responses/CreativeResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    put:
+      tags: ["Creatives"]
+      description: |
+        Updates the specified assignment.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may update the assignments that they own. In addition, an agency may update assignments that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/creativeId"
+      responses:
+        200:
+          $ref: "#/responses/CreativeResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags: ["Creatives"]
+      description: |
+        Deletes the specified assignment. May delete an assignment only if it has never delivered impressions.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may delete the assignments that they own. In addition, an agency may delete assignments that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/creativeId"
+      responses:
+        204:
+          description: Creative successfully deleted.
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  # Orders
+  /accounts/{accountId}/orders:
+    get:
+      tags: ["Orders"]
+      description: |
+        Gets a list of all orders that belong to the account.
+        For advertisers, the list will include only orders that they own. For agencies, the list will include the orders that they own and the orders that belong to accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/count"
+        - $ref: "#/parameters/offset"
+        - name: $filter
+          in: query
+          description: |
+            Allows to get a list of creatives that match the specified filter criteria. The user may use OData expressions with the following Creative properties:
+            - AdStatus
+            May support getting a list by IDs.
+            User should be either an advertiser or buyer who owns the orders.
+          type: string
+      responses:
+        200:
+          $ref: "#/responses/OrdersResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags: ["Orders"]
+      description: |
+        Adds an order to the account.
+        An advertiser or agency may add orders to accounts that they own. In addition; an agency may add orders to accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - name: Order
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Order"
+      responses:
+        201:
+          $ref: "#/responses/OrderResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/orders/{orderId}:
+    get:
+      tags: ["Orders"]
+      description: |
+        Gets the specified order.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the orders that they own. In addition, an agency may get the orders that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+      responses:
+        200:
+          $ref: "#/responses/OrderResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    put:
+      tags: ["Orders"]
+      description: |
+        Updates the specified order.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may update the orders that they own. In addition, an agency may update the orders that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+      responses:
+        200:
+          $ref: "#/responses/OrderResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags: ["Orders"]
+      description: |
+        Deletes the specified order. May delete the order only if all lines in the order are in the Draft state. Must also delete assignments that reference the line.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may delete the orders that they own. In addition, an agency may delete the orders that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+      responses:
+        204:
+          description: Order successfully deleted.
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  # Lines
+  /accounts/{accountId}/orders/{orderId}/lines:
+    get:
+      tags: ["Lines"]
+      description: |
+        Gets a list of all lines in the order.
+        For advertisers, the list will include only lines that they own. For agencies, the list will include the lines that they own and the lines that belong to accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - $ref: "#/parameters/count"
+        - $ref: "#/parameters/offset"
+        - name: $filter
+          in: query
+          description: |
+            Allows to get a list of lines that match the specified filter criteria. The user may use OData expressions and method calls with the following Line properties:
+            - Name
+            - BookingStatus
+            - StartDate
+            - EndDate
+            May also support getting a list by IDs.
+          type: string
+      responses:
+        200:
+          $ref: "#/responses/LinesResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags: ["Lines"]
+      description: |
+        Adds a line to the order.
+        An advertiser or agency may add lines to orders that they own. In addition; an agency may add lines to orders that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - name: Line
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Line"
+      responses:
+        201:
+          $ref: "#/responses/LineResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}:
+    get:
+      tags: ["Lines"]
+      description: |
+        Gets the specified line from the order.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the Lines that they own. In addition, an agency may get the lines that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        200:
+          $ref: "#/responses/LineResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    put:
+      tags: ["Lines"]
+      description: |
+        Updates the specified line. To update a line, the line must be in the Draft state.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may update the Lines that they own. In addition, an agency may update the lines that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        200:
+          $ref: "#/responses/LineResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags: ["Lines"]
+      description: |
+        Deletes the specified line. May delete a line only if it’s in the Draft state. Must also delete assignments that reference the line.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may delete the Lines that they own. In addition, an agency may delete the lines that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        204:
+          description: Line successfully deleted.
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}?book:
+    put:
+      tags: ["Lines"]
+      description: |
+        Begins the booking process for the line. The booking process may be asynchronous.
+        To book a line, the line must:
+        - Be in the Draft or Reserved state.
+        - Have a creative assigned (if AllowNoCreative is false in Product).
+        - Have available impressions.
+        If successfully booked, the line moves to the Booked state; otherwise, it moves to Declined and sets StateChangedReason.
+        The user must have permissions to book the line. For example, advertisers and agencies may book Lines that they own. In addition, an agency may book lines that belong to the accounts that they manage on behalf of advertisers. Only organizations that have an Approved or Limited status may book lines.
+        The booking process may be asynchronous. If asynchronous, set the BookingStatus field to PendingBooking until the line is booked or declined. If successfully booked, set the BookingStatus field to Booked; otherwise, set the BookingStatus field to Declined and specify why the request was declined in the StateChangedReason field.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        200:
+          $ref: "#/responses/AssignmentResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}?reserve:
+    put:
+      tags: ["Lines"]
+      description: |
+        Reserves the line. The reserve process may be asynchronous. To reserve a line, the line must be in the Draft state. If successfully reserved, the line moves to the Reserved state; otherwise, it moves to Declined and StateChangedReason is set.
+        The user must have permissions to reserve the line. For example, advertisers and agencies may reserve Lines that they own. In addition, an agency may reserve lines that belong to the accounts that they manage on behalf of advertisers.
+        Only organizations that have an Approved or Limited status may reserve lines.
+        The reservation process may be asynchronous. If asynchronous, set the BookingStatus field to PendingReservation until the line is reserved or declined. If successfully reserved, set the BookingStatus field to Reserved and the ReservedExpiryDate field to the date and time that the reservation expires. If the line was not reserved, set the BookingStatus field to Declined and specify why the request was declined in the StateChangedReason field.
+        Supporting reserve is optional.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        200:
+          $ref: "#/responses/AssignmentResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}?cancel:
+    put:
+      tags: ["Lines"]
+      description: |
+        Cancels the line. To cancel a line, the line must be in the Reserved, Booked, or InFlight state. If successfully canceled, the line moves to the Canceled state. If the status was InFlight, StateChangedReason is set.
+        The user must have permissions to cancel the line. For example, advertisers and agencies may cancel Lines that they own. In addition, an agency may cancel lines that belong to the accounts that they manage on behalf of advertisers.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        200:
+          $ref: "#/responses/AssignmentResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}?reset:
+    put:
+      tags: ["Lines"]
+      description: |
+        Resets a line back to the Draft state.
+        The user must have permissions to reset the line. For example, advertisers and agencies may reset Lines that they own. In addition, an agency may reset lines that belong to the accounts that they manage on behalf of advertisers. To reset a line, the line must be in the Reserved, Declined, or Expired booking state. If successfully reset, set the BookingStatus field to Draft.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        200:
+          $ref: "#/responses/AssignmentResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  # Organizations
+  /organizations:
+    get:
+      tags: ["Organizations"]
+      description: |
+        Gets a list of all organizations that the user has access to. The list may contain both advertiser and agency organizations depending on the caller’s access. For example, if the caller is an advertiser, the list might contain only the advertiser’s organization objects; however, if the caller is an agency, the list will contain the agency’s organization objects and the organization objects of the advertisers whose accounts that they manage.
+        The list will contain a single organization for advertisers; however, for agencies, the list will include the agency’s organization and the organizations of the advertisers whose accounts they manage.
+      parameters:
+       - $ref: "#/parameters/count"
+       - $ref: "#/parameters/offset"
+       - name: $filter
+         in: query
+         description: |
+           Allows to get a list of organizations that match the specified filter criteria. The user may use OData expressions and method calls with the following Organization properties:
+           - Name
+           - Status
+           - One or more organization IDs
+         type: string
+      responses:
+        200:
+          $ref: "#/responses/OrganizationsResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags: ["Organizations"]
+      description: Adds an organization. Note that POST is not supported in the public API; it is included here for completeness. The process of adding advertiser and agency organizations and providing credentials is publisher defined. Once the publisher creates an organization for an agency, the agency may create organizations for its clients. Advertisers that represent themselves may also create organizations for other verticals within the advertiser's company if publisher-approved. However, all Organizations on an Account must be in an "Approved" or "Limited" state before inventory can be searched and booked.
+      parameters:
+        - name: Product
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Product"
+      responses:
+        201:
+          $ref: "#/responses/ProductResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /organizations/{organizationId}:
+    get:
+      tags: ["Organizations"]
+      description: |
+        Gets the specified organization.
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get  the Organization that they own; however, an agency may only get the organization of the advertisers whose accounts they manage.
+      parameters:
+        - $ref: "#/parameters/organizationId"
+      responses:
+        200:
+          $ref: "#/responses/OrganizationResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    put:
+      tags: ["Organizations"]
+      description: |
+        Updates the specified organization.
+        The caller must have permissions to update the organization. For example, an advertiser and agency may update their organization object but an agency may not update an advertiser’s Organization object.
+      parameters:
+        - $ref: "#/parameters/organizationId"
+      responses:
+        200:
+          $ref: "#/responses/OrganizationResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags: ["Organizations"]
+      description: The process of deleting an organization is publisher defined; however, deleting an organization via the API is not supported.
+      parameters:
+        - $ref: "#/parameters/organizationId"
+      responses:
+        204:
+          description: Organization successfully deleted.
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  # Product
+  /products:
+    get:
+      tags: ["Products"]
+      description: |
+        Gets a list of all products from the publisher’s product catalog.
+        Only buyers/advertisers who have obtained an Organization ID and Account ID (Buyer ID/Advertiser ID) from the publisher shall issue this request. Requests from buyers and advertisers who do not have the publisher obtained IDs shall return an error (define error code and/or message).
+      parameters:
+       - $ref: "#/parameters/count"
+       - $ref: "#/parameters/offset"
+      responses:
+        200:
+          $ref: "#/responses/ProductsResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /products/{productId}:
+    get:
+      tags: ["Products"]
+      description: |
+        Gets the specified product from the publisher’s product catalog.
+        Only the buyers/advertisers who have obtained an Organization ID and Buyer ID/Advertiser ID from the publisher shall issue this request. The ID issued should be a valid product id previously retrieved from the publisher, for example, with /products. Invalid IDs should return an error (define error code/message).
+      parameters:
+        - $ref: "#/parameters/productId"
+      responses:
+        200:
+          $ref: "#/responses/ProductResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /products/search:
+    post:
+      tags: ["Products"]
+      description: |
+        Gets a list of products from the publisher’s product catalog based on the criteria specified in the body of the request. The body of the response contains a collection of Product objects that match the filter criteria.
+        Product selection uses a logical AND between fields and a logical OR between field values. For example, the product is selected if it supports the Flash OR Image OR Text ad format, AND supports USD currency, AND specifies the foo OR bar product tag.
+      parameters:
+       - $ref: "#/parameters/count"
+       - $ref: "#/parameters/offset"
+       - name: ProductSearch
+         in: body
+         schema:
+           $ref: "#/definitions/ProductSearch"
+      responses:
+        200:
+          $ref: "#/responses/ProductsResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /products/avails:
+    post:
+      tags: ["Products"]
+      description: |
+        Only organizations that have an Approved or Limited status may search for avails.
+        Gets the availability and pricing information for a specified list of products based on flight dates, quantity and targeting. The body of the response contains a collection of ProductAvails objects (one for each product specified in the request).
+      parameters:
+        - $ref: "#/parameters/count"
+        - $ref: "#/parameters/offset"
+        - name: ProductAvailsSearch
+          in: body
+          schema:
+            $ref: "#/definitions/ProductAvailsSearch"
+      responses:
+        200:
+          $ref: "#/responses/ProductAvailsResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  # Change Requests
+  /accounts/{accountId}/changerequest:
+    get:
+      tags: ["Change Requests"]
+      description: Gets a list of all change requests that belong to the account.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - name: $filter
+          in: query
+          description: |
+            Gets a list of change requests that match the specified filter criteria. The user may use OData expressions and method calls with the following Order properties.
+            - Status
+            - OrderId
+            May support getting a list by IDs.
+          type: string
+      responses:
+        200:
+          $ref: "#/responses/ChangeRequestsResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags: ["Change Requests"]
+      description: Adds a change request to the account.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - name: ChangeRequest
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/ChangeRequest"
+      responses:
+        201:
+          $ref: "#/responses/ChangeRequestResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/changerequest/{changerequestId}:
+    get:
+      tags: ["Change Requests"]
+      description: Gets the specified change request.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+      responses:
+        200:
+          $ref: "#/responses/ChangeRequestResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    put:
+      tags: ["Change Requests"]
+      description: Updates the specified change request.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+      responses:
+        200:
+          $ref: "#/responses/ChangeRequestResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags: ["Change Requests"]
+      description: Deletes the specified change request. May delete the change request only if the request is in a “PENDING” state.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+      responses:
+        204:
+          description: Change Request successfully deleted.
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/changerequest/{changerequestId}?approve:
+    put:
+      tags: ["Change Requests"]
+      description: Approves a change request for an account.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+      responses:
+        200:
+          $ref: "#/responses/ChangeRequestResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/changerequest/{changerequestId}?reject:
+    put:
+      tags: ["Change Requests"]
+      description: Rejects a change request for an account.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+      responses:
+        200:
+          $ref: "#/responses/ChangeRequestResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  # Change Request Lines
+  /accounts/{accountId}/changerequest/{changerequestId}/lines:
+    get:
+      tags: ["Change Requests Lines"]
+      description: Gets a list of all lines in the change request.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+        - name: $filter
+          in: query
+          description: |
+            Gets a list of lines that match the specified filter criteria. The user may use OData expressions and method calls with the following Line properties.
+            - Name
+            - StartDate
+            - EndDate
+            May support getting a list by IDs.
+          type: string
+      responses:
+        200:
+          $ref: "#/responses/LinesResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    post:
+      tags: ["Change Requests Lines"]
+      description: Adds a line to the change request.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+        - name: Line
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Line"
+      responses:
+        201:
+          $ref: "#/responses/LineResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/changerequest/{changerequestId}/lines/{lineId}:
+    get:
+      tags: ["Change Requests Lines"]
+      description: Gets the specified line from the change request.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        200:
+          $ref: "#/responses/LineResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    put:
+      tags: ["Change Requests Lines"]
+      description: Updates the specified line in the change request. To update a line, the line must be in the Pending state.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        200:
+          $ref: "#/responses/LineResponse"
+        400:
+          $ref: "#/responses/Standard400ErrorResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+    delete:
+      tags: ["Change Requests Lines"]
+      description: Deletes the specified line from the change request. May delete a line only if it’s in the Pending state. Must also delete assignments that reference the line.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/changerequestId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        204:
+          description: Line successfully deleted.
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+  # Reporting
+  /accounts/{accountId}/orders/{orderId}/lines/stats:
+    get:
+      tags: ["Reporting"]
+      description: Aggregates the impressions and clicks for all lines in the order.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+      responses:
+        200:
+          $ref: "#/responses/ReportingResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}/stats:
+    get:
+      tags: ["Reporting"]
+      description: Aggregates the impressions and clicks for all lines in the order.
+      parameters:
+        - $ref: "#/parameters/accountId"
+        - $ref: "#/parameters/orderId"
+        - $ref: "#/parameters/lineId"
+      responses:
+        200:
+          $ref: "#/responses/ReportingResponse"
+        401:
+          $ref: "#/responses/Standard401ErrorResponse"
+        404:
+          $ref: "#/responses/Standard404ErrorResponse"
+        500:
+          $ref: "#/responses/Standard500ErrorResponse"
+
+definitions:
+
+  Identity:
+    description: Common definition for all entities with identity.
+    required:
+      - Id
+    properties:
+      Id:
+        description: A system-generated opaque ID that uniquely identifies this resource.
+        type: string
+        maxLength: 36
+        readOnly: true
+  ProviderData:
+    description: Common definition for all entities with provider data.
+    properties:
+      ProviderData:
+        description: |
+          An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+          Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+        type: string
+        maxLength: 1000
+
+  # Resources
+
+  Account:
+    description: |
+      An account defines a buyer-advertiser relationship. A buyer is typically an agency that places orders on behalf of several advertisers. Each account associates a buyer with one advertiser and is used to manage orders for one publisher. An advertiser may also work with several buyers, and therefore, advertisers have a separate account for each buyer they work with. If an advertiser represents itself, the account identifies the advertiser as both the buyer and the advertiser.
+      Before an agency may create accounts and perform buys on behalf of the advertiser, the advertiser must give permissions to the agency. The process of giving or removing permissions is publisher-defined. Creating an account must fail if the advertiser has not given the agency permissions.
+      The Account owns the orders and creative.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - $ref: "#/definitions/ProviderData"
+      - required:
+          - AdvertiserId
+          - BuyerId
+          - Name
+        properties:
+          AdvertiserId:
+            description: An ID that identifies the organization that is acting as the advertiser. Advertiser ID may be generated by the buyer (agency) or by the publisher if the advertiser is also the buyer. An advertiser that is representing itself must have an AdvertiserId and BuyerId that match.
+            type: string
+            maxLength: 36
+          BuyerId:
+            description: An ID that identifies the organization that is acting as the buyer. The Publisher generates the BuyerId. If the advertiser is performing their own buys, AdvertiserId and BuyerId must be the same.
+            type: string
+            maxLength: 36
+          Name:
+            description: The name of the account. Used for display purposes.
+            type: string
+            maxLength: 36
+  Assignment:
+    description: |
+      Defines an Assignment resource. An Assignment associates a creative with a line of the order. A creative may be assigned to one or more lines and a line may be assigned one or more creative.
+      Notes: The assignment must fail if the following are true.
+      - The language property for the creative does not match any of the languages in the language property for the product (products are defined in the LINE resource for an Order).
+      - The specified maturity level property for the creative does not match the maturity level property for the product specified in the LINE resource.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - $ref: "#/definitions/ProviderData"
+      - required:
+          - CreativeId
+          - LineId
+          - Status
+        properties:
+          CreativeId:
+            description: The ID of the creative to display when the line runs.
+            type: string
+            maxLength: 36
+          LineId:
+            description: The ID of the line that will display the creative.
+            type: string
+            maxLength: 36
+          Status:
+            description: |
+              A value that determines whether the creative serves.
+              The status may not transition from Inactive to Active.
+            type: string
+            enum:
+              - Active
+              - Inactive
+            readOnly: true
+          Weight:
+            description: |
+              Determines how much the creative is displayed relative to the other creative assigned to the same line.
+              To provide even rotation, do not specify a weight.
+              If weight is specified, all assignments that specify the same line must specify a weight and the weight of all the assignments must add up to 100. If the weight of all assignments does not add up to 100, even rotation is applied.
+              Assignments with heavier weight get proportionally more rotation compared to those with lesser weight.
+              For example, if the line has 2 creative, A and B, assigned with the same dates, and A has weight 25 and B has weight 75, B will serve three times as often as A.
+            type: integer
+            minimum: 1
+            maximum: 100
+  Creative:
+    description: |
+      Defines a Creative resource. The Creative provides information about the ad to be displayed for a line of the order. Creative are assigned to the LINE resource of an order using the ASSIGNMENT resource.
+      See Assignment for instructions on updating a creative.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - $ref: "#/definitions/ProviderData"
+      - required:
+          - AccountId
+          - AdFormatType
+          - CreativeAsset
+          - Geometry
+          - Language
+          - Name
+        properties:
+          AccountId:
+            description: The ID of the account that owns the creative.
+            type: string
+            maxLength: 36
+          AdFormatType:
+            description: The ad’s format. Publisher-supported ad format types are supplied as options using reference data. The ad format type for the creative must be supported for the product.
+            $ref: "#/definitions/AdFormatType"
+          AdRejectionReason:
+            description: The reason why the creative audit did not approve the creative.
+            type: string
+          AdStatus:
+            description: A status value that indicates where in the audit process the creative is.
+            type: string
+            enum:
+              - Pending
+              - Approved
+              - Rejected
+          BackupFlashAsset:
+            description: |
+              A base64 string that contains the backup Image in case the user’s browser does not support Flash. The image must be of one of the following mime types.
+              - GIF
+              - JPEG
+              - PNG
+              The CreativeAsset property contains the Flash creative.
+              The publisher’s documentation should indicate any size constraints. If the asset exceeds the constraint, the publisher must return error code, BackupCreativeTooLarge.
+            type: string
+          ClickUrl:
+            description: The URL of a webpage that the user is taken to if they click the ad. The URL may be specified if AdFormatType is set to Flash, FlashExpandable, or Image.
+            type: string
+            x-publisher-support-required: true
+          CreativeAsset:
+            description: |
+              A string that contains the creative. The AdFormatType determines whether the string is a character string or a base64 string. Image and Flash creatives, must use base64 strings and all others (tags, text, and video) use character strings.
+              If the creative is an image, it must be of one of the following mime types.
+              - GIF
+              - JPEG
+              - PNG
+              The publisher’s documentation should indicate any size constraints. If the asset exceeds the constraint, the publisher must return error code, CreativeTooLarge.
+            type: string
+          Geometry:
+            description: The options available for ad size are publisher-provided using the SIZE object.
+            $ref: "#/definitions/Size"
+          HttpsCompatible:
+            description: A Boolean value that determines whether the creative can properly render on an HTML web page served over HTTPS. True indicates the creative is HTTPS-compatible. Defaults to False.
+            type: boolean
+          Language:
+            description: The ISO 639-1 language code that identifies the language used in the ad. For example, if the ad uses English, the ISO code would be EN. Publisher-supported languages are provided using reference data.
+            $ref: "#/definitions/Language"
+          MaturityLevel:
+            description: |
+              The maturity level of the creative content.
+              At assignment time, the assignment must be rejected if the specified maturity level for the creative does not match the maturity level of the product specified in the LINE resource. The default is “All” Publisher support for this property is optional.
+            $ref: "#/definitions/MaturityLevel"
+          Name:
+            description: The display name of the creative.
+            type: string
+        example:
+          Id: 53444
+          ProviderData: cid=54574
+          AccountId: 23873345
+          AdFormatType: Tag
+          AdRejectionReason: USD
+          AdStatus: Pending
+          BackupFlashAsset:
+          ClickUrl: https://www.example.com
+          CreativeAsset: <third-party script>
+          Geometry:
+            Height: 160
+            Width: 600
+          HttpsCompatible: true
+          Language: EN
+          MaturityLevel:
+            Level: Over12
+          Name: My Creative
+  Line:
+    description: |
+      Line resources are included in an order and provide details about the product being booked, status, start and end dates, and other settings for the order item.
+      Creative are assigned to the LINE resource of an order using the ASSIGNMENT resource. Notes: The user may update a line only if it’s in the Draft state. If the line is in the Reserved or Declined state, the user may call Reset to move the line back to the Draft state in order to update the line.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - $ref: "#/definitions/ProviderData"
+      - required:
+          - BookingStatus
+          - Cost
+          - EndDate
+          - Quantity
+          - Name
+          - OrderId
+          - ProductId
+          - Rate
+          - RateType
+          - StartDate
+          - StateChangeReason
+        properties:
+          BookingStatus:
+            description: A value that determines whether the line is booked and is capable of delivering ads. If the line is reset, the StateChangeReason should be cleared.
+            type: string
+            enum:
+              - Draft
+              - PendingReservation
+              - Reserved
+              - PendingBooking
+              - Booked
+              - InFlight
+              - Finished
+              - Stopped
+              - Canceled
+              - Pause
+              - Expired
+              - Declined
+              - ChangePending
+            readOnly: true
+          Comment:
+            description: User notes related to this line.
+            type: string
+            maxLength: 255
+          Cost:
+            description: |
+              The projected cost of the line is based on the specified quantity, rate and targeting. The actual cost (the amount billed) is based on the actual number of impressions.
+              The cost is specified in the currency for the order. If the order uses a different currency than what the product uses, the cost for the line must be converted to the order’s currency.
+              The cost is determined at the time the line is saved with the following statuses: Drafted, Reserved, or Booked.
+            type: number
+            readOnly: true
+          EndDate:
+            description: |
+              The date and time that the line will stop.
+              If the time is missing, 11:59 PM is assumed.
+              The line end date must be later than the line start date and should be less than or equal to the order’s end date.
+              If the line end date is later than the order’s end date, the order’s end date should be extended to match the line’s end date.
+            type: string
+            format: date-time
+          FrequencyCount:
+            description: The maximum number of times that a unique user must see ads from this line during the specified interval (see FrequencyInterval).
+            type: integer
+          FrequencyInterval:
+              $ref: "#/definitions/FrequencyCapInterval"
+          Quantity:
+            description: |
+              The quantity requested for the specified date range. This value will differ based on various cost types. For CPM, for examples, the value would be impressions.
+              The line must contain a quantity before the user may reserve or book it. If the requested quantity is not available, reserving or booking the line must fail and bookingStatus must be set to Declined.
+            type: integer
+          Name:
+            description: |
+              The line’s display name.
+              Should be unique.
+            type: string
+            maxLength: 200
+          OrderId:
+            description: The ID of the order that this line belongs to.
+            type: string
+            maxLength: 36
+            readOnly: true
+          ProductId:
+            description: The ID of the product where the creatives run.
+            type: string
+            maxLength: 36
+          Rate:
+            description: |
+              The price per unit of impressions. For example, $10 per 1,000 impressions (CPM).
+              The rate is determined each time the line is saved (added, updated, booked, or reserved).
+              Value in currency for the order.
+            type: number
+            readOnly: true
+          RateType:
+            description: The rate type is determined at the time the line is saved (added, updated, booked, or reserved).
+            $ref: "#/definitions/RateType"
+            readOnly: true
+          ReservedExpiryDate:
+            description: |
+              The date and time that the reserved inventory will expire.
+              If the line is reserved, the expiry date must be set.
+            type: string
+            format: date-time
+            readOnly: true
+          StartDate:
+            description: |
+              The date and time that the line will start.
+              If the time is missing, 12:00 AM is assumed.
+              The date and time must be greater than or equal to now and should be greater than or equal to the order’s start date.
+              If the line start date is earlier than the order’s start date, the order’s start date should be moved to match the line’s start date. Both dates must be later than the present day.
+              Start dates that are in the past may not be updated.
+            type: string
+            format: date-time
+          StateChangeReason:
+            description: |
+              The reason why the state was changed by the publisher.
+              The reason must be specified if:
+              - The publisher declined the booking or reservation.
+              - The publisher or user canceled the flight.
+            type: string
+            readOnly: true
+          Targeting:
+            description: The creative assigned to the LINE resource is display when the line includes user segments and the delivery engine can determine whether the user matches the specified segments.
+            $ref: "#/definitions/Segment"
+          UsesExpandables:
+            description: |
+              A Boolean value that indicates whether the line will be assigned expandable creatives. Used to determine availability.
+              The default is false.
+            type: boolean
+  Order:
+    description: |
+      The Order resource specifies the plan’s start and end dates, estimated budget, currency, and preferred billing method for all line items in the order.
+      To specify the individual line item details of the order, use the LINE resource.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - $ref: "#/definitions/ProviderData"
+      - required:
+          - AccountId
+          - Currency
+          - Name
+          - OrderStatus
+        properties:
+          AccountId:
+            description: The ID of the account that identifies the advertiser and buyer that own the order.
+            type: string
+            maxLength: 36
+            readOnly: true
+          Brand:
+            description: A descriptive name for the brand being advertised.
+            type: string
+            maxLength: 25
+          Budget:
+            description: The order’s estimated budget. The budget is directional; it is not used to limit the amount of money that the order spends. To determine the projected spend based on quantity, aggregate the Cost property for each line of the order.
+            type: number
+          Contacts:
+            description: |
+              The list of contacts to use for this order. This list of contacts is in addition to the buyer’s and advertiser’s list of contacts.
+              The list must contain unique contact types (for example, only one billing contact).
+            type: array
+            items:
+              $ref: "#/definitions/Contact"
+            uniqueItems: true
+          Currency:
+            description: The publisher may enforce that all lines of the order specify products that use the same currency.
+            $ref: "#/definitions/Currency"
+          EndDate:
+            description: |
+              The date and time that the order will end. The end date is directional and may be updated by the publisher to match the latest end date found in the order’s lines.
+              If the time is missing, 11:59 PM is assumed.
+              The end date must be later than the start date.
+              End dates that have past cannot be updated.
+            type: string
+            format: date-time
+          OrderExpiryDate:
+            description: The date and time for when the order expires. Publisher will only hold inventory up until the date and time indicated.
+            type: string
+            format: date-time
+            readOnly: true
+          Industry:
+            description: The industry associated with the order. This industry may differ from the industry specified on the advertiser’s Organization object.
+            $ref: "#/definitions/Industry"
+          Name:
+            description: |
+              The order’s display name.
+              Must be unique within the account’s list of orders.
+            type: string
+            maxLength: 100
+          OrderStatus:
+            description: Specifies the Status of the Order.
+            type: string
+            enum:
+              - PENDING
+              - APPROVED
+              - REJECTED
+            readOnly: true
+          PackageOnly:
+            description: Identifies whether the order is only available as a package or if specific items can be separated from the inventory. A value of TRUE means the inventory is only available as a package. A value of FALSE allows the buyer to select specific items from inventory.
+            type: boolean
+            readOnly: true
+          PreferredBillingMethod:
+            description: |
+              The preferred billing method for this order.
+              The default is Electronic.
+              If the billing contact is not specified in the order, the billing contact comes from buyer’s list of contacts.
+            type: string
+            enum:
+              - Electronic
+              - Postal
+            maxLength: 10
+          StartDate:
+            description: |
+              The date and time that the order will start. The start date is directional and may be updated by the publisher to match the earliest start date found in the order’s list of lines.
+              If the time is missing, 12:00 AM is assumed.
+              When creating the order, the date and time must be greater than or equal to now.
+              Start dates that have past may not be updated.
+            type: string
+            format: date-time
+  Organization:
+    description: |
+      The organization resource may represent an advertiser or agency (buyer). The Account determines the role that the organization plays by using the organization ID in place of the BuyerId or AdvertiserId. The organization’s role may vary by account. For example, the organization may be an advertiser in one account and a buyer in another. An advertiser may create one or more organizations to meet their business needs. For example, they may create a single organization and then create accounts for each brand, subsidiary, or division. Or, they may create an organization for each brand. It is up to the advertiser to determine how they use Organization and Account to meet their organizational needs.
+      A publisher may also create an organization for itself for the purpose of requesting a change to an order. To identify a publisher for a change request, the organization ID is supplied as the RequesterId for the ChangeRequest resource.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - $ref: "#/definitions/ProviderData"
+      - required:
+          - Contacts
+          - Name
+          - Status
+        properties:
+          Address:
+            $ref: "#/definitions/Address"
+          Contacts:
+            description: A list of one or more contacts within the organization. The list must contain unique contact types (for example, only one billing contact). At least one billing contact is required.
+            type: array
+            items:
+              $ref: "#/definitions/Contact"
+            uniqueItems: true
+          DisapprovalReason:
+            description: The reason why the organization was not registered. Must be specified if Status is Disapproved.
+            type: string
+            maxLength: 255
+            readOnly: true
+            x-publisher-support-required: true
+          Fax:
+            description: The organization’s fax number.
+            type: string
+            maxLength: 20
+          Industry:
+            description: An industry label for the organization. Only required for advertiser organization.
+            $ref: "#/definitions/Industry"
+          Name:
+            description: |
+              The organization’s display name.
+              Cannot be an empty string. Must be unique.
+            type: string
+            maxLength: 128
+          Phone:
+            description: The organization’s phone number.
+            type: string
+            maxLength: 20
+          Status:
+            description: A value that indicates the current state of the approval process. The approval process confirms the organization’s identity.
+            type: string
+            maxLength: 15
+            readOnly: true
+            enum:
+              - Pending
+              - Approved
+              - Disapproved
+              - Limited
+          Url:
+            description: A URL to the organization’s website.
+            type: string
+            maxLength: 1024
+  Product:
+    description: A Product resource identifies anything from an ad placement to a Run of Network product in the publisher’s product catalog. Values for all supported fields are provided by the publisher.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - AdFormatTypes
+          - BasePrice
+          - Currency
+          - Geometry
+          - Name
+          - RateType
+        properties:
+          ActiveDate:
+            description: The date and time, in UTC, that the product may become part of the bookable inventory.
+            type: string
+            format: date-time
+          AdFormatTypes:
+            description: A list of ad types that the product supports.
+            type: array
+            items:
+              $ref: "#/definitions/AdFormatType"
+          AllowNoCreative:
+            description: A Boolean value that indicates whether line items assigned to this order may be booked before creative is assigned. A value of TRUE allows lines to be booked without creative assigned. Default value is FALSE and prevents lines from being booked when no creative is assigned.
+            type: boolean
+          BasePrice:
+            description: The product’s base retail price; this is not the rate card price. The actual price may be more if targeting is specified.
+            type: number
+          Currency:
+            description: Identifies the currency for BasePrice and MinSpend.
+            $ref: "#/definitions/Currency"
+          DeliveryType:
+            $ref: "#/definitions/DeliveryType"
+          Description:
+            description: The product’s description.
+            type: string
+            maxLength: 255
+          Domain:
+            description: The product’s domain.
+            type: string
+            maxLength: 255
+          EstimatedDailyAvails:
+            description: |
+              An estimated range of available daily impressions.
+              The ranges should be of the form: Thousands, Tens of Thousands, Hundreds of Thousands, and so on.
+            type: string
+          Geometry:
+            description: A list of ad format sizes that the product supports.
+            type: array
+            items:
+              $ref: "#/definitions/Size"
+          HttpsCompatible:
+            description: A Boolean value that determines whether the product supports creatives that can properly render on an HTML web page served over HTTPS.
+            type: boolean
+          Icon:
+            description: |
+              URL to a thumbnail icon of the product. May be used to display next to the product in the product catalog.
+              Publishers should support icons that are 150x150 or less. The maximum size is 10 KB.
+            type: string
+          InventoryType:
+            $ref: "#/definitions/InventoryType"
+          Languages:
+            description: A list of creative languages that the product supports.
+            type: array
+            items:
+              $ref: "#/definitions/Language"
+          LeadTime:
+            description: The number of days (n) from today that a line that reference this product can begin running; the line’s start date must be equal to or later than today + n.
+            type: integer
+          Name:
+            description: |
+              The product’s display name.
+              The name must be unique.
+            type: string
+            maxLength: 38
+          MaturityLevel:
+            $ref: "#/definitions/MaturityLevel"
+          MaxDuration:
+            description: The maximum number of days that the product may be booked for. The line must enforce the duration.
+            type: integer
+          MinDuration:
+            description: The minimum number of days that the product must be booked for. The line must enforce the duration.
+            type: integer
+          MinSpend:
+            description: The minimum amount of money that must be spent on this product in order to book it.
+            type: number
+          Position:
+            $ref: "#/definitions/AdPosition"
+          ProductTags:
+            description: List of tags used for searching the product catalog.
+            type: array
+            items:
+              type: string
+              maxLength: 100
+            maxItems: 500
+          RateType:
+            $ref: "#/definitions/RateType"
+          RetirementDate:
+            description: The date and time, in UTC, that the product may be removed from the bookable inventory.
+            type: string
+            format: date-time
+          TargetTypes:
+            description: A list of IDs that identify the types of targeting that the product supports.
+            type: array
+            items:
+              $ref: "#/definitions/Target"
+          TimeZone:
+            description: The time zone that the product runs in.
+            type: string
+          Url:
+            description: A URL to the specification that describes the creative requirements.
+            type: string
+  ChangeRequest:
+    description: |
+      When an order has already been placed and a change is needed, the ChangeRequest resource can be used to request a change and subsequently modify the order pending the approval of the change request.
+      The OrderSearch object can be used to search for orders that have an order status of “ChangePending.”
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - $ref: "#/definitions/ProviderData"
+      - required:
+          - AccountId
+          - OrderId
+          - RequesterId
+          - Status
+        properties:
+          AccountId:
+            description: The ID of the account that identifies the advertiser and buyer that own the Change. This must be the same as the AccountId for the Order.
+            type: string
+            maxLength: 36
+          Comments:
+            description: Optional comments as to why the Change is being requested/proposed.
+            type: string
+            maxLength: 1000
+          Contacts:
+            description: |
+              The list of contacts to use for this change. This list of contacts is in addition to the buyer’s and advertiser’s list of contacts.
+              The list must contain unique contact types (for example, only one billing contact).
+            type: array
+            items:
+              $ref: "#/definitions/Contact"
+            uniqueItems: true
+          OrderId:
+            description: The ID of the Order that the Change is Requested for.
+            type: string
+            maxLength: 36
+          RequesterId:
+            description: The OrganisationID of the Change Requester usually the AgencyID if the change was requested by an Agency or the PublisherID if the change was requested by the Vendor.
+            type: string
+            maxLength: 36
+          Status:
+            description: Specifies the Status of the Change Request.
+            type: string
+            enum:
+              - PENDING
+              - APPROVED
+              - REJECTED
+            maxLength: 36
+            readOnly: true
+          Webhook:
+            description: |
+              URI which is called when the change is approved, rejected or modified by the Seller.
+              URI is called with a PUT request containing Change as a JSON object.
+            type: string
+            maxLength: 1024
+
+  # Collection Objects
+
+  Organizations:
+    required:
+      - Organizations
+    properties:
+      Organizations:
+        type: array
+        items:
+          $ref: "#/definitions/Organization"
+  Accounts:
+    required:
+      - Accounts
+    properties:
+      Accounts:
+        type: array
+        items:
+          $ref: "#/definitions/Account"
+  Assignments:
+    required:
+      - Assignments
+    properties:
+      Assignments:
+        type: array
+        items:
+          $ref: "#/definitions/Assignment"
+  Creatives:
+    required:
+      - Creatives
+    properties:
+      Creatives:
+        type: array
+        items:
+          $ref: "#/definitions/Creative"
+  Orders:
+    required:
+      - Orders
+    properties:
+      Orders:
+        type: array
+        items:
+          $ref: "#/definitions/Order"
+  Lines:
+    required:
+      - Lines
+    properties:
+      Lines:
+        type: array
+        items:
+          $ref: "#/definitions/Line"
+  Products:
+    required:
+      - Products
+    properties:
+      Products:
+        type: array
+        items:
+          $ref: "#/definitions/Product"
+  Avails:
+    required:
+      - Avails
+    properties:
+      Avails:
+        type: array
+        items:
+          $ref: "#/definitions/ProductAvails"
+  ChangeRequests:
+    required:
+      - ChangeRequests
+    properties:
+      ChangeRequests:
+        type: array
+        items:
+          $ref: "#/definitions/ChangeRequest"
+
+  # Common Objects
+
+  Address:
+    description: The address object is used to provide values for the ORGANIZAION resource.
+    required:
+      - City
+      - Country
+      - AddressLine1
+    properties:
+      City:
+        description: The city name of an organization or contact for which this address is associated.
+        type: string
+        maxLength: 35
+      Country:
+        $ref: "#/definitions/Country"
+      AddressLine1:
+        description: The first line of the address of an organization or contact for which this address is associated.
+        type: string
+        maxLength: 255
+      AddressLine2:
+        description: The optional second line of the address.
+        type: string
+        maxLength: 255
+        x-publisher-support-required: true
+      PostalCode:
+        description: The postal or ZIP code for the address.
+        type: string
+        maxLength: 15
+        x-publisher-support-required: true
+      State:
+        description: The state or province for the address.
+        type: string
+        maxLength: 35
+        x-publisher-support-required: true
+  Contact:
+    description: Defines an agency or advertiser contact.
+    required:
+      - FirstName
+      - LastName
+      - Type
+    properties:
+      Address:
+        description: Required if TYPE is Billing and the preferred billing method for the organization or order is paper.
+        $ref: "#/definitions/Address"
+      Email:
+        description: |
+          The contact’s email address.
+          Required if TYPE is Billing and the preferred billing method for the organization or order is electronic.
+        type: string
+        maxLength: 254
+        x-publisher-support-required: true
+      Honorific:
+        description: Honorific such as Mr. or Ms.
+        type: string
+        maxLength: 20
+      Fax:
+        description: The contact’s fax number.
+        type: string
+        maxLength: 20
+      FirstName:
+        description: The contact’s first name.
+        type: string
+        maxLength: 20
+      LastName:
+        description: The contact’s last name.
+        type: string
+        maxLength: 20
+      Phone:
+        description: The contact’s phone number
+        type: string
+        maxLength: 20
+        x-publisher-support-required: true
+      Title:
+        description: The contact’s job title.
+        type: string
+        maxLength: 30
+        x-publisher-support-required: true
+      Type:
+        $ref: "#/definitions/ContactType"
+        readOnly: true
+  ProductAvails:
+    description: The ProductAvails object returns product availability and pricing information.
+    required:
+      - Availability
+      - Currency
+      - ProductId
+      - Price
+    properties:
+      Availability:
+        description: |
+          The quantity available for booking for the specified date range. Availability for a given date range may vary.
+          In order for products to be returned in a PRODUCT AVAILS SEARCH, product availability must be equal to or less than the value provided in the Quantity property of the PRODUCT AVAILS SEARCH object.
+          For example, if Quantity is set to 500,000 in PRODUCT AVAILS SEARCH, impression availability for the product must be at least 500,000. However, if only 250,000 impressions are available, the product is not returned.
+          Publishers may set an artificial limit on the maximum number of available impressions. If the quantity field in PRODUCT AVAILS SEARCH is not provided, all products matching other criteria are returned showing maximum availability.
+        type: integer
+      Currency:
+        description: The currency used to specify Price. Currency is set for the PRODUCT resource.
+        $ref: "#/definitions/Currency"
+      ProductId:
+        description: Each ID returned matches one of the product IDs provided in the ProductId property of the PRODUCT AVAILS SEARCH object.
+        type: string
+      Price:
+        description: The product’s price per unit as defined using RATE TYPE reference data. The product’s rate type determines the unit. For example, if RateType is CPM, the price is per 1,000 impressions.
+        type: number
+  ProductAvailsSearch:
+    description: |
+      The ProductAvailsSearch object is used to set search criteria used for listing all product availability and pricing within the given search criteria. The object returned is the ProductAvails object.
+      While the ProductAvailsSearch returns results that show specific availability, the ProductSearch returns product information independent of availability.
+    required:
+      - EndDate
+      - Quantity
+      - ProductIds
+      - StartDate
+    properties:
+      AccountId:
+        description: The ID of the account that identifies the agency and advertiser. If not specified, the pricing information is based on the product’s base rate.
+        type: string
+      Currency:
+        description: The currency the product supports. If the publisher supports the option to filter product avails by currency, then only products that support select currency is returned. Otherwise, publisher returns duplicate product avails, each with different supported currencies.
+        $ref: "#/definitions/Currency"
+      EndDate:
+        description: The desired end date for inventory delivery. The date and time must be later than StartDate.
+        type: string
+        format: date
+      FrequencyCount:
+        description: The maximum number of times that a unique user may see ads during the interval specified within the FrequencyInterval setting for this object. If the product uses frequency capping, both FrequencyCount and FrequencyInterval must be set.
+        type: integer
+      FrequencyInterval:
+        description: The interval within which the frequency count applies if frequency capping is used for the product. For example, if the frequency count is set to 3 and the interval set to a day, then ads for the product may be shown to a user no more than three times per day. If the product uses frequency capping, both FrequencyCount and FrequencyInterval must be set. Available frequency intervals are provided using the FREQUENCY CAP INTERVAL reference data.
+        $ref: "#/definitions/FrequencyCapInterval"
+      Quantity:
+        description: The quantity of inventory units requested for the specified date range. This value will differ based on various cost types. For CPM, for example, the value would be in thousands of impressions. Leave field blank to return a product list with maximum availability for products specified. The publisher may set a maximum quantity limit.
+        type: integer
+      ProductIds:
+        description: A list of IDs that identify the products on which to get availability and pricing information. Product IDs are system-generated unique IDs for the Id property of each PRODUCT resource. The maximum number of IDs that can be specified is publisher dependent. The date range, availability, and targeting apply to all specified products.
+        type: array
+        items:
+          type: string
+      StartDate:
+        description: The desired start date for inventory delivery. The date and time must be later than current date and time.
+        type: string
+        format: date
+      Targeting:
+        description: The segments to target. For example, behavioral, age, and gender segments.
+        type: array
+        items:
+          $ref: "#/definitions/Segment"
+  ProductSearch:
+    description: |
+      The ProductSearch object is used to generate a general list of products independent of their availability. For example, an agency might be interested in looking up all products that support video ads just to get an idea for what the options are. Alternatively, the ProductAvailsSearch returns a list of products within specified search criteria.
+      Product selection uses a logical AND between fields and a logical OR between field values. For example, the product is selected if it supports the Flash OR Image OR Text ad format, AND supports USD currency, AND specifies the ? tag OR bar product tag.
+      At least one field must be specified.
+    properties:
+      AdFormatTypes:
+        description: One or more ad types. Return products that support one or more of the specified formats.
+        type: array
+        items:
+          $ref: "#/definitions/AdFormatType"
+        x-publisher-support-required: true
+      Currency:
+        description: The currency that the product supports. Return products that support the specified currency.
+        $ref: "#/definitions/Currency"
+        x-publisher-support-required: true
+      DeliveryType:
+        $ref: "#/definitions/DeliveryType"
+        x-publisher-support-required: true
+      Domain:
+        description: The product’s domain.
+        type: string
+        x-publisher-support-required: true
+      Geometry:
+        description: One or more ad sizes. Return products that support one or more of the specified sizes.
+        type: array
+        items:
+          $ref: "#/definitions/Size"
+        x-publisher-support-required: true
+      ProductTags:
+        description: |
+          One or more tags used to label products. Returns products that have product tags that exactly match one or more of the specified tags. A match occurs if the specified tag exactly matches the product’s tag (using a case insensitive comparison).
+          For example, the product is selected if the specified search tag is Travel and the product includes a Travel tag. However, if the product includes only a European Travel tag, the product is not selected.
+        type: array
+        items:
+          type: string
+  OrderSearch:
+    description: |
+      The OrderSearch object is used to generate a list of orders based on the search criteria provided. This search is useful for finding all orders that belong to an account or to an organization. It can also be used to find orders with a specified order status, including any orders that have a change request that is pending.
+      Order search criteria uses alogical AND between fields and a logical OR between field values. For example, the order is selected if any of its lines in a BookingStatus of Reserved OR Booked OR ChangePending, AND the order is under a specified AccountId.
+      At least one field must be specified.
+    properties:
+      AccountId:
+        description: The Id for an Account. OrderSearch returns all orders for a specified account ID.
+        type: string
+        x-publisher-support-required: true
+      RequesterId:
+        description: The RequesterId for a CHANGE REQUEST on any orders that list a change request. OrderSearch returns all orders on which the specified requester has made a change request.
+        type: string
+        x-publisher-support-required: true
+      BookingStatus:
+        description: The booking status for lines. Returns all orders for which any of the order’s lines contain the specified booking status values.
+        type: array
+        items:
+          type: string
+        x-publisher-support-required: true
+  Size:
+    description: The Size object defines the height and width (in pixels) that a publisher accepts. The size object populates publisher-accepted sizes in the GEOMETRY property of relevant resources, such as CREATIVE.
+    required:
+      - Height
+      - Width
+    properties:
+      Height:
+        description: The height of accepted creative size in pixels.
+        type: integer
+      Width:
+        description: The width of accepted creative size in pixels.
+        type: integer
+  Segment:
+    description: The segment object is made up of TARGET and TARGET VALUE reference data objects and is used to specify targeting options for a LINE resource
+    required:
+      - Target
+      - TargetValues
+    properties:
+      Target:
+        $ref: "#/definitions/Target"
+      TargetValues:
+        description: A list of target values. For example, age range 18-24 and 25-34.
+        type: array
+        items:
+          $ref: "#/definitions/TargetValue"
+
+  # Reference Data
+
+  AdFormatType:
+    description: Defines the possible ad formats.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Name
+        properties:
+          Name:
+            description: The ad format’s display name.
+            type: string
+            enum:
+              - HTML5
+              - HTML5Expandable
+              - Flash
+              - FlashExpandable
+              - Image
+              - Tag
+              - TagExpandable
+              - Text
+              - Video
+              - VPAID
+              - MRAID
+  AdPosition:
+    description: Defines the possible ad positions on a web page.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Name
+        properties:
+          Name:
+            description: The ad position’s display name.
+            type: string
+            enum:
+              - AboveFold
+              - BelowFold
+  ContactType:
+    description:
+      Defines the possible types of Contacts.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Name
+        properties:
+          Name:
+            description: The type’s display name.
+            type: string
+            enum:
+              - Billing
+              - Buyer
+              - Creative
+  Country:
+    description: |
+      Defines a country that the API supports.
+      The API may support all or a subset of the countries specified in ISO 3166-1.
+    required:
+      - IsoCode
+    properties:
+      IsoCode:
+        description: The country’s two-character ISO code (ISO 3166-1).
+        type: string
+        minLength: 2
+        maxLength: 2
+  Currency:
+    description: |
+      Defines a currency that the API supports.
+      The API may support all or a subset of the currencies specified in ISO-4217.
+    required:
+      - IsoCode
+    properties:
+      IsoCode:
+        description: The currency’s three-character ISO code (ISO 4217).
+        type: string
+        minLength: 3
+        maxLength: 3
+  DeliveryType:
+    description: Defines the possible types of delivery.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Name
+        properties:
+          Name:
+            description: The delivery type’s display name.
+            type: string
+            enum:
+              - Exclusive
+              - Guaranteed
+  FrequencyCapInterval:
+    description: |
+      Defines the frequency cap intervals that the API supports.
+      The frequency interval specifies the units in which the frequency count is expressed. For example, if a line’s frequency count is 2 and interval is Day, display the ad to the same user a Max 2 times in the same calendar day.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Name
+        properties:
+          Name:
+            description: The name of the interval.
+            type: string
+            enum:
+              - Day
+              - Month
+              - Week
+              - Hour
+              - LineDuration
+  Industry:
+    description: Defines an industry that the advertiser belongs to. Uses “IAB Tech Lab Content Taxonomy”.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Name
+          - ParentId
+          - SubIndustries
+        properties:
+          Name:
+            description: The industry’s display name.
+            type: string
+          ParentId:
+            description: The ID of the sub-industry’s parent. Is NULL for the top-level parent.
+            type: string
+          SubIndustries:
+            description: A list of sub-industries. The list is empty if the industry has no sub-industries.
+            type: array
+            items:
+              $ref: "#/definitions/Industry"
+  InventoryType:
+    description: Defines a list of devices that the product may serve on.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Name
+        properties:
+          Name:
+            description: The ad format’s display name.
+            type: string
+            enum:
+              - App
+              - Desktop
+              - Mobile
+              - Tablet
+  Language:
+    description: Defines a language that the API supports. The API may support all or a subset of the languages specified in ISO 639-1.
+    required:
+      - IsoCode
+    properties:
+      IsoCode:
+        description: The language’s two-character ISO code as specified in ISO 639-1.
+        type: string
+        minLength: 2
+        maxLength: 2
+  MaturityLevel:
+    description: Defines a list of maturity levels. Current maturity level definitions comply with those provided in section 4.2.3 of the TAG's Inventory Quality Guidelines released December, 2015. Current guidelines can be found on the tagtoday.net website. The API may support all or a subset of the  specified values.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Level
+        properties:
+          Level:
+            description: The accepted maturity level for the specified inventory.
+            type: string
+            enum:
+              - All
+              - Over12
+              - Mature
+              - NotSpecified
+  RateType:
+    description: Defines a unit of measure that a cost (i.e. BasePrice) is expressed in. The API may support all or a subset of the specified values.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Name
+        properties:
+          Name:
+            description: The rate type’s display name.
+            type: string
+            enum:
+              - CPM
+              - CPMV
+              - CPC
+              - CPD
+              - FlatRate
+  Target:
+    description: Defines a target category. The API must support the specified target categories and may support additional categories such as zip code or postal code.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Name
+        properties:
+          Name:
+            description: The target category.
+            type: string
+            enum:
+              - Age
+              - Gender
+              - DMA
+              - Country
+              - State/Province
+              - Daypart
+              - Weekpart
+              - Behavioral
+              - Device
+  TargetValue:
+    description: |
+      Defines a target value.
+      The API must support the specified values per target category.
+    allOf:
+      - $ref: "#/definitions/Identity"
+      - required:
+          - Value
+          - TargetId
+        properties:
+          Value:
+            description: The target value
+            type: string
+            enum:
+              - Age - Publisher-defined age ranges
+              - Gender - Female
+              - Gender - Male
+              - DMA - Publisher-defined  source (such as Digital Envoy)
+              - Country - Publisher-defined source
+              - State-Province - Publisher-defined source
+              - Daypart - 0 through 23 hours
+              - Weekpart - Sunday
+              - Weekpart - Monday
+              - Weekpart - Tuesday
+              - Weekpart - Wednesday
+              - Weekpart - Thursday
+              - Weekpart - Friday
+              - Weekpart - Saturday
+          TargetId:
+            description: A system-generated ID that identifies the target category that this value belongs to.
+            type: string
+
+  # Error Response
+
+  Error:
+    type: object
+    required:
+      - ErrorCode
+      - ErrorMessage
+    properties:
+      ErrorCode:
+        type: string
+      ErrorMessage:
+        type: string
+      Context:
+        type: object
+      Link:
+        type: string
+  Errors:
+    type: array
+    items:
+      $ref: "#/definitions/Error"
+
+  # Reporting
+
+  Reporting:
+    required:
+      - Clicks
+      - ImpressionsServed
+      - ReportDate
+    properties:
+      Clicks:
+        description: The number of clicks to date. The value must be zero if no clicks have occurred.
+        type: integer
+      CTR:
+        description: The click through rate to date. The formula to calculate CTR is (clicks / impressions) * 100.
+        type: number
+      ImpressionsServed:
+        description: The number of impressions served to date. The value must be zero if no impressions have been served.
+        type: integer
+      ReportDate:
+        description: The data and time of the report. The date and time is reported in the order’s time zone.
+        type: string
+        format: date-time
+      Spend:
+        description: The amount spent to date.
+        type: number
+
+responses:
+  AccountResponse:
+    description: Account resource
+    schema:
+      $ref: "#/definitions/Account"
+    examples:
+      application/json: |
+        {
+          "AdvertiserId": "1234987",
+          "BuyerId": "34587",
+          "Id": "23873345",
+          "Name": "Brand A",
+          "ProviderData": "cid=934759"
+        }
+  AccountsResponse:
+    description: Collection of Account
+    headers:
+      X-Total-Count:
+        description: Total number of results
+        type: integer
+    schema:
+      $ref: "#/definitions/Accounts"
+    examples:
+      application/json: |
+        {
+          "Accounts": [
+            {
+              "AdvertiserId": "1234987",
+              "BuyerId": "1234987",
+              "Id": "9876542",
+              "Name": "Brand B",
+              "ProviderData": "cid=8934579"
+            },
+            {
+              "AdvertiserId": "1234987",
+              "BuyerId": "34587",
+              "Id": "23873345",
+              "Name": "Brand A",
+              "ProviderData": "cid=934759"
+            }
+          ]
+        }
+  AssignmentResponse:
+    description: Assignment resource
+    schema:
+      $ref: "#/definitions/Assignment"
+    examples:
+      application/json: |
+        {
+          "CreativeId": "54345",
+          "LineId": "394578",
+          "Weight": 25,
+          "Id": "453365",
+          "Status": "Active",
+          "ProviderData": "cid=34325"
+        }
+  AssignmentsResponse:
+    description: Collection of Assignment
+    headers:
+      X-Total-Count:
+        description: Total number of results
+        type: integer
+    schema:
+      $ref: "#/definitions/Assignments"
+    examples:
+      application/json: |
+        {
+          "Assignments": [
+            {
+              "CreativeId": "394857",
+              "LineId": "394578",
+              "Weight": 75,
+              "Id": "34534",
+              "Status": "Active",
+              "ProviderData": "cid=98374"
+            },
+            {
+              "CreativeId": "54345",
+              "LineId": "394578",
+              "Weight": 25,
+              "Id": "453365",
+              "Status": "Active",
+              "ProviderData": "cid=34325"
+            }
+          ]
+        }
+  CreativeResponse:
+    description: Creative resource
+    schema:
+      $ref: "#/definitions/Creative"
+    examples:
+      application/json: |
+        {
+          "AccountId": "23873345",
+          "AdFormatType": "Tag",
+          "AdStatus": "Pending",
+          "CreativeAsset": "<third-party script goes here>",
+          "Geometry": {
+            "Height": "160",
+            "Width": "600"
+          },
+          "HttpsCompatible": 0,
+          "Id": "53444",
+          "Language": "EN",
+          "MaturityLevel":  {
+            "Level": "Over12"
+          },
+          "Name": "My Creative",
+          "ProviderData": "cid=54574"
+        }
+  CreativesResponse:
+    description: Collection of Creative
+    headers:
+      X-Total-Count:
+        description: Total number of results
+        type: integer
+    schema:
+      $ref: "#/definitions/Creatives"
+    examples:
+      application/json: |
+        {
+          "Creatives": [
+            {
+              "AccountId": "23873345",
+              "AdFormatType": "Tag",
+              "AdStatus": "Pending",
+              "CreativeAsset": "<third-party script goes here>",
+              "Geometry": {
+                "Height": "160",
+                "Width": "600"
+              },
+              "HttpsCompatible": False,
+              "Id": "53444",
+              "Language": "EN",
+              "MaturityLevel":  {
+                "Level": "Over12"
+              },
+              "Name": "My Creative",
+              "ProviderData": "cid=54574"
+            }
+          ]
+        }
+  OrderResponse:
+    description: Order resource
+    schema:
+      $ref: "#/definitions/Order"
+    examples:
+      application/json: |
+        {
+          "AccountId": "23873345",
+          "Brand": "Four Wakes",
+          "Budget": 50000,
+          "Currency": "USD",
+          "EndDate": "2014-12-24T18:00:00.000Z",
+          "Id": "1235872",
+          "Name": "My Order",
+          "PreferredBillingMethod": "Electronic",
+          "ProviderData": "cid=563364",
+          "StartDate": "2014-11-24T06:00:00.000Z",
+        }
+  OrdersResponse:
+    description: Collection of Order
+    headers:
+      X-Total-Count:
+        description: Total number of results
+        type: integer
+    schema:
+      $ref: "#/definitions/Orders"
+    examples:
+      application/json: |
+        {
+          "Orders": [
+            {
+              "AccountId": "23873345",
+              "Brand": "Four Wakes",
+              "Budget": 50000,
+              "Currency": "USD",
+              "EndDate": "2014-12-24T18:00:00.000Z",
+              "Id": "1235872",
+              "Name": "My Order",
+              "PreferredBillingMethod": "Electronic",
+              "ProviderData": "cid=563364",
+              "StartDate": "2014-11-24T06:00:00.000Z",
+            }
+          ]
+        }
+  LineResponse:
+    description: Line resource
+    schema:
+      $ref: "#/definitions/Line"
+    examples:
+      application/json: |
+        {
+          "BookingStatus": "Draft",
+          "Comment": "Free form comment",
+          "EndDate": "2014-12-10T18:00:00.000Z",
+          "FrequencyCount": 3,
+          "FrequencyInterval": "Day",
+          "Id": "345233",
+          "Quantity": 30000,
+          "Name": "My Line 1",
+          "OrderId": "1235872",
+          "ProductId": "456366",
+          "ProviderData": "cid=88873",
+          "StartDate": "2014-12-05T06:00:00.000Z",
+          "Targeting": [
+            {
+              "Target": "Age",
+              "TargetValues": ["18-24","25-34"]
+            },
+            {
+              "Target": "Gender",
+              "TargetValues": ["Male"]
+            }
+          ]
+          "UsesExpandables": False
+        }
+  LinesResponse:
+    description: Collection of Line
+    headers:
+      X-Total-Count:
+        description: Total number of results
+        type: integer
+    schema:
+      $ref: "#/definitions/Lines"
+    examples:
+      application/json: |
+        {
+          "Lines": [
+            {
+              "BookingStatus": "Draft",
+              "Comment": "Free form comment",
+              "EndDate": "2014-12-10T18:00:00.000Z",
+              "FrequencyCount": 3,
+              "FrequencyInterval": "Day",
+              "Id": "345233",
+              "Quantity": 30000,
+              "Name": "My Line 1",
+              "OrderId": "1235872",
+              "ProductId": "456366",
+              "ProviderData": "cid=88873",
+              "StartDate": "2014-12-05T06:00:00.000Z",
+              "Targeting": [
+                {
+                  "Target": "Age",
+                  "TargetValues": ["18-24","25-34"]
+                },
+                {
+                  "Target": "Gender",
+                  "TargetValues": ["Male"]
+                }
+              ]
+              "UsesExpandables": False
+            }
+          ]
+        }
+  OrganizationResponse:
+    description: Organization resource
+    schema:
+      $ref: "#/definitions/Organization"
+    examples:
+      application/json: |
+        {
+          "Address": {
+            "AddressLine1": "1234 Tiger Blvd",
+            "City": "Redmond",
+            "Country": "US",
+            "PostalCode": "98123",
+            "State": "WA"
+          },
+          "Contacts": [
+            {
+              "Address": {
+              "AddressLine1": "1234 Tiger Blvd",
+              "City": "Redmond",
+              "Country": "US",
+              "PostalCode": "98123",
+              "State": "WA"
+            },
+              "Email": "jsilver@contoso.com",
+              "Honorific": "Ms",
+              "Fax": "2065551212",
+              "FirstName": "Janet",
+              "LastName": "Silver",
+              "Phone": "2065550101",
+              "Title": "Comptroller",
+              "Type": "Billing"
+            }
+          ],
+          "Fax": "2065551212",
+          "Id": "12345678",
+          "Industry": "Automotive",
+          "Name": "Contoso",
+          "Phone": "2065550100",
+          "ProviderData": "cid=89345",
+          "Status": "Approved",
+          "Url": "http://contoso.com"
+        }
+  OrganizationsResponse:
+    description: Collection of Organization
+    headers:
+      X-Total-Count:
+        description: Total number of results
+        type: integer
+    schema:
+      $ref: "#/definitions/Organizations"
+    examples:
+      application/json: |
+        {
+          "Organizations": [
+            {
+              "Address": {
+                "AddressLine1": "1234 Tiger Blvd",
+                "City": "Redmond",
+                "Country": "US",
+                "PostalCode": "98123",
+                "State": "WA"
+              },
+              "Contacts": [
+                {
+                  "Address": {
+                  "AddressLine1": "1234 Tiger Blvd",
+                  "City": "Redmond",
+                  "Country": "US",
+                  "PostalCode": "98123",
+                  "State": "WA"
+                },
+                  "Email": "jsilver@contoso.com",
+                  "Honorific": "Ms",
+                  "Fax": "2065551212",
+                  "FirstName": "Janet",
+                  "LastName": "Silver",
+                  "Phone": "2065550101",
+                  "Title": "Comptroller",
+                  "Type": "Billing"
+                }
+              ],
+              "Fax": "2065551212",
+              "Id": "12345678",
+              "Industry": "Automotive",
+              "Name": "Contoso",
+              "Phone": "2065550100",
+              "ProviderData": "cid=89345",
+              "Status": "Approved",
+              "Url": "http://contoso.com"
+            }
+          ]
+        }
+  ProductResponse:
+    description: Product resource
+    schema:
+      $ref: "#/definitions/Product"
+    examples:
+      application/json: |
+        {
+          "AdFormatTypes": [
+            "Flash",
+            "Tag",
+            "Image"
+          ],
+          "BasePrice": 1.31,
+          "Currency": "USD",
+          "DeliveryType": "Guaranteed",
+          "Descripion": "A description of the product for display purposes",
+          "Domain": "mydomain.com",
+          "EstimatedDailyAvails": "Hundreds of Thousands",
+          "Geometry": [
+            {
+              "Height": 160
+              "Width": 600
+            }
+          ],
+          "HttpsCompatible": False,
+          "Icon": "http://<domain>/<path>/icon.jpg",
+          "Id": "456366",
+          "InventoryType": {
+            "Name": "Desktop",
+            "Name": "Tablet"
+          },
+          "Languages": [
+            "EN"
+          ],
+          "Name": "Unique Product Name",
+          "MaturityLevel": {
+            "Level": "Over12"
+          },
+          "MaxDuration": 30,
+          "MinDuration": 1,
+          "MinSpend": 30.00,
+          "Position": "AboveFold",
+          "ProductTags": "Foo Bar Zoo",
+          "RateType": "CPM",
+          "TargetTypes": [
+            "2342",
+            "3355"
+          ],
+          "TimeZone": "Eastern Standard Time"
+          "Url": "http://<domain>/<path>/creativespec.aspx"
+        }
+  ProductsResponse:
+    description: Collection of Product
+    headers:
+      X-Total-Count:
+        description: Total number of results
+        type: integer
+    schema:
+      $ref: "#/definitions/Products"
+    examples:
+      application/json: |
+        {
+          "Products": [
+            {
+              "AdFormatTypes": [
+                "Flash",
+                "Tag",
+                "Image"
+              ],
+              "BasePrice": 1.31,
+              "Currency": "USD",
+              "DeliveryType": "Guaranteed",
+              "Descripion": "A description of the product for display purposes",
+              "Domain": "mydomain.com",
+              "EstimatedDailyAvails": "Hundreds of Thousands",
+              "Geometry": [
+                {
+                  "Height": 160
+                  "Width": 600
+                }
+              ],
+              "HttpsCompatible": False,
+              "Icon": "http://<domain>/<path>/icon.jpg",
+              "Id": "456366",
+              "InventoryType": {
+                "Name": "Desktop",
+                "Name": "Tablet"
+              },
+              "Languages": [
+                "EN"
+              ],
+              "Name": "Unique Product Name",
+              "MaturityLevel": {
+                "Level": "Over12"
+              },
+              "MaxDuration": 30,
+              "MinDuration": 1,
+              "MinSpend": 30.00,
+              "Position": "AboveFold",
+              "ProductTags": "Foo Bar Zoo",
+              "RateType": "CPM",
+              "TargetTypes": [
+                "2342",
+                "3355"
+              ],
+              "TimeZone": "Eastern Standard Time"
+              "Url": "http://<domain>/<path>/creativespec.aspx"
+            }
+          ]
+        }
+  ProductAvailsResponse:
+    description: Collection of ProductAvails
+    headers:
+      X-Total-Count:
+        description: Total number of results
+        type: integer
+    schema:
+      $ref: "#/definitions/Avails"
+    examples:
+      application/json: |
+        {
+          "Avails": [
+            {
+              "Availability": 21543,
+              "Currency": "USD",
+              "ProductId": "456366",
+              "Price": 1.26
+            }
+          ]
+        }
+  ChangeRequestResponse:
+    description: Change Reques resource
+    schema:
+      $ref: "#/definitions/ChangeRequest"
+    examples:
+      application/json: |
+        {
+          "AccountId": "23873345",
+          "Comments": "Please, remove this order",
+          "Id": "398421"
+          "OrderId": "1235872",
+          "ProviderData": "cid=563364",
+          "RequesterId": "1234987",
+          "Status": "PENDING",
+          "Webhook": "https://example.com/listen/ab32ce459aafc73a"
+        }
+  ChangeRequestsResponse:
+    description: Collection of Change Request
+    headers:
+      X-Total-Count:
+        description: Total number of results
+        type: integer
+    schema:
+      $ref: "#/definitions/ChangeRequests"
+    examples:
+      application/json: |
+        {
+          "ChangeRequests": [
+            {
+              "AccountId": "23873345",
+              "Comments": "Please, remove this order",
+              "Id": "398421"
+              "OrderId": "1235872",
+              "ProviderData": "cid=563364",
+              "RequesterId": "1234987",
+              "Status": "PENDING",
+              "Webhook": "https://example.com/listen/ab32ce459aafc73a"
+            }
+          ]
+        }
+  ReportingResponse:
+    description: Reporting resource
+    schema:
+      $ref: "#/definitions/Reporting"
+    examples:
+      application/json: |
+        {
+          "Clicks": 32573,
+          "CTR": 7.54,
+          "ImpressionsServed": 432009,
+          "ReportDate": "2014-12-05T06:00:00.000Z",
+          "Spend": 371523.41
+        }
+  Standard400ErrorResponse:
+    description: Bad request
+    schema:
+      $ref: "#/definitions/Errors"
+    examples:
+      application/json: |
+        {
+          "ErrorCode": "badRequest",
+          "ErrorMessage": "Request contains invalid data"
+        }
+  Standard401ErrorResponse:
+    description: Unauthorized
+    schema:
+      $ref: "#/definitions/Errors"
+    examples:
+      application/json: |
+        {
+          "ErrorCode": "unauthorized",
+          "ErrorMessage": "You are not authorized to use this service"
+        }
+  Standard404ErrorResponse:
+    description: Not found
+    schema:
+      $ref: "#/definitions/Errors"
+    examples:
+      application/json: |
+        {
+          "ErrorCode": "notFound",
+          "ErrorMessage": "Requested resource is not found"
+        }
+  Standard500ErrorResponse:
+    description: Unexpected error occurred
+    schema:
+      $ref: "#/definitions/Errors"
+    examples:
+      application/json: |
+        {
+          "ErrorCode": "internalError",
+          "ErrorMessage": "Unexpected error occurred"
+        }
+
+parameters:
+  count:
+    name: count
+    in: query
+    description: Indicates the number of desired records to be returned in the response.
+    type: integer
+    minimum: 1
+    default: 250
+  offset:
+    name: offset
+    in: query
+    description: Indicates the starting point from which the number of records should be returned in the response.
+    type: integer
+    minimum: 0
+    default: 0
+  accountId:
+    name: accountId
+    in: path
+    type: string
+    maxLength: 36
+    required: true
+    x-example: "23873345"
+  assignmentId:
+    name: assignmentId
+    in: path
+    type: string
+    maxLength: 36
+    required: true
+    x-example: "453365"
+  creativeId:
+    name: creativeId
+    in: path
+    type: string
+    maxLength: 36
+    required: true
+    x-example: "53444"
+  orderId:
+    name: orderId
+    in: path
+    type: string
+    maxLength: 36
+    required: true
+    x-example: "1235872"
+  lineId:
+    name: lineId
+    in: path
+    type: string
+    maxLength: 36
+    required: true
+    x-example: "345233"
+  organizationId:
+    name: organizationId
+    in: path
+    type: string
+    maxLength: 36
+    required: true
+    x-example: "12345678"
+  productId:
+    name: productId
+    in: path
+    type: string
+    maxLength: 36
+    required: true
+    x-example: "456366"
+  changerequestId:
+    name: changerequestId
+    in: path
+    type: string
+    maxLength: 36
+    required: true
+    x-example: "398421"

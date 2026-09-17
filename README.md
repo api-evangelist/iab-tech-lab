@@ -64,4 +64,13 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-IAB Tech Lab is a company surfaced via the API Evangelist harvest backlog (source: operator-attribution) and added to the network as a stub for full-pipeline profiling.
+IAB Technology Laboratory (IAB Tech Lab) is the non-profit consortium that writes the technical standards the digital advertising supply chain runs on — OpenRTB (real-time bidding), AdCOM, OpenDirect (programmatic direct), VAST and VMAP (video ad serving), the Transparency and Consent Framework and Global Privacy Platform (consent signals), ads.txt, app-ads.txt and sellers.json (supply-chain transparency), the Open Measurement SDK and the content/audience/ad-product taxonomies. Its machine-readable contracts are published in the open on GitHub: an OpenRTB 2.x Protocol Buffers definition, the AdCOM protobuf, an OpenDirect Swagger specification, VAST XSDs, and an agentic-advertising stack (buyer-agent, seller-agent, Deals API, Agentic RTB Framework gRPC) that ships OpenAPI 3.1 contracts, JSON Schema primitives, MCP servers and A2A agent cards as reference implementations. The Tech Lab Tools Portal and its Core API sit behind a member login.
+
+## What is in this profile
+
+- **openapi/** — OpenDirect 1.5.1 (Swagger 2.0, 51 ops), Ad Seller System API (OpenAPI 3.1, 87 ops), Ad Buyer Agent API (14 ops), IAB Agentic Advertising API (13 ops) — verbatim from the two IAB Tech Lab GitHub organizations (originals in `openapi/_original/`).
+- **grpc/** — OpenRTB 2.6-202606 protobuf, AdCOM 1.0 protobufs, Agentic RTB Framework gRPC service.
+- **xsd/** — VAST 4.1 / 4.2 / 4.4 and VMAP 1.0 XML Schemas. **json-schema/** — sixteen agentic primitives.
+- **mcp/** — the three self-hosted MCP servers (seller-agent 46 tools, OpenDirect 33 tools with inputSchemas, ARTF) and a tool-to-REST crosswalk. No IAB Tech Lab-hosted MCP or A2A endpoint exists.
+- **conventions/, errors/, lifecycle/, conformance/, changelog/, cli/, data-model/, packages/, plans/, rate-limits/, skills/, llms/, overlays/, authentication/, scopes/, security/, well-known/** — the runtime-semantics tier derived from those contracts and the provider's docs.
+- The only hosted API, the Supply Chain API, sits behind the Tools Portal login; its contract could not be read.

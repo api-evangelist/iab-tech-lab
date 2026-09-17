@@ -1,0 +1,529 @@
+generated: '2026-09-17'
+method: derived
+source: Derived by aligning the published seller-agent MCP tool list (mcp/iab-tech-lab-mcp.yml, from https://iabtechlab.github.io/seller-agent/reference/mcp-tools/)
+  with the seller-agent OpenAPI 3.1 (openapi/iab-tech-lab-seller-agent-openapi.json, 87 operations). The MCP server
+  is self-hosted so tools/list was not probed live; bindings are by name and documented semantics with confidence
+  per row.
+purpose: Bind each seller-agent MCP tool to the REST operationId(s) that back it so the tool inherits that operation's
+  parameters and requestBody as its real inputSchema. Ten tools are MCP-only (operator configuration and composites)
+  and the REST surface carries many operator/admin operations with no tool.
+surfaces:
+  rest_openapi: openapi/iab-tech-lab-seller-agent-openapi.json
+  mcp: 'self-hosted: http://localhost:8000/mcp/ (Streamable HTTP) or stdio — not hosted by IAB Tech Lab, tools/list
+    not probed'
+  a2a: 'self-hosted: /.well-known/agent.json + POST /a2a/jsonrpc (see openapi/iab-tech-lab-agentic-advertising-api-openapi.yaml)'
+  opendirect_mcp: mcp/iab-tech-lab-opendirect-mcp-tools.json — 33 OpenDirect v2.1 tools with published inputSchemas
+    (mcp-config); backing OpenDirect 1.5.1 Swagger has no operationIds, see opendirect_crosswalk
+crosswalk:
+- tool: health_check
+  category: setup
+  rest:
+  - health_health_get
+  binding: rest
+  confidence: high
+- tool: get_supply_chain
+  category: supply-chain
+  rest:
+  - get_supply_chain_api_v1_supply_chain_get
+  binding: rest
+  confidence: high
+- tool: get_rate_card
+  category: pricing
+  rest:
+  - get_rate_card_api_v1_rate_card_get
+  binding: rest
+  confidence: high
+- tool: update_rate_card
+  category: pricing
+  rest:
+  - update_rate_card_api_v1_rate_card_put
+  binding: rest
+  confidence: high
+- tool: sync_inventory
+  category: inventory
+  rest:
+  - trigger_inventory_sync_api_v1_inventory_sync_trigger_post
+  binding: rest
+  confidence: high
+- tool: get_sync_status
+  category: inventory
+  rest:
+  - get_inventory_sync_status_api_v1_inventory_sync_status_get
+  binding: rest
+  confidence: high
+- tool: list_gam_orders
+  category: ad-server
+  rest:
+  - gam_list_orders_gam_orders_get
+  binding: rest
+  confidence: high
+- tool: get_gam_delivery_report
+  category: ad-server
+  rest:
+  - gam_delivery_report_gam_report_get
+  binding: rest
+  confidence: high
+- tool: list_products
+  category: inventory
+  rest:
+  - list_products_products_get
+  binding: rest
+  confidence: high
+- tool: get_pricing
+  category: pricing
+  rest:
+  - get_pricing_pricing_post
+  binding: rest
+  confidence: high
+- tool: request_quote
+  category: deals
+  rest:
+  - create_quote_api_v1_quotes_post
+  binding: rest
+  confidence: high
+- tool: create_deal_from_template
+  category: deals
+  rest:
+  - create_deal_from_template_api_v1_deals_from_template_post
+  binding: rest
+  confidence: high
+- tool: create_curated_deal
+  category: deals
+  rest:
+  - create_curated_deal_api_v1_deals_curated_post
+  binding: rest
+  confidence: medium
+- tool: push_deal_to_buyers
+  category: deals
+  rest:
+  - push_deal_to_buyers_api_v1_deals_push_post
+  binding: rest
+  confidence: high
+- tool: distribute_deal_via_ssp
+  category: deals
+  rest:
+  - distribute_deal_via_ssp_api_v1_deals_distribute_post
+  binding: rest
+  confidence: high
+- tool: get_deal_performance
+  category: deals
+  rest:
+  - get_deal_performance_api_v1_deals__deal_id__performance_get
+  binding: rest
+  confidence: high
+- tool: get_deal_lineage
+  category: deals
+  rest:
+  - get_deal_lineage_api_v1_deals__deal_id__lineage_get
+  binding: rest
+  confidence: high
+- tool: migrate_deal
+  category: deals
+  rest:
+  - migrate_deal_api_v1_deals__deal_id__migrate_post
+  binding: rest
+  confidence: high
+- tool: deprecate_deal
+  category: deals
+  rest:
+  - deprecate_deal_api_v1_deals__deal_id__deprecate_post
+  binding: rest
+  confidence: high
+- tool: export_deals
+  category: deals
+  rest:
+  - export_deals_api_v1_deals_export_get
+  binding: rest
+  confidence: high
+- tool: bulk_deal_operations
+  category: deals
+  rest:
+  - bulk_deal_operations_api_v1_deals_bulk_post
+  binding: rest
+  confidence: high
+- tool: troubleshoot_deal
+  category: deals
+  rest:
+  - troubleshoot_deal_via_ssp_api_v1_deals__deal_id__ssp_troubleshoot_get
+  binding: rest
+  confidence: high
+- tool: list_orders
+  category: orders
+  rest:
+  - get_orders_report_api_v1_orders_report_get
+  - list_orders_api_v1_orders_get
+  binding: rest
+  confidence: high
+- tool: transition_order
+  category: orders
+  rest:
+  - transition_order_api_v1_orders__order_id__transition_post
+  binding: rest
+  confidence: high
+- tool: list_pending_approvals
+  category: approvals
+  rest:
+  - get_approval_approvals__approval_id__get
+  - list_pending_approvals_approvals_get
+  binding: rest
+  confidence: medium
+- tool: approve_or_reject
+  category: approvals
+  rest:
+  - decide_approval_approvals__approval_id__decide_post
+  - review_change_request_api_v1_change_requests__cr_id__review_post
+  binding: rest
+  confidence: medium
+- tool: list_sessions
+  category: sessions
+  rest:
+  - list_sessions_sessions_get
+  binding: rest
+  confidence: medium
+- tool: list_buyer_agents
+  category: registry
+  rest:
+  - get_registered_agent_registry_agents__agent_id__get
+  - list_registered_agents_registry_agents_get
+  binding: rest
+  confidence: high
+- tool: register_buyer_agent
+  category: registry
+  rest:
+  - discover_agent_registry_agents_discover_post
+  - discovery_query_discovery_post
+  binding: rest
+  confidence: high
+- tool: set_agent_trust
+  category: registry
+  rest:
+  - update_agent_trust_registry_agents__agent_id__trust_put
+  binding: rest
+  confidence: high
+- tool: list_curators
+  category: registry
+  rest:
+  - get_curator_api_v1_curators__curator_id__get
+  - list_curators_api_v1_curators_get
+  binding: rest
+  confidence: high
+- tool: list_packages
+  category: media-kit
+  rest:
+  - list_media_kit_packages_media_kit_packages_get
+  - list_packages_packages_get
+  binding: rest
+  confidence: high
+- tool: create_package
+  category: media-kit
+  rest:
+  - create_package_packages_post
+  binding: rest
+  confidence: high
+- tool: create_api_key
+  category: auth
+  rest:
+  - create_api_key_auth_api_keys_post
+  binding: rest
+  confidence: high
+- tool: list_api_keys
+  category: auth
+  rest:
+  - list_api_keys_auth_api_keys_get
+  binding: rest
+  confidence: high
+- tool: revoke_api_key
+  category: auth
+  rest:
+  - revoke_api_key_auth_api_keys__key_id__delete
+  binding: rest
+  confidence: high
+mcp_only:
+- tool: get_setup_status
+  reason: operator-side configuration introspection; no REST operation
+- tool: get_config
+  reason: operator-side configuration summary; no REST operation
+- tool: set_publisher_identity
+  reason: writes local publisher config; no REST operation
+- tool: list_agents
+  reason: introspects the in-process agent hierarchy
+- tool: list_inventory
+  reason: reads raw ad-server inventory before product mapping; REST exposes only mapped products
+- tool: set_approval_gates
+  reason: automation configuration; no REST operation
+- tool: list_configurable_flows
+  reason: automation configuration; no REST operation
+- tool: get_inbound_queue
+  reason: composite of pending approvals + unresolved items
+- tool: get_buyer_activity
+  reason: composite analytics over sessions and deals
+- tool: list_ssps
+  reason: reads SSP connector configuration; no REST operation
+rest_only:
+- agent_card__well_known_agent_json_get
+- agentic_audience_match_agentic_audience_match_post
+- apply_change_request_api_v1_change_requests__cr_id__apply_post
+- assemble_package_packages_assemble_post
+- book_deal_api_v1_deals_post
+- check_avails_products_avails_post
+- close_session_endpoint_sessions__session_id__close_post
+- counter_proposal_proposals__proposal_id__counter_post
+- create_change_request_api_v1_change_requests_post
+- create_order_api_v1_orders_post
+- create_session_sessions_post
+- delete_inventory_type_override_api_v1_products__product_id__inventory_type_delete
+- delete_package_packages__package_id__delete
+- generate_deal_deals_post
+- get_api_key_details_auth_api_keys__key_id__get
+- get_change_request_api_v1_change_requests__cr_id__get
+- get_deal_buyer_status_api_v1_deals__deal_id__buyer_status_get
+- get_deal_by_id_api_v1_deals__deal_id__get
+- get_event_events__event_id__get
+- get_inventory_type_override_api_v1_products__product_id__inventory_type_get
+- get_media_kit_package_media_kit_packages__package_id__get
+- get_negotiation_status_proposals__proposal_id__negotiation_get
+- get_order_api_v1_orders__order_id__get
+- get_order_audit_api_v1_orders__order_id__audit_get
+- get_order_history_api_v1_orders__order_id__history_get
+- get_package_packages__package_id__get
+- get_product_products__product_id__get
+- get_quote_api_v1_quotes__quote_id__get
+- get_session_sessions__session_id__get
+- get_sync_watermark_api_v1_inventory_sync_watermark_get
+- list_change_requests_api_v1_change_requests_get
+- list_events_events_get
+- media_kit_overview_media_kit_get
+- override_inventory_type_api_v1_products__product_id__inventory_type_post
+- post_negotiation_message_api_v1_negotiations_messages_post
+- register_curator_api_v1_curators_post
+- remove_registered_agent_registry_agents__agent_id__delete
+- resume_flow_approvals__approval_id__resume_post
+- root__get
+- search_media_kit_media_kit_search_post
+- send_session_message_sessions__session_id__messages_post
+- submit_proposal_proposals_post
+- sync_packages_packages_sync_post
+- update_package_packages__package_id__put
+opendirect_crosswalk:
+- tool: create_account
+  rest:
+  - POST /accounts
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: update_account
+  rest:
+  - PUT /accounts/{accountId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: get_account
+  rest:
+  - GET /accounts/{accountId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: list_accounts
+  rest:
+  - GET /accounts
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: create_order
+  rest:
+  - POST /accounts/{accountId}/orders
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: update_order
+  rest:
+  - PUT /accounts/{accountId}/orders/{orderId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: get_order
+  rest:
+  - GET /accounts/{accountId}/orders/{orderId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: list_orders
+  rest:
+  - GET /accounts/{accountId}/orders
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: create_line
+  rest:
+  - POST /accounts/{accountId}/orders/{orderId}/lines
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: update_line
+  rest:
+  - PUT /accounts/{accountId}/orders/{orderId}/lines/{lineId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: get_line
+  rest:
+  - GET /accounts/{accountId}/orders/{orderId}/lines/{lineId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: list_lines
+  rest:
+  - GET /accounts/{accountId}/orders/{orderId}/lines
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: create_creative
+  rest:
+  - POST /accounts/{accountId}/creatives
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: update_creative
+  rest:
+  - PUT /accounts/{accountId}/creatives/{creativeId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: get_creative
+  rest:
+  - GET /accounts/{accountId}/creatives/{creativeId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: list_creatives
+  rest:
+  - GET /accounts/{accountId}/creatives
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: create_assignment
+  rest:
+  - POST /accounts/{accountId}/assignments
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: delete_assignment
+  rest:
+  - DELETE /accounts/{accountId}/assignments/{assignmentId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: get_assignment
+  rest:
+  - GET /accounts/{accountId}/assignments/{assignmentId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: list_assignments
+  rest:
+  - GET /accounts/{accountId}/assignments
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: create_organization
+  rest:
+  - POST /organizations
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: update_organization
+  rest:
+  - PUT /organizations/{organizationId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: get_organization
+  rest:
+  - GET /organizations/{organizationId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: list_organizations
+  rest:
+  - GET /organizations
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: get_product
+  rest:
+  - GET /products/{productId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: list_products
+  rest:
+  - GET /products
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: search_products
+  rest:
+  - POST /products/search
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: create_changerequest
+  rest:
+  - POST /accounts/{accountId}/changerequest
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: get_changerequest
+  rest:
+  - GET /accounts/{accountId}/changerequest/{changerequestId}
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+- tool: list_changerequests
+  rest:
+  - GET /accounts/{accountId}/changerequest
+  binding: rest-path
+  confidence: medium
+  note: OpenDirect 1.5.1 Swagger declares no operationIds; bound by method+path. The MCP tool follows OpenDirect
+    2.1, which nests accounts under organizations differently.
+coverage:
+  mcp_tools: 46
+  bound: 36
+  mcp_only: 10
+  rest_operations: 87
+  rest_only: 44
+  opendirect_tools: 33
+  opendirect_bound: 30
+  opendirect_unbound:
+  - create_message
+  - get_message
+  - list_messages (Messages are OpenDirect 2.x objects absent from the 1.5.1 contract)

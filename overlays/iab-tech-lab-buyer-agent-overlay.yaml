@@ -1,0 +1,28 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist overlay for Ad Buyer Agent API
+  version: 1.0.0
+  x-generated: '2026-09-17'
+  x-method: generated
+  x-source: Generated from the artifacts in this repository; never mutates the original contract
+extends: openapi/iab-tech-lab-buyer-agent-openapi.json
+actions:
+- target: $.info
+  update:
+    x-api-evangelist:
+      profile: https://apis.io/providers/iab-tech-lab/
+      provider: IAB Tech Lab
+      harvested: '2026-09-17'
+      source: verbatim copy in openapi/_original/
+    contact:
+      name: IAB Tech Lab
+      url: https://iabtechlab.com/
+      email: techlab@iabtechlab.com
+- target: $.info
+  update:
+    x-conventions: conventions/iab-tech-lab-conventions.yml
+    x-errors: errors/iab-tech-lab-problem-types.yml
+    x-lifecycle: lifecycle/iab-tech-lab-lifecycle.yml
+- target: $.info
+  update:
+    x-hosting: Self-hosted reference implementation; no servers[] because IAB Tech Lab hosts no instance

@@ -1,0 +1,38 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist overlay for Ad Seller System API
+  version: 1.0.0
+  x-generated: '2026-09-17'
+  x-method: generated
+  x-source: Generated from the artifacts in this repository; never mutates the original contract
+extends: openapi/iab-tech-lab-seller-agent-openapi.json
+actions:
+- target: $.info
+  update:
+    x-api-evangelist:
+      profile: https://apis.io/providers/iab-tech-lab/
+      provider: IAB Tech Lab
+      harvested: '2026-09-17'
+      source: verbatim copy in openapi/_original/
+    contact:
+      name: IAB Tech Lab
+      url: https://iabtechlab.com/
+      email: techlab@iabtechlab.com
+- target: $.info
+  update:
+    x-conventions: conventions/iab-tech-lab-conventions.yml
+    x-errors: errors/iab-tech-lab-problem-types.yml
+    x-lifecycle: lifecycle/iab-tech-lab-lifecycle.yml
+- target: $.info
+  update:
+    x-hosting: Self-hosted reference implementation; no servers[] because IAB Tech Lab hosts no instance
+- target: $.paths['/api/v1/deals'].post
+  update:
+    x-idempotency:
+      mechanism: required idempotency_key body field
+      coverage: partial
+    x-reversibility: POST /api/v1/deals/{deal_id}/deprecate or /migrate; per-deal CancellationTerms
+- target: $.info
+  update:
+    x-mcp: 46 tools at /mcp/ (Streamable HTTP) — mcp/iab-tech-lab-mcp.yml; crosswalk in mcp/iab-tech-lab-tool-crosswalk.yml
+    x-a2a: GET /.well-known/agent.json + POST /a2a/jsonrpc when self-hosted

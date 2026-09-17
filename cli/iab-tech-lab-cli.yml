@@ -1,0 +1,34 @@
+generated: '2026-09-17'
+method: searched
+source: >-
+  https://iabtechlab.github.io/seller-agent/api/authentication/ (ad-seller commands), seller-agent README
+  (freewheel-login), pyproject.toml of seller-agent (ad-seller entry point) and buyer-agent (ad-buyer entry point).
+name: ad-seller
+description: >-
+  Operator CLI shipped with the IAB Tech Lab seller agent. It writes directly to the agent's storage
+  backend (no network surface), which is how the first operator API key is bootstrapped before the HTTP
+  API can mint further keys. A sibling ad-buyer CLI ships with the buyer agent.
+install:
+- method: source
+  command: git clone https://github.com/IABTechLab/seller-agent && cd seller-agent && uv sync --locked
+  note: 'entry point ad-seller = ad_seller.interfaces.cli.main:main; pip install -e . also works. Not on PyPI.'
+commands:
+- group: operator keys
+  commands:
+  - 'ad-seller create-operator-key --label "Primary operator"   # prints the key once; --quiet/-q prints only the key'
+  - 'ad-seller list-operator-keys [--include-inactive]          # metadata only, secrets never re-shown'
+  - 'ad-seller delete-operator-key --label "..." | --key-id key-a1b2c3d4'
+- group: ad-server auth
+  commands:
+  - 'ad-seller freewheel-login --provider sh   # OAuth 2.1 PKCE bootstrap for FreeWheel Streaming Hub'
+  - 'ad-seller freewheel-login --provider bc   # OAuth 2.1 PKCE bootstrap for FreeWheel Buyer Cloud'
+- group: server
+  commands:
+  - 'uv run uvicorn ad_seller.interfaces.api.main:app --port 8000   # starts REST + MCP (/mcp/) + A2A'
+key_flows:
+- name: bootstrap an operator
+  steps: [ad-seller create-operator-key, 'export the key, then POST /auth/api-keys over HTTP to mint buyer keys']
+related:
+- name: ad-buyer
+  package: https://github.com/IABTechLab/buyer-agent
+  entry_point: 'ad_buyer.interfaces.cli.main:app'

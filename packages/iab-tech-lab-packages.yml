@@ -1,0 +1,170 @@
+generated: '2026-09-17'
+method: searched
+source: >-
+  https://github.com/InteractiveAdvertisingBureau and https://github.com/IABTechLab (the two IAB Tech
+  Lab GitHub organizations) cross-checked against registry.npmjs.org, search.maven.org and
+  pypi.org/pypi/<pkg>/json on 2026-09-17. version/published are read from registry metadata, not prose.
+description: >-
+  First-party libraries IAB Tech Lab publishes for its standards. The consent libraries (TCF, GPP)
+  are the ones on public registries; the OpenRTB/AdCOM protobufs and the agentic buyer/seller agents
+  are distributed from GitHub only (no PyPI or npm release), which is recorded as registry: github
+  with the latest tag as the version.
+packages:
+- language: javascript
+  registry: npm
+  name: "@iabtechlabtcf/core"
+  url: https://www.npmjs.com/package/@iabtechlabtcf/core
+  source: https://github.com/InteractiveAdvertisingBureau/iabtcf-es
+  install: npm install @iabtechlabtcf/core
+  official: true
+  version: 1.5.22
+  published: '2026-09-01'
+  note: TCF v2 TC-string encoder/decoder (successor of @iabtcf/core, last published 2023-04-04 at 1.5.6).
+- language: javascript
+  registry: npm
+  name: "@iabtechlabtcf/cmpapi"
+  url: https://www.npmjs.com/package/@iabtechlabtcf/cmpapi
+  source: https://github.com/InteractiveAdvertisingBureau/iabtcf-es
+  install: npm install @iabtechlabtcf/cmpapi
+  official: true
+  version: 1.5.22
+  published: '2026-09-01'
+- language: javascript
+  registry: npm
+  name: "@iabtechlabtcf/stub"
+  url: https://www.npmjs.com/package/@iabtechlabtcf/stub
+  source: https://github.com/InteractiveAdvertisingBureau/iabtcf-es
+  install: npm install @iabtechlabtcf/stub
+  official: true
+  version: 1.5.22
+  published: '2026-09-01'
+- language: javascript
+  registry: npm
+  name: "@iabgpp/cmpapi"
+  url: https://www.npmjs.com/package/@iabgpp/cmpapi
+  source: https://github.com/IABTechLab/iabgpp-es
+  install: npm install @iabgpp/cmpapi
+  official: true
+  version: 3.2.0
+  published: '2026-08-03'
+  note: Global Privacy Platform CMP API + GPP string encoder/decoder.
+- language: javascript
+  registry: npm
+  name: "@iabgpp/stub"
+  url: https://www.npmjs.com/package/@iabgpp/stub
+  source: https://github.com/IABTechLab/iabgpp-es
+  install: npm install @iabgpp/stub
+  official: true
+  version: 3.2.0
+  published: '2026-08-03'
+- language: java
+  registry: maven
+  name: com.iabgpp:iabgpp-core
+  url: https://central.sonatype.com/artifact/com.iabgpp/iabgpp-core
+  source: https://github.com/IABTechLab/iabgpp-java
+  install: 'implementation("com.iabgpp:iabgpp-core:3.2.4")'
+  official: true
+  version: 3.2.4
+  published: '2025-06-25'
+- language: java
+  registry: maven
+  name: com.iabtcf:iabtcf-core
+  url: https://central.sonatype.com/artifact/com.iabtcf/iabtcf-core
+  source: https://github.com/InteractiveAdvertisingBureau/iabtcf-java
+  install: 'implementation("com.iabtcf:iabtcf-core:2.0.10")'
+  official: true
+  version: 2.0.10
+  published: '2021-10-29'
+  note: Also com.iabtcf:iabtcf-decoder at the same version. Last release 2021-10-29 while the JS suite still ships monthly.
+- language: javascript
+  registry: npm
+  name: consent-string
+  url: https://www.npmjs.com/package/consent-string
+  source: https://github.com/InteractiveAdvertisingBureau/Consent-String-SDK-JS
+  install: npm install consent-string
+  official: true
+  version: 1.5.2
+  published: '2019-10-03'
+  note: TCF v1.1 consent string SDK — superseded by @iabtechlabtcf/core; unmaintained since 2019.
+- language: protobuf
+  registry: github
+  name: openrtb2.x/proto (com.iabtechlab.openrtb.v2)
+  url: https://github.com/InteractiveAdvertisingBureau/openrtb2.x/tree/main/proto
+  source: https://github.com/InteractiveAdvertisingBureau/openrtb2.x
+  install: 'make  # generates object code from openrtb.proto with protoc (see proto/Makefile)'
+  official: true
+  version: 2.6-202606
+  published: '2026-06-11'
+  note: Version is the openrtb2.x GitHub release tag; no Maven/npm artifact is published for the proto.
+- language: java
+  registry: github
+  name: openrtb-proto-v2 (openrtb-core)
+  url: https://github.com/IABTechLab/openrtb-proto-v2
+  source: https://github.com/IABTechLab/openrtb-proto-v2
+  install: 'git clone https://github.com/IABTechLab/openrtb-proto-v2'
+  official: true
+  version: null
+  published: null
+  note: OpenRTB 2.x protobuf model + Java JSON helpers; no artifact found on Maven Central under com.iabtechlab (searched 2026-09-17).
+- language: protobuf
+  registry: github
+  name: adcom-proto (com.iabtechlab.adcom.v1)
+  url: https://github.com/IABTechLab/adcom-proto
+  source: https://github.com/IABTechLab/adcom-proto
+  install: 'git clone https://github.com/IABTechLab/adcom-proto'
+  official: true
+  version: null
+  published: null
+  note: No tagged release and no registry artifact; repository last pushed 2024-10-16.
+- language: python
+  registry: github
+  name: iab-agentic-primitives
+  url: https://github.com/IABTechLab/iab-agentic-primitives
+  source: https://github.com/IABTechLab/iab-agentic-primitives
+  install: 'pip install "iab-agentic-primitives @ git+https://github.com/IABTechLab/iab-agentic-primitives@v0.5.1"'
+  official: true
+  version: v0.5.1
+  published: '2026-08-10'
+  note: Pre-release shared contract library (spec + Python reference implementation); not on PyPI, pin a tag per the README.
+- language: python
+  registry: github
+  name: ad_seller_system (seller-agent)
+  url: https://github.com/IABTechLab/seller-agent
+  source: https://github.com/IABTechLab/seller-agent
+  install: 'git clone https://github.com/IABTechLab/seller-agent && cd seller-agent && uv sync --locked'
+  official: true
+  version: v2.4.2
+  published: '2026-08-18'
+  note: Reference seller agent (REST + MCP + A2A); ships the ad-seller CLI. Not on PyPI (checked ad-seller, iab-seller-agent).
+- language: python
+  registry: github
+  name: ad-buyer-system (buyer-agent)
+  url: https://github.com/IABTechLab/buyer-agent
+  source: https://github.com/IABTechLab/buyer-agent
+  install: 'git clone https://github.com/IABTechLab/buyer-agent'
+  official: true
+  version: v2.4.2
+  published: '2026-08-18'
+  note: Reference buyer agent; ships the ad-buyer CLI. Not on PyPI.
+- language: javascript
+  registry: github
+  name: mcp-config (OpenDirect A2A + MCP reference server)
+  url: https://github.com/InteractiveAdvertisingBureau/mcp-config
+  source: https://github.com/InteractiveAdvertisingBureau/mcp-config
+  install: 'git clone https://github.com/InteractiveAdvertisingBureau/mcp-config && cd mcp-config && npm install && npm start'
+  official: true
+  version: null
+  published: null
+  note: No tagged release; repository last pushed 2026-01-08. Runs on localhost:3000.
+- language: javascript
+  registry: cdn
+  name: iabtechlab-sdk (Tools Portal SDK)
+  url: https://storage.googleapis.com/techlab-storage/sdk/iabtechlab-sdk_v1.7.3.js
+  source: https://tools.iabtechlab.com/
+  install: '<script src="https://storage.googleapis.com/techlab-storage/sdk/iabtechlab-sdk_v1.7.3.js"></script>'
+  official: true
+  version: 1.7.3
+  published: null
+  note: >-
+    Browser SDK the Tools Portal loads for the Transparency Center and Data Label; version read from the
+    pinned URL, no registry metadata endpoint exists. Calls api.iabtechlab.com / coreapi.iabtechlab.com.
