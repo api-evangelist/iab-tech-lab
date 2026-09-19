@@ -21,6 +21,18 @@ modified: '2026-09-17'
 tags:
 - Company
 - Advertising
+- AdTech
+- Standards
+- Programmatic
+- Real-Time Bidding
+- Consent
+- Privacy
+- Video Ads
+- Agentic Advertising
+- Non-Profit
+tags_raw:
+- Company
+- Advertising
 - Ad Tech
 - Standards
 - Programmatic
@@ -42,6 +54,10 @@ apis:
   x-base-url-note: No hosted base URL. The specification names host opendirect.example.com (1.5.1) and https://opendirect.example.com/v2.1
     (2.1) as placeholders; each implementing seller publishes its own.
   tags:
+  - Programmatic Direct
+  - Media Buying
+  - Order
+  tags_raw:
   - Programmatic Direct
   - Media Buying
   - Orders
