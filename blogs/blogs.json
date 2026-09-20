@@ -1,0 +1,18 @@
+{
+  "repo": "iab-tech-lab",
+  "feeds": [
+    {
+      "source": "https://iabtechlab.com/category/blog/",
+      "error": "HTTPError"
+    },
+    {
+      "source": "https://github.com/InteractiveAdvertisingBureau",
+      "feed_url": "https://github.com/InteractiveAdvertisingBureau",
+      "title": "",
+      "saved": 0,
+      "method": "none"
+    }
+  ],
+  "post_count": 0,
+  "fetched": "2026-09-19T20:17:39Z"
+}
