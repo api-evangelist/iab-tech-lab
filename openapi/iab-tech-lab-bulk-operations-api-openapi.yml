@@ -1,0 +1,223 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Bulk Operations API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Bulk Operations across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Bulk Operations
+  description: Batch deal create/update/cancel
+paths:
+  /api/v1/deals/bulk:
+    post:
+      tags:
+      - Bulk Operations
+      summary: Bulk Deal Operations
+      description: 'Process a batch of deal operations (create/update/cancel).
+
+
+        Enables the Deal Library buyer agent to efficiently manage multiple
+
+        deals in a single request. Each operation is processed independently
+
+        and returns per-operation success/failure.'
+      operationId: bulk_deal_operations_api_v1_deals_bulk_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDealRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkDealResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    BulkDealResponse:
+      properties:
+        total:
+          type: integer
+          title: Total
+        succeeded:
+          type: integer
+          title: Succeeded
+        failed:
+          type: integer
+          title: Failed
+        results:
+          items:
+            $ref: '#/components/schemas/BulkDealOperationResult'
+          type: array
+          title: Results
+      type: object
+      required:
+      - total
+      - succeeded
+      - failed
+      - results
+      title: BulkDealResponse
+      description: Batch results for bulk deal operations.
+    QuoteBuyerIdentityModel:
+      properties:
+        seat_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Id
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        dsp_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dsp Platform
+      type: object
+      title: QuoteBuyerIdentityModel
+      description: Buyer identity in a quote request.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    BulkDealOperation:
+      properties:
+        action:
+          type: string
+          title: Action
+        deal_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deal Id
+        quote_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Quote Id
+        buyer_identity:
+          anyOf:
+          - $ref: '#/components/schemas/QuoteBuyerIdentityModel'
+          - type: 'null'
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - action
+      title: BulkDealOperation
+      description: A single operation in a bulk deal request.
+    BulkDealRequest:
+      properties:
+        operations:
+          items:
+            $ref: '#/components/schemas/BulkDealOperation'
+          type: array
+          title: Operations
+      type: object
+      required:
+      - operations
+      title: BulkDealRequest
+      description: Batch of deal operations.
+    BulkDealOperationResult:
+      properties:
+        index:
+          type: integer
+          title: Index
+        action:
+          type: string
+          title: Action
+        success:
+          type: boolean
+          title: Success
+        deal_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deal Id
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - index
+      - action
+      - success
+      title: BulkDealOperationResult
+      description: Result of a single bulk operation.
+x-refined-from:
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

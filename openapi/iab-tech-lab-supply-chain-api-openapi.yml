@@ -1,0 +1,123 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Supply Chain API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Supply Chain across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Supply Chain
+  description: Supply chain transparency (sellers.json-like self-description)
+paths:
+  /api/v1/supply-chain:
+    get:
+      tags:
+      - Supply Chain
+      summary: Get Supply Chain
+      description: 'Return sellers.json-based self-description of this seller instance.
+
+
+        If SELLERS_JSON_PATH is configured, parses the real sellers.json file
+
+        per IAB spec. Otherwise returns a default single-node chain.
+
+        Also includes an OpenRTB-compatible schain object.'
+      operationId: get_supply_chain_api_v1_supply_chain_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplyChainResponse'
+components:
+  schemas:
+    SupplyChainResponse:
+      properties:
+        seller_id:
+          type: string
+          title: Seller Id
+        seller_name:
+          type: string
+          title: Seller Name
+        seller_type:
+          type: string
+          title: Seller Type
+        domain:
+          type: string
+          title: Domain
+        is_direct:
+          type: boolean
+          title: Is Direct
+        supported_deal_types:
+          items:
+            type: string
+          type: array
+          title: Supported Deal Types
+        contact_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact Email
+        schain:
+          items:
+            $ref: '#/components/schemas/SupplyChainNodeModel'
+          type: array
+          title: Schain
+        version:
+          type: string
+          title: Version
+          default: '1.0'
+      type: object
+      required:
+      - seller_id
+      - seller_name
+      - seller_type
+      - domain
+      - is_direct
+      - supported_deal_types
+      - schain
+      title: SupplyChainResponse
+      description: Supply chain transparency response (sellers.json-like self-description).
+    SupplyChainNodeModel:
+      properties:
+        asi:
+          type: string
+          title: Asi
+        sid:
+          type: string
+          title: Sid
+        name:
+          type: string
+          title: Name
+        domain:
+          type: string
+          title: Domain
+        seller_type:
+          type: string
+          title: Seller Type
+        is_direct:
+          type: boolean
+          title: Is Direct
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+      type: object
+      required:
+      - asi
+      - sid
+      - name
+      - domain
+      - seller_type
+      - is_direct
+      title: SupplyChainNodeModel
+      description: A node in the supply chain (sellers.json format).
+x-refined-from:
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

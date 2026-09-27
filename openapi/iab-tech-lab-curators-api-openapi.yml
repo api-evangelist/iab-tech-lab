@@ -1,0 +1,287 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Curators API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Curators across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Curators
+paths:
+  /api/v1/curators:
+    get:
+      tags:
+      - Curators
+      summary: List Curators
+      description: 'List all registered curators.
+
+
+        Returns curators who can create deals against this publisher''s
+
+        inventory. Agent Range is pre-registered as a day-one curator.'
+      operationId: list_curators_api_v1_curators_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+    post:
+      tags:
+      - Curators
+      summary: Register Curator
+      description: 'Register a new curator.
+
+
+        Curators can then create deals against this publisher''s inventory
+
+        via the /api/v1/deals/curated endpoint.'
+      operationId: register_curator_api_v1_curators_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CuratorRegistrationRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/curators/{curator_id}:
+    get:
+      tags:
+      - Curators
+      summary: Get Curator
+      description: Get details for a specific curator.
+      operationId: get_curator_api_v1_curators__curator_id__get
+      parameters:
+      - name: curator_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Curator Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/deals/curated:
+    post:
+      tags:
+      - Curators
+      summary: Create Curated Deal
+      description: 'Create a deal with curator overlay.
+
+
+        The curator''s fee is added on top of the publisher''s base price.
+
+        The curator appears as a node in the deal''s schain. The buyer
+
+        pays the total CPM (publisher + curator fee).
+
+
+        The deal is created via the normal from-template flow, then
+
+        enriched with curator identity, fee, and targeting overlay.'
+      operationId: create_curated_deal_api_v1_deals_curated_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CuratedDealRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CuratorRegistrationRequest:
+      properties:
+        curator_id:
+          type: string
+          title: Curator Id
+        name:
+          type: string
+          title: Name
+        domain:
+          type: string
+          title: Domain
+        curator_type:
+          type: string
+          title: Curator Type
+          default: full_service
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        fee_type:
+          type: string
+          title: Fee Type
+          default: percent
+        fee_value:
+          type: number
+          title: Fee Value
+          default: 0.0
+        contact_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact Email
+        api_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Api Key
+        audience_segments:
+          items:
+            type: string
+          type: array
+          title: Audience Segments
+          default: []
+        content_categories:
+          items:
+            type: string
+          type: array
+          title: Content Categories
+          default: []
+        supported_deal_types:
+          items:
+            type: string
+          type: array
+          title: Supported Deal Types
+          default:
+          - pmp
+          - preferred
+          - pg
+      type: object
+      required:
+      - curator_id
+      - name
+      - domain
+      title: CuratorRegistrationRequest
+      description: Request to register a new curator.
+    CuratedDealRequest:
+      properties:
+        curator_id:
+          type: string
+          title: Curator Id
+        deal_type:
+          type: string
+          title: Deal Type
+          default: PMP
+        product_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Product Id
+        max_cpm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max Cpm
+        impressions:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Impressions
+        flight_start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Flight Start
+        flight_end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Flight End
+        buyer_seat_ids:
+          items:
+            type: string
+          type: array
+          title: Buyer Seat Ids
+          default: []
+        audience_segments:
+          items:
+            type: string
+          type: array
+          title: Audience Segments
+          default: []
+        content_categories:
+          items:
+            type: string
+          type: array
+          title: Content Categories
+          default: []
+      type: object
+      required:
+      - curator_id
+      title: CuratedDealRequest
+      description: Request to create a curated deal.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+x-refined-from:
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

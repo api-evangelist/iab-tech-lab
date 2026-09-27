@@ -1,0 +1,21 @@
+openapi: 3.2.0
+info:
+  title: IAB Agentic Advertising .well Known API
+  version: 0.1.0
+  description: 'Canonical wire protocol between the IAB Tech Lab buyer and seller agents: catalog, quote->book deal flow, negotiation, change requests, A2A (Agent-to-Agent protocol) JSON-RPC messaging, and Agent Card discovery.'
+tags:
+- name: .well Known
+paths:
+  /.well-known/agent.json:
+    get:
+      operationId: getAgentCard
+      summary: Agent Card for A2A discovery — the shared Agent primitive; ONE card schema for…
+      responses:
+        '200':
+          description: The agent's card.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/Agent.json
+      tags:
+      - .well Known

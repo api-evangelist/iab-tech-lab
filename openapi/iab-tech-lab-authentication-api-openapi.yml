@@ -1,0 +1,202 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Authentication API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Authentication across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Authentication
+  description: API key lifecycle management
+paths:
+  /auth/api-keys:
+    get:
+      tags:
+      - Authentication
+      summary: List Api Keys
+      description: List all API keys (metadata only, no secrets).
+      operationId: list_api_keys_auth_api_keys_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+    post:
+      tags:
+      - Authentication
+      summary: Create Api Key
+      description: 'Create a new API key for a buyer.
+
+
+        The response contains the full API key which is shown ONLY ONCE.
+
+        Store it securely — it cannot be retrieved again.'
+      operationId: create_api_key_auth_api_keys_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApiKeyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /auth/api-keys/{key_id}:
+    get:
+      tags:
+      - Authentication
+      summary: Get Api Key Details
+      description: Get details for a specific API key.
+      operationId: get_api_key_details_auth_api_keys__key_id__get
+      parameters:
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Authentication
+      summary: Revoke Api Key
+      description: Revoke an API key. Revoked keys return 401 on use.
+      operationId: revoke_api_key_auth_api_keys__key_id__delete
+      parameters:
+      - name: key_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Key Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    CreateApiKeyRequest:
+      properties:
+        seat_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Id
+        seat_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Name
+        dsp_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dsp Platform
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        agency_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Name
+        agency_holding_company:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Holding Company
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        advertiser_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Name
+        label:
+          type: string
+          title: Label
+          default: ''
+        expires_in_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Expires In Days
+      type: object
+      title: CreateApiKeyRequest
+      description: Request to create a new API key for a buyer.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+x-refined-from:
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

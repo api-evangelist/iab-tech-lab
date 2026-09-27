@@ -1,0 +1,264 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Accounts API
+  version: 1.5.1
+  description: 'Operations tagged Accounts across 2 of this provider''s published API definitions: iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-opendirect-1-5-1-swagger.yaml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://opendirect.example.com/v1.5.1
+security:
+- OauthSecurity:
+  - https://opendirect.example.com/scope/example
+tags:
+- name: Accounts
+paths:
+  /accounts:
+    get:
+      tags:
+      - Accounts
+      description: 'Gets a list of all accounts.
+
+        For an advertiser, the list of accounts will include only accounts that they own. However, for an agency, the list of accounts will include the accounts that they own and the accounts that they manage on behalf of advertisers.
+
+        User should be able to filter the accounts by any of the fields or field values of the owned account. Logical AND/OR condition of the fields shall be allowed.'
+      parameters:
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/offset'
+      - name: $filter
+        in: query
+        description: 'Allows to get a list of accounts that match the specified filter criteria. The user may use OData expressions with the following Account properties:
+
+          - AdvertiserId
+
+          - BuyerId
+
+          May also support getting a list of IDs.
+
+          '
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/AccountsResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Get accounts
+      x-summary-source: derived
+      operationId: getAccounts
+      x-operation-id-source: derived
+    post:
+      tags:
+      - Accounts
+      description: 'Adds an account.
+
+        An advertiser or agency may add accounts to only the organization they own; an agency may not add accounts to an advertiser’s organization. If an advertiser wants an agency to manage an account on their behalf, the advertiser must add the account and set the account’s BuyerId to the agency’s organization ID.
+
+        An organization may add as many accounts as needed to create a buying structure that supports their needs. For example, the organization may create a single account, an account for each region, an account for each brand, and so on.'
+      responses:
+        201:
+          $ref: '#/components/responses/AccountResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Account'
+        required: true
+      summary: Create accounts
+      x-summary-source: derived
+      operationId: postAccounts
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}:
+    get:
+      tags:
+      - Accounts
+      description: 'Gets the specified account.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the accounts that they own. In addition, an agency may get the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      responses:
+        200:
+          $ref: '#/components/responses/AccountResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Get accounts by account id
+      x-summary-source: derived
+      operationId: getAccountsByAccountId
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+components:
+  schemas:
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    Account:
+      description: 'An account defines a buyer-advertiser relationship. A buyer is typically an agency that places orders on behalf of several advertisers. Each account associates a buyer with one advertiser and is used to manage orders for one publisher. An advertiser may also work with several buyers, and therefore, advertisers have a separate account for each buyer they work with. If an advertiser represents itself, the account identifies the advertiser as both the buyer and the advertiser.
+
+        Before an agency may create accounts and perform buys on behalf of the advertiser, the advertiser must give permissions to the agency. The process of giving or removing permissions is publisher-defined. Creating an account must fail if the advertiser has not given the agency permissions.
+
+        The Account owns the orders and creative.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - $ref: '#/components/schemas/ProviderData'
+      - required:
+        - AdvertiserId
+        - BuyerId
+        - Name
+        properties:
+          AdvertiserId:
+            description: An ID that identifies the organization that is acting as the advertiser. Advertiser ID may be generated by the buyer (agency) or by the publisher if the advertiser is also the buyer. An advertiser that is representing itself must have an AdvertiserId and BuyerId that match.
+            type: string
+            maxLength: 36
+          BuyerId:
+            description: An ID that identifies the organization that is acting as the buyer. The Publisher generates the BuyerId. If the advertiser is performing their own buys, AdvertiserId and BuyerId must be the same.
+            type: string
+            maxLength: 36
+          Name:
+            description: The name of the account. Used for display purposes.
+            type: string
+            maxLength: 36
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Accounts:
+      required:
+      - Accounts
+      properties:
+        Accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Account'
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+  responses:
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    AccountsResponse:
+      description: Collection of Account
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Accounts'
+          example: "{\n  \"Accounts\": [\n    {\n      \"AdvertiserId\": \"1234987\",\n      \"BuyerId\": \"1234987\",\n      \"Id\": \"9876542\",\n      \"Name\": \"Brand B\",\n      \"ProviderData\": \"cid=8934579\"\n    },\n    {\n      \"AdvertiserId\": \"1234987\",\n      \"BuyerId\": \"34587\",\n      \"Id\": \"23873345\",\n      \"Name\": \"Brand A\",\n      \"ProviderData\": \"cid=934759\"\n    }\n  ]\n}\n"
+    AccountResponse:
+      description: Account resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Account'
+          example: "{\n  \"AdvertiserId\": \"1234987\",\n  \"BuyerId\": \"34587\",\n  \"Id\": \"23873345\",\n  \"Name\": \"Brand A\",\n  \"ProviderData\": \"cid=934759\"\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+  securitySchemes:
+    OauthSecurity:
+      type: oauth2
+      flows:
+        implicit:
+          scopes:
+            https://opendirect.example.com/scope/example: Example scope
+          authorizationUrl: https://opendirect.example.com/connect/authorize
+      description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+x-refined-from:
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml

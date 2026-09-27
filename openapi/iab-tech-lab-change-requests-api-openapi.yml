@@ -1,0 +1,818 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Change Requests API
+  version: '1.0'
+  description: 'Operations tagged Change Requests across 5 of this provider''s published API definitions: iab-tech-lab-agentic-advertising-api-openapi.yaml, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://opendirect.example.com/v1.5.1
+tags:
+- name: Change Requests
+paths:
+  /api/v1/change-requests:
+    post:
+      operationId: createChangeRequest
+      summary: Post-booking modification (money-mutating; idempotency_key required).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../jsonschema/protocol/ChangeRequestCreate.json
+      responses:
+        '201':
+          description: Envelope wrapping the ChangeRequest primitive.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/ChangeRequestResponse.json
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+      tags:
+      - Change Requests
+    get:
+      tags:
+      - Change Requests
+      summary: List Change Requests
+      description: List change requests, optionally filtered by order or status.
+      operationId: list_change_requests_api_v1_change_requests_get
+      parameters:
+      - name: order_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Order Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /accounts/{accountId}/changerequest:
+    get:
+      tags:
+      - Change Requests
+      description: Gets a list of all change requests that belong to the account.
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - name: $filter
+        in: query
+        description: 'Gets a list of change requests that match the specified filter criteria. The user may use OData expressions and method calls with the following Order properties.
+
+          - Status
+
+          - OrderId
+
+          May support getting a list by IDs.
+
+          '
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/ChangeRequestsResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Get accounts by account id changerequest
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdChangerequest
+      x-operation-id-source: derived
+    post:
+      tags:
+      - Change Requests
+      description: Adds a change request to the account.
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      responses:
+        201:
+          $ref: '#/components/responses/ChangeRequestResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeRequest'
+        required: true
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Create accounts by account id changerequest
+      x-summary-source: derived
+      operationId: postAccountsByAccountIdChangerequest
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/changerequest/{changerequestId}:
+    get:
+      tags:
+      - Change Requests
+      description: Gets the specified change request.
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/changerequestId'
+      responses:
+        200:
+          $ref: '#/components/responses/ChangeRequestResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Get accounts by account id changerequest by changerequest id
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdChangerequestByChangerequestId
+      x-operation-id-source: derived
+    put:
+      tags:
+      - Change Requests
+      description: Updates the specified change request.
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/changerequestId'
+      responses:
+        200:
+          $ref: '#/components/responses/ChangeRequestResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Replace accounts by account id changerequest by changerequest id
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdChangerequestByChangerequestId
+      x-operation-id-source: derived
+    delete:
+      tags:
+      - Change Requests
+      description: Deletes the specified change request. May delete the change request only if the request is in a “PENDING” state.
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/changerequestId'
+      responses:
+        204:
+          description: Change Request successfully deleted.
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Delete accounts by account id changerequest by changerequest id
+      x-summary-source: derived
+      operationId: deleteAccountsByAccountIdChangerequestByChangerequestId
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/changerequest/{changerequestId}?approve:
+    put:
+      tags:
+      - Change Requests
+      description: Approves a change request for an account.
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/changerequestId'
+      responses:
+        200:
+          $ref: '#/components/responses/ChangeRequestResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Replace accounts by account id changerequest {changerequest id}?approve
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdChangerequest{changerequestId}?approve
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/changerequest/{changerequestId}?reject:
+    put:
+      tags:
+      - Change Requests
+      description: Rejects a change request for an account.
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/changerequestId'
+      responses:
+        200:
+          $ref: '#/components/responses/ChangeRequestResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Replace accounts by account id changerequest {changerequest id}?reject
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdChangerequest{changerequestId}?reject
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /api/v1/change-requests/{cr_id}:
+    get:
+      tags:
+      - Change Requests
+      summary: Get Change Request
+      description: Get a change request by ID.
+      operationId: get_change_request_api_v1_change_requests__cr_id__get
+      parameters:
+      - name: cr_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Cr Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/change-requests/{cr_id}/review:
+    post:
+      tags:
+      - Change Requests
+      summary: Review Change Request
+      description: Approve or reject a pending change request.
+      operationId: review_change_request_api_v1_change_requests__cr_id__review_post
+      parameters:
+      - name: cr_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Cr Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewChangeRequestModel'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/change-requests/{cr_id}/apply:
+    post:
+      tags:
+      - Change Requests
+      summary: Apply Change Request
+      description: 'Apply an approved change request to the order.
+
+
+        Updates the order with the proposed values from the change request.'
+      operationId: apply_change_request_api_v1_change_requests__cr_id__apply_post
+      parameters:
+      - name: cr_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Cr Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  responses:
+    Error:
+      description: 'Structured error envelope: {"detail": {"error": <ErrorCode>, "message": "...", "unsupported": [...]}}.'
+      content:
+        application/json:
+          schema:
+            $ref: ../jsonschema/protocol/ErrorEnvelope.json
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    ChangeRequestsResponse:
+      description: Collection of Change Request
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ChangeRequests'
+          example: "{\n  \"ChangeRequests\": [\n    {\n      \"AccountId\": \"23873345\",\n      \"Comments\": \"Please, remove this order\",\n      \"Id\": \"398421\"\n      \"OrderId\": \"1235872\",\n      \"ProviderData\": \"cid=563364\",\n      \"RequesterId\": \"1234987\",\n      \"Status\": \"PENDING\",\n      \"Webhook\": \"https://example.com/listen/ab32ce459aafc73a\"\n    }\n  ]\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    ChangeRequestResponse:
+      description: Change Reques resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ChangeRequest'
+          example: "{\n  \"AccountId\": \"23873345\",\n  \"Comments\": \"Please, remove this order\",\n  \"Id\": \"398421\"\n  \"OrderId\": \"1235872\",\n  \"ProviderData\": \"cid=563364\",\n  \"RequesterId\": \"1234987\",\n  \"Status\": \"PENDING\",\n  \"Webhook\": \"https://example.com/listen/ab32ce459aafc73a\"\n}\n"
+  schemas:
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    ChangeRequests:
+      required:
+      - ChangeRequests
+      properties:
+        ChangeRequests:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChangeRequest'
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    ContactType:
+      description: Defines the possible types of Contacts.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The type’s display name.
+            type: string
+            enum:
+            - Billing
+            - Buyer
+            - Creative
+    Contact:
+      description: Defines an agency or advertiser contact.
+      required:
+      - FirstName
+      - LastName
+      - Type
+      properties:
+        Address:
+          description: Required if TYPE is Billing and the preferred billing method for the organization or order is paper.
+          $ref: '#/components/schemas/Address'
+        Email:
+          description: 'The contact’s email address.
+
+            Required if TYPE is Billing and the preferred billing method for the organization or order is electronic.
+
+            '
+          type: string
+          maxLength: 254
+          x-publisher-support-required: true
+        Honorific:
+          description: Honorific such as Mr. or Ms.
+          type: string
+          maxLength: 20
+        Fax:
+          description: The contact’s fax number.
+          type: string
+          maxLength: 20
+        FirstName:
+          description: The contact’s first name.
+          type: string
+          maxLength: 20
+        LastName:
+          description: The contact’s last name.
+          type: string
+          maxLength: 20
+        Phone:
+          description: The contact’s phone number
+          type: string
+          maxLength: 20
+          x-publisher-support-required: true
+        Title:
+          description: The contact’s job title.
+          type: string
+          maxLength: 30
+          x-publisher-support-required: true
+        Type:
+          $ref: '#/components/schemas/ContactType'
+          readOnly: true
+    ChangeRequest:
+      description: 'When an order has already been placed and a change is needed, the ChangeRequest resource can be used to request a change and subsequently modify the order pending the approval of the change request.
+
+        The OrderSearch object can be used to search for orders that have an order status of “ChangePending.”
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - $ref: '#/components/schemas/ProviderData'
+      - required:
+        - AccountId
+        - OrderId
+        - RequesterId
+        - Status
+        properties:
+          AccountId:
+            description: The ID of the account that identifies the advertiser and buyer that own the Change. This must be the same as the AccountId for the Order.
+            type: string
+            maxLength: 36
+          Comments:
+            description: Optional comments as to why the Change is being requested/proposed.
+            type: string
+            maxLength: 1000
+          Contacts:
+            description: 'The list of contacts to use for this change. This list of contacts is in addition to the buyer’s and advertiser’s list of contacts.
+
+              The list must contain unique contact types (for example, only one billing contact).
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/Contact'
+            uniqueItems: true
+          OrderId:
+            description: The ID of the Order that the Change is Requested for.
+            type: string
+            maxLength: 36
+          RequesterId:
+            description: The OrganisationID of the Change Requester usually the AgencyID if the change was requested by an Agency or the PublisherID if the change was requested by the Vendor.
+            type: string
+            maxLength: 36
+          Status:
+            description: Specifies the Status of the Change Request.
+            type: string
+            enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+            maxLength: 36
+            readOnly: true
+          Webhook:
+            description: 'URI which is called when the change is approved, rejected or modified by the Seller.
+
+              URI is called with a PUT request containing Change as a JSON object.
+
+              '
+            type: string
+            maxLength: 1024
+    Address:
+      description: The address object is used to provide values for the ORGANIZAION resource.
+      required:
+      - City
+      - Country
+      - AddressLine1
+      properties:
+        City:
+          description: The city name of an organization or contact for which this address is associated.
+          type: string
+          maxLength: 35
+        Country:
+          $ref: '#/components/schemas/Country'
+        AddressLine1:
+          description: The first line of the address of an organization or contact for which this address is associated.
+          type: string
+          maxLength: 255
+        AddressLine2:
+          description: The optional second line of the address.
+          type: string
+          maxLength: 255
+          x-publisher-support-required: true
+        PostalCode:
+          description: The postal or ZIP code for the address.
+          type: string
+          maxLength: 15
+          x-publisher-support-required: true
+        State:
+          description: The state or province for the address.
+          type: string
+          maxLength: 35
+          x-publisher-support-required: true
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+    Country:
+      description: 'Defines a country that the API supports.
+
+        The API may support all or a subset of the countries specified in ISO 3166-1.
+
+        '
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The country’s two-character ISO code (ISO 3166-1).
+          type: string
+          minLength: 2
+          maxLength: 2
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ReviewChangeRequestModel:
+      properties:
+        decision:
+          type: string
+          title: Decision
+        decided_by:
+          type: string
+          title: Decided By
+          default: system
+        reason:
+          type: string
+          title: Reason
+          default: ''
+      type: object
+      required:
+      - decision
+      title: ReviewChangeRequestModel
+      description: Approve or reject a change request.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    FieldDiffModel:
+      properties:
+        field:
+          type: string
+          title: Field
+        old_value:
+          title: Old Value
+        new_value:
+          title: New Value
+      type: object
+      required:
+      - field
+      title: FieldDiffModel
+    CreateChangeRequestModel:
+      properties:
+        order_id:
+          type: string
+          title: Order Id
+        change_type:
+          type: string
+          title: Change Type
+        diffs:
+          items:
+            $ref: '#/components/schemas/FieldDiffModel'
+          type: array
+          title: Diffs
+          default: []
+        proposed_values:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Proposed Values
+        reason:
+          type: string
+          title: Reason
+          default: ''
+        requested_by:
+          type: string
+          title: Requested By
+          default: system
+      type: object
+      required:
+      - order_id
+      - change_type
+      title: CreateChangeRequestModel
+      description: Request to create a change request for an order.
+  parameters:
+    changerequestId:
+      name: changerequestId
+      in: path
+      required: true
+      x-example: '398421'
+      schema:
+        type: string
+        maxLength: 36
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+  securitySchemes:
+    OauthSecurity:
+      type: oauth2
+      flows:
+        implicit:
+          scopes:
+            https://opendirect.example.com/scope/example: Example scope
+          authorizationUrl: https://opendirect.example.com/connect/authorize
+      description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+x-refined-from:
+- iab-tech-lab-agentic-advertising-api-openapi.yaml
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-seller-agent-openapi.json

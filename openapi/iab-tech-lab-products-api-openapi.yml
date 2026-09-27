@@ -1,0 +1,1975 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Products API
+  version: '1.0'
+  description: 'Operations tagged Products across 7 of this provider''s published API definitions: iab-tech-lab-agentic-advertising-api-openapi.yaml, iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://opendirect.example.com/v1.5.1
+tags:
+- name: Products
+paths:
+  /products:
+    get:
+      operationId: listProducts
+      summary: Paginated product catalog (filtering is client-side; no /products/search)
+      parameters:
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 50
+      - name: offset
+        in: query
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      responses:
+        '200':
+          description: Page of products with pagination echo.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/ProductListResponse.json
+      tags:
+      - Products
+  /products/{product_id}:
+    get:
+      operationId: getProduct
+      summary: Product detail (the Product primitive, no wrapper)
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The product.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/Product.json
+        '404':
+          $ref: '#/components/responses/Error'
+      tags:
+      - Products
+  /products/avails:
+    post:
+      operationId: checkAvails
+      summary: Availability + pricing query (OpenDirect 2.1 spec dialect and legacy simplified…
+      description: 'Honest-availability check, served in BOTH dialects. Servers accept the published OpenDirect 2.1 ProductAvailsSearch (multi-product productids array with required accountid/advertiserbrandid) AND the legacy single-product simplified profile, discriminated by productids (array, spec) vs productid (scalar, legacy). The response dialect follows the request dialect — spec requests get the spec ''avails'' collection envelope of Avails records (per the OpenDirect Collection Objects table) with availsstatus semantics (Available / Partially Available / Unavailable, enumerated reasons); legacy requests get the legacy single-object response unchanged, so v2.1.0-v2.2.1 payload round-trips are preserved. Legacy policy (unchanged): availableImpressions is REQUIRED (uncapped products report the requested volume as available). deliveryConfidence is OPTIONAL and OMITTED entirely when the seller has no forecast data source — emitters MUST NOT fabricate a value or pad with null (readers tolerate null from pre-contract emitters). guaranteedImpressions is present ONLY for PG-capable (Programmatic Guaranteed) products. Money fields on this surface are floats — a documented FD-11 exception preserving the shipped OpenDirect 2.1 wire dialect; migration to Money micros is reserved for the next major version.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - $ref: ../jsonschema/protocol/ProductAvailsSearch.json
+              - $ref: ../jsonschema/protocol/AvailsRequest.json
+      responses:
+        '200':
+          description: 'Availability and pricing derived from catalog data. Spec requests: the ''avails'' collection envelope (one Avails record per requested product). Legacy requests: the legacy single-object response.'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: ../jsonschema/protocol/AvailsCollection.json
+                - $ref: ../jsonschema/protocol/AvailsResponse.json
+        '404':
+          $ref: '#/components/responses/Error'
+        '422':
+          description: Unpriceable product (neither base nor floor CPM) or request validation failure — never a fabricated price.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/ErrorEnvelope.json
+      tags:
+      - Products
+  /products/search:
+    post:
+      tags:
+      - Products
+      summary: Search Products
+      description: Search available advertising products.
+      operationId: search_products_products_search_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductSearchRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Search Products Products Search Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/{productId}:
+    get:
+      tags:
+      - Products
+      description: 'Gets the specified product from the publisher’s product catalog.
+
+        Only the buyers/advertisers who have obtained an Organization ID and Buyer ID/Advertiser ID from the publisher shall issue this request. The ID issued should be a valid product id previously retrieved from the publisher, for example, with /products. Invalid IDs should return an error (define error code/message).'
+      parameters:
+      - $ref: '#/components/parameters/productId'
+      responses:
+        200:
+          $ref: '#/components/responses/ProductResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Get products by product id
+      x-summary-source: derived
+      operationId: getProductsByProductId
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /api/v1/products/{product_id}/inventory-type:
+    post:
+      tags:
+      - Products
+      summary: Override Inventory Type
+      description: 'Override the auto-detected inventory type for a product.
+
+
+        Publishers can correct misclassified inventory types from ad server sync
+
+        or apply custom categorization. The override persists across future syncs.'
+      operationId: override_inventory_type_api_v1_products__product_id__inventory_type_post
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Product Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryTypeOverride'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Products
+      summary: Get Inventory Type Override
+      description: Get the current inventory type override for a product, if any.
+      operationId: get_inventory_type_override_api_v1_products__product_id__inventory_type_get
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Product Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Products
+      summary: Delete Inventory Type Override
+      description: Remove an inventory type override, reverting to auto-detected type.
+      operationId: delete_inventory_type_override_api_v1_products__product_id__inventory_type_delete
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Product Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  responses:
+    Error:
+      description: 'Structured error envelope: {"detail": {"error": <ErrorCode>, "message": "...", "unsupported": [...]}}.'
+      content:
+        application/json:
+          schema:
+            $ref: ../jsonschema/protocol/ErrorEnvelope.json
+    ProductsResponse:
+      description: Collection of Product
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Products'
+          example: "{\n  \"Products\": [\n    {\n      \"AdFormatTypes\": [\n        \"Flash\",\n        \"Tag\",\n        \"Image\"\n      ],\n      \"BasePrice\": 1.31,\n      \"Currency\": \"USD\",\n      \"DeliveryType\": \"Guaranteed\",\n      \"Descripion\": \"A description of the product for display purposes\",\n      \"Domain\": \"mydomain.com\",\n      \"EstimatedDailyAvails\": \"Hundreds of Thousands\",\n      \"Geometry\": [\n        {\n          \"Height\": 160\n          \"Width\": 600\n        }\n      ],\n      \"HttpsCompatible\": False,\n      \"Icon\": \"http://<domain>/<path>/icon.jpg\",\n      \"Id\": \"456366\",\n      \"InventoryType\": {\n        \"Name\": \"Desktop\",\n        \"Name\": \"Tablet\"\n      },\n      \"Languages\": [\n        \"EN\"\n      ],\n      \"Name\": \"Unique Product Name\",\n      \"MaturityLevel\": {\n        \"Level\": \"Over12\"\n      },\n      \"MaxDuration\": 30,\n      \"MinDuration\": 1,\n      \"MinSpend\": 30.00,\n      \"Position\": \"AboveFold\",\n      \"ProductTags\": \"Foo Bar Zoo\",\n      \"RateType\": \"CPM\",\n      \"TargetTypes\": [\n        \"2342\",\n        \"3355\"\n      ],\n      \"TimeZone\": \"Eastern Standard Time\"\n      \"Url\": \"http://<domain>/<path>/creativespec.aspx\"\n    }\n  ]\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    ProductAvailsResponse:
+      description: Collection of ProductAvails
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Avails'
+          example: "{\n  \"Avails\": [\n    {\n      \"Availability\": 21543,\n      \"Currency\": \"USD\",\n      \"ProductId\": \"456366\",\n      \"Price\": 1.26\n    }\n  ]\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    ProductResponse:
+      description: Product resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Product'
+          example: "{\n  \"AdFormatTypes\": [\n    \"Flash\",\n    \"Tag\",\n    \"Image\"\n  ],\n  \"BasePrice\": 1.31,\n  \"Currency\": \"USD\",\n  \"DeliveryType\": \"Guaranteed\",\n  \"Descripion\": \"A description of the product for display purposes\",\n  \"Domain\": \"mydomain.com\",\n  \"EstimatedDailyAvails\": \"Hundreds of Thousands\",\n  \"Geometry\": [\n    {\n      \"Height\": 160\n      \"Width\": 600\n    }\n  ],\n  \"HttpsCompatible\": False,\n  \"Icon\": \"http://<domain>/<path>/icon.jpg\",\n  \"Id\": \"456366\",\n  \"InventoryType\": {\n    \"Name\": \"Desktop\",\n    \"Name\": \"Tablet\"\n  },\n  \"Languages\": [\n    \"EN\"\n  ],\n  \"Name\": \"Unique Product Name\",\n  \"MaturityLevel\": {\n    \"Level\": \"Over12\"\n  },\n  \"MaxDuration\": 30,\n  \"MinDuration\": 1,\n  \"MinSpend\": 30.00,\n  \"Position\": \"AboveFold\",\n  \"ProductTags\": \"Foo Bar Zoo\",\n  \"RateType\": \"CPM\",\n  \"TargetTypes\": [\n    \"2342\",\n    \"3355\"\n  ],\n  \"TimeZone\": \"Eastern Standard Time\"\n  \"Url\": \"http://<domain>/<path>/creativespec.aspx\"\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ProductSearchRequest:
+      properties:
+        channel:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Channel
+        format:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Format
+        min_price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Min Price
+        max_price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max Price
+        limit:
+          type: integer
+          maximum: 50.0
+          minimum: 1.0
+          title: Limit
+          default: 10
+      type: object
+      title: ProductSearchRequest
+      description: Request to search products.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    DeliveryType:
+      description: Defines the possible types of delivery.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The delivery type’s display name.
+            type: string
+            enum:
+            - Exclusive
+            - Guaranteed
+    Language:
+      description: Defines a language that the API supports. The API may support all or a subset of the languages specified in ISO 639-1.
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The language’s two-character ISO code as specified in ISO 639-1.
+          type: string
+          minLength: 2
+          maxLength: 2
+    Currency:
+      description: 'Defines a currency that the API supports.
+
+        The API may support all or a subset of the currencies specified in ISO-4217.
+
+        '
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The currency’s three-character ISO code (ISO 4217).
+          type: string
+          minLength: 3
+          maxLength: 3
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+    ProductAvails:
+      description: The ProductAvails object returns product availability and pricing information.
+      required:
+      - Availability
+      - Currency
+      - ProductId
+      - Price
+      properties:
+        Availability:
+          description: 'The quantity available for booking for the specified date range. Availability for a given date range may vary.
+
+            In order for products to be returned in a PRODUCT AVAILS SEARCH, product availability must be equal to or less than the value provided in the Quantity property of the PRODUCT AVAILS SEARCH object.
+
+            For example, if Quantity is set to 500,000 in PRODUCT AVAILS SEARCH, impression availability for the product must be at least 500,000. However, if only 250,000 impressions are available, the product is not returned.
+
+            Publishers may set an artificial limit on the maximum number of available impressions. If the quantity field in PRODUCT AVAILS SEARCH is not provided, all products matching other criteria are returned showing maximum availability.
+
+            '
+          type: integer
+        Currency:
+          description: The currency used to specify Price. Currency is set for the PRODUCT resource.
+          $ref: '#/components/schemas/Currency'
+        ProductId:
+          description: Each ID returned matches one of the product IDs provided in the ProductId property of the PRODUCT AVAILS SEARCH object.
+          type: string
+        Price:
+          description: The product’s price per unit as defined using RATE TYPE reference data. The product’s rate type determines the unit. For example, if RateType is CPM, the price is per 1,000 impressions.
+          type: number
+    ProductAvailsSearch:
+      description: 'The ProductAvailsSearch object is used to set search criteria used for listing all product availability and pricing within the given search criteria. The object returned is the ProductAvails object.
+
+        While the ProductAvailsSearch returns results that show specific availability, the ProductSearch returns product information independent of availability.
+
+        '
+      required:
+      - EndDate
+      - Quantity
+      - ProductIds
+      - StartDate
+      properties:
+        AccountId:
+          description: The ID of the account that identifies the agency and advertiser. If not specified, the pricing information is based on the product’s base rate.
+          type: string
+        Currency:
+          description: The currency the product supports. If the publisher supports the option to filter product avails by currency, then only products that support select currency is returned. Otherwise, publisher returns duplicate product avails, each with different supported currencies.
+          $ref: '#/components/schemas/Currency'
+        EndDate:
+          description: The desired end date for inventory delivery. The date and time must be later than StartDate.
+          type: string
+          format: date
+        FrequencyCount:
+          description: The maximum number of times that a unique user may see ads during the interval specified within the FrequencyInterval setting for this object. If the product uses frequency capping, both FrequencyCount and FrequencyInterval must be set.
+          type: integer
+        FrequencyInterval:
+          description: The interval within which the frequency count applies if frequency capping is used for the product. For example, if the frequency count is set to 3 and the interval set to a day, then ads for the product may be shown to a user no more than three times per day. If the product uses frequency capping, both FrequencyCount and FrequencyInterval must be set. Available frequency intervals are provided using the FREQUENCY CAP INTERVAL reference data.
+          $ref: '#/components/schemas/FrequencyCapInterval'
+        Quantity:
+          description: The quantity of inventory units requested for the specified date range. This value will differ based on various cost types. For CPM, for example, the value would be in thousands of impressions. Leave field blank to return a product list with maximum availability for products specified. The publisher may set a maximum quantity limit.
+          type: integer
+        ProductIds:
+          description: A list of IDs that identify the products on which to get availability and pricing information. Product IDs are system-generated unique IDs for the Id property of each PRODUCT resource. The maximum number of IDs that can be specified is publisher dependent. The date range, availability, and targeting apply to all specified products.
+          type: array
+          items:
+            type: string
+        StartDate:
+          description: The desired start date for inventory delivery. The date and time must be later than current date and time.
+          type: string
+          format: date
+        Targeting:
+          description: The segments to target. For example, behavioral, age, and gender segments.
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+    FrequencyCapInterval:
+      description: 'Defines the frequency cap intervals that the API supports.
+
+        The frequency interval specifies the units in which the frequency count is expressed. For example, if a line’s frequency count is 2 and interval is Day, display the ad to the same user a Max 2 times in the same calendar day.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The name of the interval.
+            type: string
+            enum:
+            - Day
+            - Month
+            - Week
+            - Hour
+            - LineDuration
+    AdPosition:
+      description: Defines the possible ad positions on a web page.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The ad position’s display name.
+            type: string
+            enum:
+            - AboveFold
+            - BelowFold
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    RateType:
+      description: Defines a unit of measure that a cost (i.e. BasePrice) is expressed in. The API may support all or a subset of the specified values.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The rate type’s display name.
+            type: string
+            enum:
+            - CPM
+            - CPMV
+            - CPC
+            - CPD
+            - FlatRate
+    Products:
+      required:
+      - Products
+      properties:
+        Products:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+    ProductSearch:
+      description: 'The ProductSearch object is used to generate a general list of products independent of their availability. For example, an agency might be interested in looking up all products that support video ads just to get an idea for what the options are. Alternatively, the ProductAvailsSearch returns a list of products within specified search criteria.
+
+        Product selection uses a logical AND between fields and a logical OR between field values. For example, the product is selected if it supports the Flash OR Image OR Text ad format, AND supports USD currency, AND specifies the ? tag OR bar product tag.
+
+        At least one field must be specified.
+
+        '
+      properties:
+        AdFormatTypes:
+          description: One or more ad types. Return products that support one or more of the specified formats.
+          type: array
+          items:
+            $ref: '#/components/schemas/AdFormatType'
+          x-publisher-support-required: true
+        Currency:
+          description: The currency that the product supports. Return products that support the specified currency.
+          $ref: '#/components/schemas/Currency'
+          x-publisher-support-required: true
+        DeliveryType:
+          $ref: '#/components/schemas/DeliveryType'
+          x-publisher-support-required: true
+        Domain:
+          description: The product’s domain.
+          type: string
+          x-publisher-support-required: true
+        Geometry:
+          description: One or more ad sizes. Return products that support one or more of the specified sizes.
+          type: array
+          items:
+            $ref: '#/components/schemas/Size'
+          x-publisher-support-required: true
+        ProductTags:
+          description: 'One or more tags used to label products. Returns products that have product tags that exactly match one or more of the specified tags. A match occurs if the specified tag exactly matches the product’s tag (using a case insensitive comparison).
+
+            For example, the product is selected if the specified search tag is Travel and the product includes a Travel tag. However, if the product includes only a European Travel tag, the product is not selected.
+
+            '
+          type: array
+          items:
+            type: string
+    TargetValue:
+      description: 'Defines a target value.
+
+        The API must support the specified values per target category.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Value
+        - TargetId
+        properties:
+          Value:
+            description: The target value
+            type: string
+            enum:
+            - Age - Publisher-defined age ranges
+            - Gender - Female
+            - Gender - Male
+            - DMA - Publisher-defined  source (such as Digital Envoy)
+            - Country - Publisher-defined source
+            - State-Province - Publisher-defined source
+            - Daypart - 0 through 23 hours
+            - Weekpart - Sunday
+            - Weekpart - Monday
+            - Weekpart - Tuesday
+            - Weekpart - Wednesday
+            - Weekpart - Thursday
+            - Weekpart - Friday
+            - Weekpart - Saturday
+          TargetId:
+            description: A system-generated ID that identifies the target category that this value belongs to.
+            type: string
+    Avails:
+      required:
+      - Avails
+      properties:
+        Avails:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAvails'
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    Product:
+      description: A Product resource identifies anything from an ad placement to a Run of Network product in the publisher’s product catalog. Values for all supported fields are provided by the publisher.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - AdFormatTypes
+        - BasePrice
+        - Currency
+        - Geometry
+        - Name
+        - RateType
+        properties:
+          ActiveDate:
+            description: The date and time, in UTC, that the product may become part of the bookable inventory.
+            type: string
+            format: date-time
+          AdFormatTypes:
+            description: A list of ad types that the product supports.
+            type: array
+            items:
+              $ref: '#/components/schemas/AdFormatType'
+          AllowNoCreative:
+            description: A Boolean value that indicates whether line items assigned to this order may be booked before creative is assigned. A value of TRUE allows lines to be booked without creative assigned. Default value is FALSE and prevents lines from being booked when no creative is assigned.
+            type: boolean
+          BasePrice:
+            description: The product’s base retail price; this is not the rate card price. The actual price may be more if targeting is specified.
+            type: number
+          Currency:
+            description: Identifies the currency for BasePrice and MinSpend.
+            $ref: '#/components/schemas/Currency'
+          DeliveryType:
+            $ref: '#/components/schemas/DeliveryType'
+          Description:
+            description: The product’s description.
+            type: string
+            maxLength: 255
+          Domain:
+            description: The product’s domain.
+            type: string
+            maxLength: 255
+          EstimatedDailyAvails:
+            description: 'An estimated range of available daily impressions.
+
+              The ranges should be of the form: Thousands, Tens of Thousands, Hundreds of Thousands, and so on.
+
+              '
+            type: string
+          Geometry:
+            description: A list of ad format sizes that the product supports.
+            type: array
+            items:
+              $ref: '#/components/schemas/Size'
+          HttpsCompatible:
+            description: A Boolean value that determines whether the product supports creatives that can properly render on an HTML web page served over HTTPS.
+            type: boolean
+          Icon:
+            description: 'URL to a thumbnail icon of the product. May be used to display next to the product in the product catalog.
+
+              Publishers should support icons that are 150x150 or less. The maximum size is 10 KB.
+
+              '
+            type: string
+          InventoryType:
+            $ref: '#/components/schemas/InventoryType'
+          Languages:
+            description: A list of creative languages that the product supports.
+            type: array
+            items:
+              $ref: '#/components/schemas/Language'
+          LeadTime:
+            description: The number of days (n) from today that a line that reference this product can begin running; the line’s start date must be equal to or later than today + n.
+            type: integer
+          Name:
+            description: 'The product’s display name.
+
+              The name must be unique.
+
+              '
+            type: string
+            maxLength: 38
+          MaturityLevel:
+            $ref: '#/components/schemas/MaturityLevel'
+          MaxDuration:
+            description: The maximum number of days that the product may be booked for. The line must enforce the duration.
+            type: integer
+          MinDuration:
+            description: The minimum number of days that the product must be booked for. The line must enforce the duration.
+            type: integer
+          MinSpend:
+            description: The minimum amount of money that must be spent on this product in order to book it.
+            type: number
+          Position:
+            $ref: '#/components/schemas/AdPosition'
+          ProductTags:
+            description: List of tags used for searching the product catalog.
+            type: array
+            items:
+              type: string
+              maxLength: 100
+            maxItems: 500
+          RateType:
+            $ref: '#/components/schemas/RateType'
+          RetirementDate:
+            description: The date and time, in UTC, that the product may be removed from the bookable inventory.
+            type: string
+            format: date-time
+          TargetTypes:
+            description: A list of IDs that identify the types of targeting that the product supports.
+            type: array
+            items:
+              $ref: '#/components/schemas/Target'
+          TimeZone:
+            description: The time zone that the product runs in.
+            type: string
+          Url:
+            description: A URL to the specification that describes the creative requirements.
+            type: string
+    AdFormatType:
+      description: Defines the possible ad formats.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The ad format’s display name.
+            type: string
+            enum:
+            - HTML5
+            - HTML5Expandable
+            - Flash
+            - FlashExpandable
+            - Image
+            - Tag
+            - TagExpandable
+            - Text
+            - Video
+            - VPAID
+            - MRAID
+    MaturityLevel:
+      description: Defines a list of maturity levels. Current maturity level definitions comply with those provided in section 4.2.3 of the TAG's Inventory Quality Guidelines released December, 2015. Current guidelines can be found on the tagtoday.net website. The API may support all or a subset of the  specified values.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Level
+        properties:
+          Level:
+            description: The accepted maturity level for the specified inventory.
+            type: string
+            enum:
+            - All
+            - Over12
+            - Mature
+            - NotSpecified
+    Size:
+      description: The Size object defines the height and width (in pixels) that a publisher accepts. The size object populates publisher-accepted sizes in the GEOMETRY property of relevant resources, such as CREATIVE.
+      required:
+      - Height
+      - Width
+      properties:
+        Height:
+          description: The height of accepted creative size in pixels.
+          type: integer
+        Width:
+          description: The width of accepted creative size in pixels.
+          type: integer
+    InventoryType:
+      description: Defines a list of devices that the product may serve on.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The ad format’s display name.
+            type: string
+            enum:
+            - App
+            - Desktop
+            - Mobile
+            - Tablet
+    Segment:
+      description: The segment object is made up of TARGET and TARGET VALUE reference data objects and is used to specify targeting options for a LINE resource
+      required:
+      - Target
+      - TargetValues
+      properties:
+        Target:
+          $ref: '#/components/schemas/Target'
+        TargetValues:
+          description: A list of target values. For example, age range 18-24 and 25-34.
+          type: array
+          items:
+            $ref: '#/components/schemas/TargetValue'
+    Target:
+      description: Defines a target category. The API must support the specified target categories and may support additional categories such as zip code or postal code.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The target category.
+            type: string
+            enum:
+            - Age
+            - Gender
+            - DMA
+            - Country
+            - State/Province
+            - Daypart
+            - Weekpart
+            - Behavioral
+            - Device
+    DeliveryType_2:
+      type: string
+      enum:
+      - Exclusive
+      - Guaranteed
+      - PMP
+      title: DeliveryType
+      description: 'Delivery type for a product (OpenDirect vocabulary).
+
+
+        PMP = private marketplace.'
+    AvailsStatusReason:
+      type: string
+      enum:
+      - Booked
+      - Optioned
+      - Excluded
+      - OutOfCharge
+      - Prohibited
+      - Manual Trade Only
+      - InvalidPeriodLength
+      - InvalidFrameID
+      - InvalidBudget
+      - InvalidPrice
+      - ClientDuplication
+      - LocationDuplication
+      - LocationJuxta
+      title: AvailsStatusReason
+      description: 'Spec ``AvailsStatus.reason``: why inventory is not fully available.'
+    CommercialTerms:
+      properties:
+        supported_deal_types:
+          items:
+            $ref: '#/components/schemas/DealType'
+          type: array
+          title: Supported Deal Types
+          description: 'Supported deal types: ''PG'' (Programmatic Guaranteed), ''PD'' (Preferred Deal), ''PA'' (Private Auction).'
+        supported_pricing_models:
+          items:
+            $ref: '#/components/schemas/PricingModel'
+          type: array
+          title: Supported Pricing Models
+        minimum_deal_value:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+        guarantee_allowed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Guarantee Allowed
+        makegood_allowed:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Makegood Allowed
+      type: object
+      title: CommercialTerms
+      description: Commercial capabilities a product supports (not binding terms).
+    ProductAvailsSearch_2:
+      properties:
+        productids:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Productids
+          description: Products to get availability + pricing for (spec-required, non-empty).
+        targeting:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Targeting
+          description: 'AdCOM Segment object array ({"name": <dimension>, "value": <value>}).'
+        producttargeting:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProductTargeting'
+            type: array
+          - type: 'null'
+          title: Producttargeting
+          description: ProductTargeting entries to target for the availability request.
+        accountid:
+          type: string
+          maxLength: 36
+          title: Accountid
+          description: Account identifying the buyer, advertiser, and other stakeholders (spec-required).
+        currency:
+          anyOf:
+          - type: string
+            maxLength: 3
+          - type: 'null'
+          title: Currency
+          description: ISO-4217 currency code.
+        advertiserbrandid:
+          type: string
+          maxLength: 36
+          title: Advertiserbrandid
+          description: Brand being advertised (spec-required).
+        availabilityfields:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProductTargeting'
+            type: array
+          - type: 'null'
+          title: Availabilityfields
+          description: ProductTargeting metrics availability is returned as.
+        grouping:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProductTargeting'
+            type: array
+          - type: 'null'
+          title: Grouping
+          description: ProductTargeting metrics the availability output is grouped by.
+        startdate:
+          type: string
+          format: date-time
+          title: Startdate
+          description: Desired delivery start (ISO-8601).
+        enddate:
+          type: string
+          format: date-time
+          title: Enddate
+          description: Desired delivery end (ISO-8601); must be after startdate.
+      type: object
+      required:
+      - productids
+      - accountid
+      - advertiserbrandid
+      - startdate
+      - enddate
+      title: ProductAvailsSearch
+      description: 'Spec REQUEST body for ``POST /products/avails``.
+
+
+        The published multi-product form: ``productids`` is an array, and
+
+        ``accountid``/``advertiserbrandid`` are required. Use
+
+        :meth:`to_simplified` to bridge to the legacy single-product queries
+
+        (one per product id), recovering any minted Investment extension
+
+        entries (requested volume / budget) and the Segment-array targeting.'
+    AvailsStatusValue:
+      type: string
+      enum:
+      - Available
+      - Partially Available
+      - Unavailable
+      title: AvailsStatusValue
+      description: Spec ``AvailsStatus.status`` (note the space in the middle value).
+    ProductListResponse:
+      properties:
+        products:
+          items:
+            $ref: '#/components/schemas/Product_2'
+          type: array
+          title: Products
+        total_count:
+          type: integer
+          minimum: 0.0
+          title: Total Count
+          description: Total products in the catalog, ignoring pagination.
+        limit:
+          type: integer
+          minimum: 1.0
+          title: Limit
+          description: Echo of the applied limit.
+        offset:
+          type: integer
+          minimum: 0.0
+          title: Offset
+          description: Echo of the applied offset.
+      type: object
+      required:
+      - total_count
+      - limit
+      - offset
+      title: ProductListResponse
+      description: Response envelope for ``GET /products``.
+    PricingModel:
+      type: string
+      enum:
+      - cpm
+      - cpmv
+      - cpv
+      - cpc
+      - cpcv
+      - cpd
+      - cpp
+      - flat_fee
+      - unit_rate
+      - hybrid
+      title: PricingModel
+      description: 'Unit of pricing. Union of the buyer''s ``RateType`` and the seller''s
+
+        ``PricingModel`` plus the linear TV additions.
+
+
+        - ``cpm``: cost per mille (thousand impressions)
+
+        - ``cpmv``: cost per thousand viewable impressions
+
+        - ``cpv``: cost per view
+
+        - ``cpc``: cost per click
+
+        - ``cpcv``: cost per completed view
+
+        - ``cpd``: cost per day
+
+        - ``cpp``: cost per (gross rating) point — linear TV
+
+        - ``flat_fee``: flat fee (buyer repo''s ``FlatRate`` maps here)
+
+        - ``unit_rate``: per-unit rate
+
+        - ``hybrid``: mixed CPM/CPP pricing — linear TV'
+    AvailsCollection:
+      properties:
+        avails:
+          items:
+            $ref: '#/components/schemas/Avails_2'
+          type: array
+          title: Avails
+          description: One Avails record per product in the request.
+      type: object
+      required:
+      - avails
+      title: AvailsCollection
+      description: 'Spec response envelope: the ``avails`` collection object.
+
+
+        Per the spec''s Collection Objects table the ``POST /products/avails``
+
+        response must be an object whose array property is named ``avails``
+
+        (one record per requested product; empty when nothing matches).'
+    PricingType:
+      type: string
+      enum:
+      - fixed
+      - floor
+      - on_request
+      title: PricingType
+      description: "How a price signal should be interpreted.\n\n- ``fixed``: price is set by the seller, use as-is\n- ``floor``: minimum price; negotiation expected above this level\n- ``on_request``: no price available; buyer must negotiate before any\n  pricing exists (pricing fields are None — buyers must never fabricate\n  a price for on_request inventory)"
+    AvailsRequest:
+      properties:
+        productid:
+          type: string
+          title: Productid
+          description: Product to check.
+        startdate:
+          type: string
+          format: date-time
+          title: Startdate
+          description: Flight start (ISO-8601).
+        enddate:
+          type: string
+          format: date-time
+          title: Enddate
+          description: Flight end (ISO-8601); must be after startdate.
+        requestedImpressions:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Requestedimpressions
+          description: Requested volume; when omitted the seller derives it from budget at the product CPM, else the product minimum.
+        budget:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Budget
+          description: Budget in currency units (OpenDirect 2.1 float dialect — see the module docstring for the FD-11 exception).
+        targeting:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Targeting
+          description: Requested targeting slices; sellers without per-slice availability data accept but do not filter on it.
+      type: object
+      required:
+      - productid
+      - startdate
+      - enddate
+      title: AvailsRequest
+      description: 'Request body for ``POST /products/avails``.
+
+
+        Spec-named fields use the OpenDirect 2.1 all-lowercase wire names;
+
+        the extension fields (``requestedImpressions``/``budget``/
+
+        ``targeting``) keep their camelCase names. When neither
+
+        ``requestedImpressions`` nor ``budget`` is sent, the seller falls back
+
+        to the product''s minimum impressions.'
+    Avails_2:
+      properties:
+        productid:
+          type: string
+          maxLength: 36
+          title: Productid
+          description: Product the availability + pricing is for (spec-required).
+        accountid:
+          type: string
+          maxLength: 36
+          title: Accountid
+          description: Echo of the requesting account (spec-required).
+        availability:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Availability
+          description: Quantity available for booking in the date range.
+        availsstatus:
+          anyOf:
+          - $ref: '#/components/schemas/AvailsStatus'
+          - type: 'null'
+          description: Availability grouping (Available / Partially Available / Unavailable).
+        currency:
+          anyOf:
+          - type: string
+            maxLength: 3
+          - type: 'null'
+          title: Currency
+          description: ISO-4217 currency code.
+        price:
+          type: number
+          title: Price
+          description: The product's price (spec-required; OpenDirect 2.1 float dialect, FD-11 exception).
+        startdate:
+          type: string
+          format: date-time
+          title: Startdate
+          description: Echo of the requested delivery start (spec-required).
+        enddate:
+          type: string
+          format: date-time
+          title: Enddate
+          description: Echo of the requested delivery end (spec-required).
+      type: object
+      required:
+      - productid
+      - accountid
+      - price
+      - startdate
+      - enddate
+      title: Avails
+      description: 'Spec per-product RESPONSE record for ``POST /products/avails``.
+
+
+        ``price`` stays a float per the OpenDirect 2.1 decimal dialect (the
+
+        FD-11 exception documented in the module docstring).'
+    DealType:
+      type: string
+      enum:
+      - PG
+      - PD
+      - PA
+      title: DealType
+      description: 'Programmatic deal types. The short wire encoding is canonical.
+
+
+        - ``PG`` = Programmatic Guaranteed: fixed price, guaranteed impressions
+
+        - ``PD`` = Preferred Deal: fixed price, non-guaranteed first look
+
+        - ``PA`` = Private Auction: auction with floor price, invited buyers
+
+
+        Mapping from the seller repo''s retired long-form encoding
+
+        (``models/core.py``): ``programmaticguaranteed`` -> ``PG``,
+
+        ``preferreddeal`` -> ``PD``, ``privateauction`` -> ``PA``. The
+
+        long-form strings are NOT valid wire values.'
+    AvailsStatus:
+      properties:
+        status:
+          $ref: '#/components/schemas/AvailsStatusValue'
+          description: Available, Partially Available, or Unavailable.
+        reason:
+          anyOf:
+          - $ref: '#/components/schemas/AvailsStatusReason'
+          - type: 'null'
+          description: Spec-enumerated reason when Partially Available or Unavailable.
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+          description: Free-text availability comment.
+        context:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProductTargeting'
+            type: array
+          - type: 'null'
+          title: Context
+          description: ProductTargeting entries describing the context of a Partially Available or Unavailable status.
+        producttargeting:
+          items:
+            $ref: '#/components/schemas/ProductTargeting'
+          type: array
+          title: Producttargeting
+          description: ProductTargeting entries describing the inventory at this status (spec-required).
+      type: object
+      required:
+      - status
+      - producttargeting
+      title: AvailsStatus
+      description: 'Spec ``Object: AvailsStatus`` — availability grouping for a product.'
+    ProductTargeting:
+      properties:
+        name:
+          $ref: '#/components/schemas/TargetingDimension'
+          description: 'What is described: Inventory, Delivery, Distribution, Investment, or Prohibitions.'
+        type:
+          $ref: '#/components/schemas/TargetingUnit'
+          description: 'How it is quantified: Frames, Audience, Investment, or Total.'
+        datasource:
+          type: string
+          maxLength: 255
+          title: Datasource
+          description: Data source that defines the target vocabulary (third-party schemas welcome by design).
+        target:
+          type: string
+          maxLength: 255
+          title: Target
+          description: The targeted metric within datasource.
+        targetvalues:
+          items:
+            type: string
+          type: array
+          title: Targetvalues
+          description: One or more values for the target (strings on the wire).
+        selectable:
+          type: boolean
+          title: Selectable
+          description: Whether a buyer may select from targetvalues or the values are fixed.
+        count:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Count
+          description: Count of targetvalues.
+        minimum:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Minimum
+          description: Minimum number of selectable targetvalues.
+        maximum:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Maximum
+          description: Maximum number of selectable targetvalues.
+        increment:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Increment
+          description: Permitted increment between target values.
+        default:
+          anyOf:
+          - type: string
+          - type: number
+          - type: 'null'
+          title: Default
+          description: Default targetvalue(s) when the buyer selects none.
+      type: object
+      required:
+      - name
+      - type
+      - datasource
+      - target
+      - targetvalues
+      - selectable
+      title: ProductTargeting
+      description: 'Spec ``Object: ProductTargeting`` — dimensional targeting/metrics.
+
+
+        All-lowercase wire names per the normative table; the six starred
+
+        attributes are required.'
+    Product_2:
+      properties:
+        product_id:
+          type: string
+          title: Product Id
+          description: Seller-issued product identifier.
+        seller_organization_id:
+          type: string
+          title: Seller Organization Id
+          description: Registry-issued id of the owning seller organization.
+        name:
+          type: string
+          maxLength: 128
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        base_price:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+          description: Public list price, if disclosed; None when pricing is on request.
+        pricing_type:
+          $ref: '#/components/schemas/PricingType'
+          default: fixed
+        pricing_model:
+          $ref: '#/components/schemas/PricingModel'
+          default: cpm
+        delivery_type:
+          $ref: '#/components/schemas/DeliveryType_2'
+          default: Guaranteed
+        domain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+        ad_formats:
+          items:
+            type: string
+          type: array
+          title: Ad Formats
+          description: 'OpenRTB (Open Real-Time Bidding) formats: "banner", "video", "native", "audio".'
+        audience_targeting:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Audience Targeting
+          description: IAB Audience Taxonomy targeting intent.
+        ad_product_targeting:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Ad Product Targeting
+          description: IAB Ad Product Taxonomy targeting intent.
+        content_targeting:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Content Targeting
+          description: IAB Content Taxonomy targeting intent.
+        available_impressions:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Available Impressions
+        commercial_terms:
+          anyOf:
+          - $ref: '#/components/schemas/CommercialTerms'
+          - type: 'null'
+        ext:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Ext
+          description: Extension slot.
+      type: object
+      required:
+      - product_id
+      - seller_organization_id
+      - name
+      title: Product
+      description: 'Sellable unit of publisher inventory.
+
+
+        Merges the buyer''s OpenDirect (the IAB direct-buying API standard)
+
+        ``Product`` with the seller''s taxonomy-driven ``Product``. Targeting
+
+        intent uses the three IAB (Interactive Advertising Bureau) taxonomies:
+
+        Audience (who sees the ad), Ad Product (what is advertised), and
+
+        Content (where ads appear).
+
+
+        ``base_price`` is the seller''s public/list price signal, if disclosed;
+
+        the private negotiated rate for a buyer/seller pair lives on their
+
+        RateCard (flagged decision FD-9), never here.
+
+
+        ID minting: ``product_id`` is seller-issued.'
+    TargetingDimension:
+      type: string
+      enum:
+      - Inventory
+      - Delivery
+      - Distribution
+      - Investment
+      - Prohibitions
+      title: TargetingDimension
+      description: 'Spec ``ProductTargeting.name``: what the entry describes.'
+    AvailsResponse:
+      properties:
+        productid:
+          type: string
+          title: Productid
+          description: Echo of the product.
+        availableImpressions:
+          type: integer
+          minimum: 0.0
+          title: Availableimpressions
+          description: REQUIRED (policy 1). Products without a capacity cap report the requested volume as available.
+        guaranteedImpressions:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Guaranteedimpressions
+          description: Present ONLY for PG-capable products (policy 3); omitted otherwise.
+        estimatedCpm:
+          type: number
+          title: Estimatedcpm
+          description: CPM the availability is priced at (base CPM, falling back to floor CPM). OpenDirect 2.1 float dialect (FD-11 exception).
+        totalCost:
+          type: number
+          title: Totalcost
+          description: availableImpressions / 1000 * estimatedCpm, rounded to 2 decimals. OpenDirect 2.1 float dialect (FD-11 exception).
+        deliveryConfidence:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Deliveryconfidence
+          description: Forecast confidence percentage. OPTIONAL — OMITTED entirely when the seller has no forecast data source (policy 2); never fabricated.
+        availableTargeting:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Availabletargeting
+          description: Targeting dimensions the product supports; omitted when the product declares none.
+      type: object
+      required:
+      - productid
+      - availableImpressions
+      - estimatedCpm
+      - totalCost
+      title: AvailsResponse
+      description: 'Response body for ``POST /products/avails``.
+
+
+        Honest-availability policy: every number is derived from catalog
+
+        data — nothing is fabricated. Optional fields with no value are
+
+        OMITTED from the wire, not sent as ``null`` (readers tolerate ``null``
+
+        from pre-contract emitters).'
+    Money:
+      properties:
+        amount_micros:
+          type: integer
+          title: Amount Micros
+          description: Amount in micros; 1,000,000 micros = 1 currency unit.
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          title: Currency
+          description: ISO 4217 alpha-3 currency code.
+          default: USD
+      type: object
+      required:
+      - amount_micros
+      title: Money
+      description: 'Exact money amount in integer micros (flagged decision FD-11).
+
+
+        ``1_000_000`` micros = 1 currency unit — the ad-industry convention
+
+        (Google Ad Manager, among others, prices in micros). Float is BANNED on
+
+        the wire for money: IEEE 754 floating point is non-deterministic for
+
+        money math (``0.1 + 0.2 != 0.3``, and repeated CPM — cost per mille —
+
+        arithmetic accumulates error), and the two source repos used ``float``
+
+        end-to-end; that defect must not be fossilized into the spec. Every
+
+        price, rate, budget, and offer in the shared contract is a ``Money``.
+
+
+        ``amount_micros`` is a strict integer: float inputs are rejected at
+
+        validation time rather than silently truncated.'
+    InventoryTypeOverride:
+      properties:
+        product_id:
+          type: string
+          title: Product Id
+        inventory_type:
+          type: string
+          title: Inventory Type
+        reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reason
+      type: object
+      required:
+      - product_id
+      - inventory_type
+      title: InventoryTypeOverride
+      description: Override inventory type classification for a product.
+    TargetingUnit:
+      type: string
+      enum:
+      - Frames
+      - Audience
+      - Investment
+      - Total
+      title: TargetingUnit
+      description: 'Spec ``ProductTargeting.type``: how the entry is quantified.'
+    DeliveryType_3:
+      type: string
+      enum:
+      - Exclusive
+      - Guaranteed
+      - PMP
+      title: DeliveryType
+      description: 'Delivery type for a product (OpenDirect vocabulary).
+
+
+        PMP = private marketplace.'
+    ProductAvailsSearch_3:
+      properties:
+        productids:
+          items:
+            type: string
+          type: array
+          minItems: 1
+          title: Productids
+          description: Products to get availability + pricing for (spec-required, non-empty).
+        targeting:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Targeting
+          description: 'AdCOM Segment object array ({"name": <dimension>, "value": <value>}).'
+        producttargeting:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProductTargeting'
+            type: array
+          - type: 'null'
+          title: Producttargeting
+          description: ProductTargeting entries to target for the availability request.
+        accountid:
+          type: string
+          maxLength: 36
+          title: Accountid
+          description: Account identifying the buyer, advertiser, and other stakeholders (spec-required).
+        currency:
+          anyOf:
+          - type: string
+            maxLength: 3
+          - type: 'null'
+          title: Currency
+          description: ISO-4217 currency code.
+        advertiserbrandid:
+          type: string
+          maxLength: 36
+          title: Advertiserbrandid
+          description: Brand being advertised (spec-required).
+        availabilityfields:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProductTargeting'
+            type: array
+          - type: 'null'
+          title: Availabilityfields
+          description: ProductTargeting metrics availability is returned as.
+        grouping:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ProductTargeting'
+            type: array
+          - type: 'null'
+          title: Grouping
+          description: ProductTargeting metrics the availability output is grouped by.
+        startdate:
+          type: string
+          format: date-time
+          title: Startdate
+          description: Desired delivery start (ISO-8601).
+        enddate:
+          type: string
+          format: date-time
+          title: Enddate
+          description: Desired delivery end (ISO-8601); must be after startdate.
+      type: object
+      required:
+      - productids
+      - accountid
+      - advertiserbrandid
+      - startdate
+      - enddate
+      title: ProductAvailsSearch
+      description: 'Spec REQUEST body for ``POST /products/avails``.
+
+
+        The published multi-product form: ``productids`` is an array, and
+
+        ``accountid``/``advertiserbrandid`` are required. Use
+
+        :meth:`to_simplified` to bridge to the legacy single-product queries
+
+        (one per product id), recovering any minted Investment extension
+
+        entries (requested volume / budget) and the Segment-array targeting.'
+    ProductListResponse_2:
+      properties:
+        products:
+          items:
+            $ref: '#/components/schemas/Product_3'
+          type: array
+          title: Products
+        total_count:
+          type: integer
+          minimum: 0.0
+          title: Total Count
+          description: Total products in the catalog, ignoring pagination.
+        limit:
+          type: integer
+          minimum: 1.0
+          title: Limit
+          description: Echo of the applied limit.
+        offset:
+          type: integer
+          minimum: 0.0
+          title: Offset
+          description: Echo of the applied offset.
+      type: object
+      required:
+      - total_count
+      - limit
+      - offset
+      title: ProductListResponse
+      description: Response envelope for ``GET /products``.
+    AvailsCollection_2:
+      properties:
+        avails:
+          items:
+            $ref: '#/components/schemas/Avails_3'
+          type: array
+          title: Avails
+          description: One Avails record per product in the request.
+      type: object
+      required:
+      - avails
+      title: AvailsCollection
+      description: 'Spec response envelope: the ``avails`` collection object.
+
+
+        Per the spec''s Collection Objects table the ``POST /products/avails``
+
+        response must be an object whose array property is named ``avails``
+
+        (one record per requested product; empty when nothing matches).'
+    Avails_3:
+      properties:
+        productid:
+          type: string
+          maxLength: 36
+          title: Productid
+          description: Product the availability + pricing is for (spec-required).
+        accountid:
+          type: string
+          maxLength: 36
+          title: Accountid
+          description: Echo of the requesting account (spec-required).
+        availability:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Availability
+          description: Quantity available for booking in the date range.
+        availsstatus:
+          anyOf:
+          - $ref: '#/components/schemas/AvailsStatus'
+          - type: 'null'
+          description: Availability grouping (Available / Partially Available / Unavailable).
+        currency:
+          anyOf:
+          - type: string
+            maxLength: 3
+          - type: 'null'
+          title: Currency
+          description: ISO-4217 currency code.
+        price:
+          type: number
+          title: Price
+          description: The product's price (spec-required; OpenDirect 2.1 float dialect, FD-11 exception).
+        startdate:
+          type: string
+          format: date-time
+          title: Startdate
+          description: Echo of the requested delivery start (spec-required).
+        enddate:
+          type: string
+          format: date-time
+          title: Enddate
+          description: Echo of the requested delivery end (spec-required).
+      type: object
+      required:
+      - productid
+      - accountid
+      - price
+      - startdate
+      - enddate
+      title: Avails
+      description: 'Spec per-product RESPONSE record for ``POST /products/avails``.
+
+
+        ``price`` stays a float per the OpenDirect 2.1 decimal dialect (the
+
+        FD-11 exception documented in the module docstring).'
+    Product_3:
+      properties:
+        product_id:
+          type: string
+          title: Product Id
+          description: Seller-issued product identifier.
+        seller_organization_id:
+          type: string
+          title: Seller Organization Id
+          description: Registry-issued id of the owning seller organization.
+        name:
+          type: string
+          maxLength: 128
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        base_price:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+          description: Public list price, if disclosed; None when pricing is on request.
+        pricing_type:
+          $ref: '#/components/schemas/PricingType'
+          default: fixed
+        pricing_model:
+          $ref: '#/components/schemas/PricingModel'
+          default: cpm
+        delivery_type:
+          $ref: '#/components/schemas/DeliveryType_3'
+          default: Guaranteed
+        domain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+        ad_formats:
+          items:
+            type: string
+          type: array
+          title: Ad Formats
+          description: 'OpenRTB (Open Real-Time Bidding) formats: "banner", "video", "native", "audio".'
+        audience_targeting:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Audience Targeting
+          description: IAB Audience Taxonomy targeting intent.
+        ad_product_targeting:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Ad Product Targeting
+          description: IAB Ad Product Taxonomy targeting intent.
+        content_targeting:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Content Targeting
+          description: IAB Content Taxonomy targeting intent.
+        available_impressions:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Available Impressions
+        commercial_terms:
+          anyOf:
+          - $ref: '#/components/schemas/CommercialTerms'
+          - type: 'null'
+        ext:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Ext
+          description: Extension slot.
+      type: object
+      required:
+      - product_id
+      - seller_organization_id
+      - name
+      title: Product
+      description: 'Sellable unit of publisher inventory.
+
+
+        Merges the buyer''s OpenDirect (the IAB direct-buying API standard)
+
+        ``Product`` with the seller''s taxonomy-driven ``Product``. Targeting
+
+        intent uses the three IAB (Interactive Advertising Bureau) taxonomies:
+
+        Audience (who sees the ad), Ad Product (what is advertised), and
+
+        Content (where ads appear).
+
+
+        ``base_price`` is the seller''s public/list price signal, if disclosed;
+
+        the private negotiated rate for a buyer/seller pair lives on their
+
+        RateCard (flagged decision FD-9), never here.
+
+
+        ID minting: ``product_id`` is seller-issued.'
+  parameters:
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
+    productId:
+      name: productId
+      in: path
+      required: true
+      x-example: '456366'
+      schema:
+        type: string
+        maxLength: 36
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+  securitySchemes:
+    OauthSecurity:
+      type: oauth2
+      flows:
+        implicit:
+          scopes:
+            https://opendirect.example.com/scope/example: Example scope
+          authorizationUrl: https://opendirect.example.com/connect/authorize
+      description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+x-refined-from:
+- iab-tech-lab-agentic-advertising-api-openapi.yaml
+- iab-tech-lab-buyer-agent-openapi.json
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-buyer-agent-openapi.json
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-seller-agent-openapi.json

@@ -1,0 +1,229 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Proposals API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Proposals across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Proposals
+  description: Proposal submission and evaluation
+paths:
+  /proposals:
+    post:
+      tags:
+      - Proposals
+      summary: Submit Proposal
+      description: Submit a proposal for review.
+      operationId: submit_proposal_proposals_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ProposalRequest:
+      properties:
+        product_id:
+          type: string
+          title: Product Id
+        deal_type:
+          type: string
+          title: Deal Type
+        price:
+          type: number
+          title: Price
+        impressions:
+          type: integer
+          title: Impressions
+        start_date:
+          type: string
+          title: Start Date
+        end_date:
+          type: string
+          title: End Date
+        buyer_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Buyer Id
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        agent_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Url
+      type: object
+      required:
+      - product_id
+      - deal_type
+      - price
+      - impressions
+      - start_date
+      - end_date
+      title: ProposalRequest
+      description: Request to submit a proposal.
+    ProposalErrorDetail:
+      properties:
+        stage:
+          type: string
+          title: Stage
+        code:
+          type: string
+          title: Code
+        detail:
+          type: string
+          title: Detail
+          default: ''
+      type: object
+      required:
+      - stage
+      - code
+      title: ProposalErrorDetail
+      description: 'Causeful machine-readable proposal error (seller issue #34).
+
+
+        FD-6 structured-error house style: a stable snake_case ``code`` names
+
+        the cause (``missing_required_fields``, ``product_not_found``,
+
+        ``audience_validation``, ``pricing``, ``availability``,
+
+        ``crew_evaluation_error``, ``internal``), ``stage`` names the
+
+        ProposalHandlingFlow stage that failed the proposal, and ``detail``
+
+        carries the human-readable explanation.'
+    ProposalResponse:
+      properties:
+        proposal_id:
+          type: string
+          title: Proposal Id
+        recommendation:
+          type: string
+          title: Recommendation
+        status:
+          type: string
+          title: Status
+        counter_terms:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Counter Terms
+        approval_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Approval Id
+        pricing_verified:
+          type: boolean
+          title: Pricing Verified
+          default: false
+        pricing_verification_reason:
+          type: string
+          title: Pricing Verification Reason
+          default: ''
+        errors:
+          items:
+            $ref: '#/components/schemas/ProposalErrorDetail'
+          type: array
+          title: Errors
+          default: []
+      type: object
+      required:
+      - proposal_id
+      - recommendation
+      - status
+      title: ProposalResponse
+      description: 'Proposal submission response.
+
+
+        Wire-compat note: a failed evaluation still answers HTTP 200 with
+
+        ``status="failed"`` — but ``errors[]`` is now guaranteed non-empty and
+
+        causeful whenever the status is ``failed`` (seller issue #34).'
+x-refined-from:
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

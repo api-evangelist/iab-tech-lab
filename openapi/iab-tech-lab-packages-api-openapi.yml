@@ -1,0 +1,472 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Packages API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Packages across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Packages
+  description: Package management (authenticated/admin)
+paths:
+  /packages:
+    get:
+      tags:
+      - Packages
+      summary: List Packages
+      description: 'List packages with tier-gated view.
+
+
+        Audience filter (proposal §5.7):
+
+
+        - `audience_type`: one of `standard` | `contextual` | `agentic`.
+
+        - `audience_id`: taxonomy ID for standard/contextual; URI for agentic.
+
+        Requires `audience_type` to disambiguate which capability list to
+
+        search.
+
+        - `audience_taxonomy_version`: optional version constraint; when unset
+
+        the seller''s lock-file version is authoritative.
+
+
+        Empty results return `[]`, not 404 -- matches the existing behavior for
+
+        layer/featured filters.'
+      operationId: list_packages_packages_get
+      parameters:
+      - name: buyer_tier
+        in: query
+        required: false
+        schema:
+          type: string
+          default: public
+          title: Buyer Tier
+      - name: agency_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+      - name: advertiser_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+      - name: layer
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Layer
+      - name: audience_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Audience Type
+      - name: audience_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Audience Id
+      - name: audience_taxonomy_version
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Audience Taxonomy Version
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Packages
+      summary: Create Package
+      description: Create a curated package (Layer 2).
+      operationId: create_package_packages_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageCreateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /packages/{package_id}:
+    get:
+      tags:
+      - Packages
+      summary: Get Package
+      description: Get a single package with tier-gated view.
+      operationId: get_package_packages__package_id__get
+      parameters:
+      - name: package_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Package Id
+      - name: buyer_tier
+        in: query
+        required: false
+        schema:
+          type: string
+          default: public
+          title: Buyer Tier
+      - name: agency_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+      - name: advertiser_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Packages
+      summary: Update Package
+      description: Update an existing package.
+      operationId: update_package_packages__package_id__put
+      parameters:
+      - name: package_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Package Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+              title: Updates
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Packages
+      summary: Delete Package
+      description: Archive a package (soft delete).
+      operationId: delete_package_packages__package_id__delete
+      parameters:
+      - name: package_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Package Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /packages/assemble:
+    post:
+      tags:
+      - Packages
+      summary: Assemble Package
+      description: 'Assemble a dynamic package (Layer 3) from product IDs.
+
+
+        Product ids resolve catalog-first with storage fallback (issue #34) —
+
+        the same resolution as ``POST /packages``. Zero resolution is a 422
+
+        naming the unresolved ids; partial resolution surfaces
+
+        ``unresolved_ids``/``warnings`` on the response.'
+      operationId: assemble_package_packages_assemble_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DynamicPackageRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /packages/sync:
+    post:
+      tags:
+      - Packages
+      summary: Sync Packages
+      description: Trigger ad server inventory sync (Layer 1).
+      operationId: sync_packages_packages_sync_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PackageCreateRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        product_ids:
+          items:
+            type: string
+          type: array
+          title: Product Ids
+          default: []
+        cat:
+          items:
+            type: string
+          type: array
+          title: Cat
+          default: []
+        cattax:
+          type: integer
+          title: Cattax
+          default: 2
+        audience_capabilities:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Audience Capabilities
+        audience_segment_ids:
+          items:
+            type: string
+          type: array
+          title: Audience Segment Ids
+          default: []
+        device_types:
+          items:
+            type: integer
+          type: array
+          title: Device Types
+          default: []
+        ad_formats:
+          items:
+            type: string
+          type: array
+          title: Ad Formats
+          default: []
+        geo_targets:
+          items:
+            type: string
+          type: array
+          title: Geo Targets
+          default: []
+        base_price:
+          type: number
+          title: Base Price
+        floor_price:
+          type: number
+          title: Floor Price
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          default: []
+        is_featured:
+          type: boolean
+          title: Is Featured
+          default: false
+        seasonal_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seasonal Label
+      type: object
+      required:
+      - name
+      - base_price
+      - floor_price
+      title: PackageCreateRequest
+      description: 'Request to create a curated package.
+
+
+        Accepts the new typed `audience_capabilities` shape (proposal §5.7).
+
+        Legacy callers may still send `audience_segment_ids: list[str]` as
+
+        flat input -- the field is retained as deprecated and will be folded
+
+        into `audience_capabilities.standard_segment_ids` (with implicit
+
+        AT 1.1) by `create_package`.'
+    DynamicPackageRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+        product_ids:
+          items:
+            type: string
+          type: array
+          title: Product Ids
+      type: object
+      required:
+      - name
+      - product_ids
+      title: DynamicPackageRequest
+      description: Request to assemble a dynamic package from product IDs.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+x-refined-from:
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

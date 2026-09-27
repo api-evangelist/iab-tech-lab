@@ -1,0 +1,271 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Agent Registry API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Agent Registry across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Agent Registry
+  description: A2A agent discovery and trust management
+paths:
+  /.well-known/agent.json:
+    get:
+      tags:
+      - Agent Registry
+      summary: Agent Card
+      description: 'Serve this seller agent''s card for A2A discovery.
+
+
+        Returns an A2A-protocol-compliant agent card describing this
+
+        seller''s capabilities, supported protocols, and inventory types.
+
+        Buyer agents and registries fetch this to discover the seller.'
+      operationId: agent_card__well_known_agent_json_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /registry/agents:
+    get:
+      tags:
+      - Agent Registry
+      summary: List Registered Agents
+      description: 'List agents in the local registry.
+
+
+        Filterable by agent_type (buyer, seller, tool_provider, data_provider, other)
+
+        and trust_status (unknown, registered, approved, preferred, blocked).'
+      operationId: list_registered_agents_registry_agents_get
+      parameters:
+      - name: agent_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Type
+      - name: trust_status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Trust Status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /registry/agents/{agent_id}:
+    get:
+      tags:
+      - Agent Registry
+      summary: Get Registered Agent
+      description: Get details for a specific registered agent.
+      operationId: get_registered_agent_registry_agents__agent_id__get
+      parameters:
+      - name: agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Agent Registry
+      summary: Remove Registered Agent
+      description: Remove an agent from the local registry.
+      operationId: remove_registered_agent_registry_agents__agent_id__delete
+      parameters:
+      - name: agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /registry/agents/discover:
+    post:
+      tags:
+      - Agent Registry
+      summary: Discover Agent
+      description: 'Discover an agent by URL.
+
+
+        Fetches the agent''s card from .well-known/agent.json, checks
+
+        all configured registries (AAMP + extras) for verification, and
+
+        registers the agent locally with appropriate trust status.'
+      operationId: discover_agent_registry_agents_discover_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscoverAgentRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /registry/agents/{agent_id}/trust:
+    put:
+      tags:
+      - Agent Registry
+      summary: Update Agent Trust
+      description: 'Update an agent''s trust status.
+
+
+        Use this to approve, prefer, or block agents. Trust status determines
+
+        the maximum access tier:
+
+        - unknown → PUBLIC (price ranges only)
+
+        - registered → SEAT (exact prices, no negotiation)
+
+        - approved → ADVERTISER (full access)
+
+        - preferred → ADVERTISER + custom pricing rules
+
+        - blocked → 403 rejected, zero data access'
+      operationId: update_agent_trust_registry_agents__agent_id__trust_put
+      parameters:
+      - name: agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTrustRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    UpdateTrustRequest:
+      properties:
+        trust_status:
+          type: string
+          title: Trust Status
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - trust_status
+      title: UpdateTrustRequest
+      description: Request to update an agent's trust status.
+    DiscoverAgentRequest:
+      properties:
+        agent_url:
+          type: string
+          title: Agent Url
+      type: object
+      required:
+      - agent_url
+      title: DiscoverAgentRequest
+      description: Request to discover an agent by URL.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+x-refined-from:
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

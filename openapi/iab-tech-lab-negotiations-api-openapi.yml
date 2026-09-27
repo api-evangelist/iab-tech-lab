@@ -1,0 +1,66 @@
+openapi: 3.2.0
+info:
+  title: IAB Agentic Advertising Negotiations API
+  version: 0.1.0
+  description: 'Canonical wire protocol between the IAB Tech Lab buyer and seller agents: catalog, quote->book deal flow, negotiation, change requests, A2A (Agent-to-Agent protocol) JSON-RPC messaging, and Agent Card discovery.'
+tags:
+- name: Negotiations
+paths:
+  /api/v1/negotiations/messages:
+    post:
+      operationId: sendNegotiationMessage
+      summary: 'One negotiation move: offer/counter/accept/decline via the required action enum…'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../jsonschema/protocol/NegotiationMessage.json
+      responses:
+        '200':
+          description: The seller's move for this round.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/NegotiationRoundResponse.json
+        '400':
+          $ref: '#/components/responses/Error'
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          description: Terminal negotiation (error=negotiation_closed) or round-number mismatch (error=contention).
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/ErrorEnvelope.json
+      tags:
+      - Negotiations
+  /api/v1/negotiations/{negotiation_id}:
+    get:
+      operationId: getNegotiation
+      summary: Full negotiation history (the Negotiation primitive)
+      parameters:
+      - name: negotiation_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The negotiation with its round history.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/Negotiation.json
+        '404':
+          $ref: '#/components/responses/Error'
+      tags:
+      - Negotiations
+components:
+  responses:
+    Error:
+      description: 'Structured error envelope: {"detail": {"error": <ErrorCode>, "message": "...", "unsupported": [...]}}.'
+      content:
+        application/json:
+          schema:
+            $ref: ../jsonschema/protocol/ErrorEnvelope.json

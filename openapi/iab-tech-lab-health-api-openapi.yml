@@ -1,0 +1,35 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Health API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Health across 2 of this provider''s published API definitions: iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-buyer-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Health
+  description: Service health and readiness
+paths:
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Health Check
+      description: Health check endpoint.
+      operationId: health_check_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Health Check Health Get
+x-refined-from:
+- iab-tech-lab-buyer-agent-openapi.json
+- iab-tech-lab-buyer-agent-openapi.json

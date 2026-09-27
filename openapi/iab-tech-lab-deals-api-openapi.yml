@@ -1,0 +1,190 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Deals API
+  version: '1.0'
+  description: 'Operations tagged Deals across 3 of this provider''s published API definitions: iab-tech-lab-agentic-advertising-api-openapi.yaml, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Deals
+paths:
+  /api/v1/deals:
+    post:
+      operationId: bookDeal
+      summary: Book a deal from a quote (money-mutating; idempotency_key required)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../jsonschema/protocol/DealBookingRequest.json
+      responses:
+        '201':
+          description: Deal envelope wrapping the Deal primitive.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/DealBookingResponse.json
+        '400':
+          description: Validation failure or FD-6 capability rejection.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/ErrorEnvelope.json
+        '404':
+          $ref: '#/components/responses/Error'
+        '409':
+          description: Quote already booked / concurrent conflict (error=contention).
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/ErrorEnvelope.json
+        '410':
+          description: Quote expired (error=quote_expired).
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/ErrorEnvelope.json
+      tags:
+      - Deals
+  /api/v1/deals/{deal_id}:
+    get:
+      operationId: getDeal
+      summary: Retrieve a deal
+      parameters:
+      - name: deal_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Deal envelope.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/DealBookingResponse.json
+        '404':
+          $ref: '#/components/responses/Error'
+      tags:
+      - Deals
+  /deals:
+    post:
+      tags:
+      - Deals
+      summary: Generate Deal
+      description: Generate a deal from an accepted proposal.
+      operationId: generate_deal_deals_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DealRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DealResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  responses:
+    Error:
+      description: 'Structured error envelope: {"detail": {"error": <ErrorCode>, "message": "...", "unsupported": [...]}}.'
+      content:
+        application/json:
+          schema:
+            $ref: ../jsonschema/protocol/ErrorEnvelope.json
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    DealResponse:
+      properties:
+        deal_id:
+          type: string
+          title: Deal Id
+        deal_type:
+          type: string
+          title: Deal Type
+        price:
+          type: number
+          title: Price
+        pricing_model:
+          type: string
+          title: Pricing Model
+        openrtb_params:
+          additionalProperties: true
+          type: object
+          title: Openrtb Params
+        activation_instructions:
+          additionalProperties:
+            type: string
+          type: object
+          title: Activation Instructions
+      type: object
+      required:
+      - deal_id
+      - deal_type
+      - price
+      - pricing_model
+      - openrtb_params
+      - activation_instructions
+      title: DealResponse
+      description: Deal generation response.
+    DealRequest:
+      properties:
+        proposal_id:
+          type: string
+          title: Proposal Id
+        dsp_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dsp Platform
+      type: object
+      required:
+      - proposal_id
+      title: DealRequest
+      description: Request to generate a deal.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+x-refined-from:
+- iab-tech-lab-agentic-advertising-api-openapi.yaml
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

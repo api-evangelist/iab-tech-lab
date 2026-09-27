@@ -1,0 +1,37 @@
+openapi: 3.2.0
+info:
+  title: IAB Agentic Advertising Registry API
+  version: 0.1.0
+  description: 'Canonical wire protocol between the IAB Tech Lab buyer and seller agents: catalog, quote->book deal flow, negotiation, change requests, A2A (Agent-to-Agent protocol) JSON-RPC messaging, and Agent Card discovery.'
+tags:
+- name: Registry
+paths:
+  /registry/agents/discover:
+    post:
+      operationId: discoverAgent
+      summary: Fetch and register a counterparty's card by base URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../jsonschema/protocol/AgentDiscoveryRequest.json
+      responses:
+        '200':
+          description: Registry-verified trust result for the agent.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/AgentTrustVerification.json
+        '404':
+          $ref: '#/components/responses/Error'
+      tags:
+      - Registry
+components:
+  responses:
+    Error:
+      description: 'Structured error envelope: {"detail": {"error": <ErrorCode>, "message": "...", "unsupported": [...]}}.'
+      content:
+        application/json:
+          schema:
+            $ref: ../jsonschema/protocol/ErrorEnvelope.json

@@ -1,0 +1,914 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Orders API
+  version: '1.0'
+  description: 'Operations tagged Orders across 4 of this provider''s published API definitions: iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://opendirect.example.com/v1.5.1
+tags:
+- name: Orders
+paths:
+  /accounts/{accountId}/orders:
+    get:
+      tags:
+      - Orders
+      description: 'Gets a list of all orders that belong to the account.
+
+        For advertisers, the list will include only orders that they own. For agencies, the list will include the orders that they own and the orders that belong to accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/offset'
+      - name: $filter
+        in: query
+        description: 'Allows to get a list of creatives that match the specified filter criteria. The user may use OData expressions with the following Creative properties:
+
+          - AdStatus
+
+          May support getting a list by IDs.
+
+          User should be either an advertiser or buyer who owns the orders.
+
+          '
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/OrdersResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Get accounts by account id orders
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdOrders
+      x-operation-id-source: derived
+    post:
+      tags:
+      - Orders
+      description: 'Adds an order to the account.
+
+        An advertiser or agency may add orders to accounts that they own. In addition; an agency may add orders to accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      responses:
+        201:
+          $ref: '#/components/responses/OrderResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+        required: true
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Create accounts by account id orders
+      x-summary-source: derived
+      operationId: postAccountsByAccountIdOrders
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/orders/{orderId}:
+    get:
+      tags:
+      - Orders
+      description: 'Gets the specified order.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the orders that they own. In addition, an agency may get the orders that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      responses:
+        200:
+          $ref: '#/components/responses/OrderResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Get accounts by account id orders by order id
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdOrdersByOrderId
+      x-operation-id-source: derived
+    put:
+      tags:
+      - Orders
+      description: 'Updates the specified order.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may update the orders that they own. In addition, an agency may update the orders that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      responses:
+        200:
+          $ref: '#/components/responses/OrderResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Replace accounts by account id orders by order id
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdOrdersByOrderId
+      x-operation-id-source: derived
+    delete:
+      tags:
+      - Orders
+      description: 'Deletes the specified order. May delete the order only if all lines in the order are in the Draft state. Must also delete assignments that reference the line.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may delete the orders that they own. In addition, an agency may delete the orders that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      responses:
+        204:
+          description: Order successfully deleted.
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Delete accounts by account id orders by order id
+      x-summary-source: derived
+      operationId: deleteAccountsByAccountIdOrdersByOrderId
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /api/v1/orders:
+    post:
+      tags:
+      - Orders
+      summary: Create Order
+      description: Create a new order and persist its state machine.
+      operationId: create_order_api_v1_orders_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Orders
+      summary: List Orders
+      description: List orders, optionally filtered by status.
+      operationId: list_orders_api_v1_orders_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders/report:
+    get:
+      tags:
+      - Orders
+      summary: Get Orders Report
+      description: 'Summary report across all orders.
+
+
+        Returns counts by status, transition frequency by actor type,
+
+        and average time-in-state metrics.'
+      operationId: get_orders_report_api_v1_orders_report_get
+      parameters:
+      - name: from_date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: From Date
+      - name: to_date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: To Date
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders/{order_id}:
+    get:
+      tags:
+      - Orders
+      summary: Get Order
+      description: Get order current status and audit trail.
+      operationId: get_order_api_v1_orders__order_id__get
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Order Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders/{order_id}/history:
+    get:
+      tags:
+      - Orders
+      summary: Get Order History
+      description: Get the full transition history for an order.
+      operationId: get_order_history_api_v1_orders__order_id__history_get
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Order Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders/{order_id}/transition:
+    post:
+      tags:
+      - Orders
+      summary: Transition Order
+      description: 'Transition an order to a new state.
+
+
+        Validates the transition against the state machine rules and
+
+        records the change in the audit log.'
+      operationId: transition_order_api_v1_orders__order_id__transition_post
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Order Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransitionOrderRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  responses:
+    OrdersResponse:
+      description: Collection of Order
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Orders'
+          example: "{\n  \"Orders\": [\n    {\n      \"AccountId\": \"23873345\",\n      \"Brand\": \"Four Wakes\",\n      \"Budget\": 50000,\n      \"Currency\": \"USD\",\n      \"EndDate\": \"2014-12-24T18:00:00.000Z\",\n      \"Id\": \"1235872\",\n      \"Name\": \"My Order\",\n      \"PreferredBillingMethod\": \"Electronic\",\n      \"ProviderData\": \"cid=563364\",\n      \"StartDate\": \"2014-11-24T06:00:00.000Z\",\n    }\n  ]\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    OrderResponse:
+      description: Order resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Order'
+          example: "{\n  \"AccountId\": \"23873345\",\n  \"Brand\": \"Four Wakes\",\n  \"Budget\": 50000,\n  \"Currency\": \"USD\",\n  \"EndDate\": \"2014-12-24T18:00:00.000Z\",\n  \"Id\": \"1235872\",\n  \"Name\": \"My Order\",\n  \"PreferredBillingMethod\": \"Electronic\",\n  \"ProviderData\": \"cid=563364\",\n  \"StartDate\": \"2014-11-24T06:00:00.000Z\",\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+  schemas:
+    Currency:
+      description: 'Defines a currency that the API supports.
+
+        The API may support all or a subset of the currencies specified in ISO-4217.
+
+        '
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The currency’s three-character ISO code (ISO 4217).
+          type: string
+          minLength: 3
+          maxLength: 3
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+    ContactType:
+      description: Defines the possible types of Contacts.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The type’s display name.
+            type: string
+            enum:
+            - Billing
+            - Buyer
+            - Creative
+    Orders:
+      required:
+      - Orders
+      properties:
+        Orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    Address:
+      description: The address object is used to provide values for the ORGANIZAION resource.
+      required:
+      - City
+      - Country
+      - AddressLine1
+      properties:
+        City:
+          description: The city name of an organization or contact for which this address is associated.
+          type: string
+          maxLength: 35
+        Country:
+          $ref: '#/components/schemas/Country'
+        AddressLine1:
+          description: The first line of the address of an organization or contact for which this address is associated.
+          type: string
+          maxLength: 255
+        AddressLine2:
+          description: The optional second line of the address.
+          type: string
+          maxLength: 255
+          x-publisher-support-required: true
+        PostalCode:
+          description: The postal or ZIP code for the address.
+          type: string
+          maxLength: 15
+          x-publisher-support-required: true
+        State:
+          description: The state or province for the address.
+          type: string
+          maxLength: 35
+          x-publisher-support-required: true
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Order:
+      description: 'The Order resource specifies the plan’s start and end dates, estimated budget, currency, and preferred billing method for all line items in the order.
+
+        To specify the individual line item details of the order, use the LINE resource.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - $ref: '#/components/schemas/ProviderData'
+      - required:
+        - AccountId
+        - Currency
+        - Name
+        - OrderStatus
+        properties:
+          AccountId:
+            description: The ID of the account that identifies the advertiser and buyer that own the order.
+            type: string
+            maxLength: 36
+            readOnly: true
+          Brand:
+            description: A descriptive name for the brand being advertised.
+            type: string
+            maxLength: 25
+          Budget:
+            description: The order’s estimated budget. The budget is directional; it is not used to limit the amount of money that the order spends. To determine the projected spend based on quantity, aggregate the Cost property for each line of the order.
+            type: number
+          Contacts:
+            description: 'The list of contacts to use for this order. This list of contacts is in addition to the buyer’s and advertiser’s list of contacts.
+
+              The list must contain unique contact types (for example, only one billing contact).
+
+              '
+            type: array
+            items:
+              $ref: '#/components/schemas/Contact'
+            uniqueItems: true
+          Currency:
+            description: The publisher may enforce that all lines of the order specify products that use the same currency.
+            $ref: '#/components/schemas/Currency'
+          EndDate:
+            description: 'The date and time that the order will end. The end date is directional and may be updated by the publisher to match the latest end date found in the order’s lines.
+
+              If the time is missing, 11:59 PM is assumed.
+
+              The end date must be later than the start date.
+
+              End dates that have past cannot be updated.
+
+              '
+            type: string
+            format: date-time
+          OrderExpiryDate:
+            description: The date and time for when the order expires. Publisher will only hold inventory up until the date and time indicated.
+            type: string
+            format: date-time
+            readOnly: true
+          Industry:
+            description: The industry associated with the order. This industry may differ from the industry specified on the advertiser’s Organization object.
+            $ref: '#/components/schemas/Industry'
+          Name:
+            description: 'The order’s display name.
+
+              Must be unique within the account’s list of orders.
+
+              '
+            type: string
+            maxLength: 100
+          OrderStatus:
+            description: Specifies the Status of the Order.
+            type: string
+            enum:
+            - PENDING
+            - APPROVED
+            - REJECTED
+            readOnly: true
+          PackageOnly:
+            description: Identifies whether the order is only available as a package or if specific items can be separated from the inventory. A value of TRUE means the inventory is only available as a package. A value of FALSE allows the buyer to select specific items from inventory.
+            type: boolean
+            readOnly: true
+          PreferredBillingMethod:
+            description: 'The preferred billing method for this order.
+
+              The default is Electronic.
+
+              If the billing contact is not specified in the order, the billing contact comes from buyer’s list of contacts.
+
+              '
+            type: string
+            enum:
+            - Electronic
+            - Postal
+            maxLength: 10
+          StartDate:
+            description: 'The date and time that the order will start. The start date is directional and may be updated by the publisher to match the earliest start date found in the order’s list of lines.
+
+              If the time is missing, 12:00 AM is assumed.
+
+              When creating the order, the date and time must be greater than or equal to now.
+
+              Start dates that have past may not be updated.
+
+              '
+            type: string
+            format: date-time
+    Contact:
+      description: Defines an agency or advertiser contact.
+      required:
+      - FirstName
+      - LastName
+      - Type
+      properties:
+        Address:
+          description: Required if TYPE is Billing and the preferred billing method for the organization or order is paper.
+          $ref: '#/components/schemas/Address'
+        Email:
+          description: 'The contact’s email address.
+
+            Required if TYPE is Billing and the preferred billing method for the organization or order is electronic.
+
+            '
+          type: string
+          maxLength: 254
+          x-publisher-support-required: true
+        Honorific:
+          description: Honorific such as Mr. or Ms.
+          type: string
+          maxLength: 20
+        Fax:
+          description: The contact’s fax number.
+          type: string
+          maxLength: 20
+        FirstName:
+          description: The contact’s first name.
+          type: string
+          maxLength: 20
+        LastName:
+          description: The contact’s last name.
+          type: string
+          maxLength: 20
+        Phone:
+          description: The contact’s phone number
+          type: string
+          maxLength: 20
+          x-publisher-support-required: true
+        Title:
+          description: The contact’s job title.
+          type: string
+          maxLength: 30
+          x-publisher-support-required: true
+        Type:
+          $ref: '#/components/schemas/ContactType'
+          readOnly: true
+    Country:
+      description: 'Defines a country that the API supports.
+
+        The API may support all or a subset of the countries specified in ISO 3166-1.
+
+        '
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The country’s two-character ISO code (ISO 3166-1).
+          type: string
+          minLength: 2
+          maxLength: 2
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+    Industry:
+      description: Defines an industry that the advertiser belongs to. Uses “IAB Tech Lab Content Taxonomy”.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        - ParentId
+        - SubIndustries
+        properties:
+          Name:
+            description: The industry’s display name.
+            type: string
+          ParentId:
+            description: The ID of the sub-industry’s parent. Is NULL for the top-level parent.
+            type: string
+          SubIndustries:
+            description: A list of sub-industries. The list is empty if the industry has no sub-industries.
+            type: array
+            items:
+              $ref: '#/components/schemas/Industry'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    TransitionOrderRequest:
+      properties:
+        to_status:
+          type: string
+          title: To Status
+        actor:
+          type: string
+          title: Actor
+          default: system
+        reason:
+          type: string
+          title: Reason
+          default: ''
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - to_status
+      title: TransitionOrderRequest
+      description: Request to transition an order to a new state.
+    CreateOrderRequest:
+      properties:
+        deal_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deal Id
+        quote_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Quote Id
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      title: CreateOrderRequest
+      description: Request to create a new order.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+  parameters:
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    orderId:
+      name: orderId
+      in: path
+      required: true
+      x-example: '1235872'
+      schema:
+        type: string
+        maxLength: 36
+  securitySchemes:
+    OauthSecurity:
+      type: oauth2
+      flows:
+        implicit:
+          scopes:
+            https://opendirect.example.com/scope/example: Example scope
+          authorizationUrl: https://opendirect.example.com/connect/authorize
+      description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+x-refined-from:
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-seller-agent-openapi.json

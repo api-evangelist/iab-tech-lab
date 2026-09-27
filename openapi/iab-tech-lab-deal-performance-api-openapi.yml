@@ -1,0 +1,88 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Deal Performance API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Deal Performance across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Deal Performance
+  description: Deal delivery and performance metrics
+paths:
+  /api/v1/deals/{deal_id}/performance:
+    get:
+      tags:
+      - Deal Performance
+      summary: Get Deal Performance
+      description: 'Return delivery stats for a deal.
+
+
+        Provides performance feedback for buyer SPO (Supply Path Optimization).
+
+        Returns placeholder/mock stats initially — real ad server integration
+
+        comes in a future phase.'
+      operationId: get_deal_performance_api_v1_deals__deal_id__performance_get
+      parameters:
+      - name: deal_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Deal Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+x-refined-from:
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

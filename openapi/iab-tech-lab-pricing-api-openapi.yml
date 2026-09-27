@@ -1,0 +1,245 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Pricing API
+  version: 1.0.0
+  contact:
+    name: IAB Tech Lab
+    url: https://iabtechlab.com/
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  description: 'Operations tagged Pricing across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Pricing
+  description: Tiered pricing with buyer context
+paths:
+  /api/v1/rate-card:
+    get:
+      tags:
+      - Pricing
+      summary: Get Rate Card
+      description: 'Get the current rate card (base CPMs by inventory type).
+
+
+        The rate card drives floor pricing during inventory sync and
+
+        deal creation. Can be updated via PUT to reflect ad server rate cards.'
+      operationId: get_rate_card_api_v1_rate_card_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+    put:
+      tags:
+      - Pricing
+      summary: Update Rate Card
+      description: 'Update the rate card with current base CPMs from ad server.
+
+
+        Publishers should update this when their ad server rate cards change.
+
+        The pricing engine uses these values as base prices before applying
+
+        tier discounts and volume adjustments.'
+      operationId: update_rate_card_api_v1_rate_card_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/RateCardEntry'
+              type: array
+              title: Entries
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /pricing:
+    post:
+      tags:
+      - Pricing
+      summary: Get Pricing
+      description: Get pricing for a product based on buyer context.
+      operationId: get_pricing_pricing_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PricingRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PricingResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    PricingResponse:
+      properties:
+        product_id:
+          type: string
+          title: Product Id
+        base_price:
+          type: number
+          title: Base Price
+        final_price:
+          type: number
+          title: Final Price
+        currency:
+          type: string
+          title: Currency
+        tier_discount:
+          type: number
+          title: Tier Discount
+        volume_discount:
+          type: number
+          title: Volume Discount
+        rationale:
+          type: string
+          title: Rationale
+      type: object
+      required:
+      - product_id
+      - base_price
+      - final_price
+      - currency
+      - tier_discount
+      - volume_discount
+      - rationale
+      title: PricingResponse
+      description: Pricing response.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PricingRequest:
+      properties:
+        product_id:
+          type: string
+          title: Product Id
+        buyer_tier:
+          type: string
+          title: Buyer Tier
+          default: public
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        volume:
+          type: integer
+          title: Volume
+          default: 0
+        agent_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Url
+      type: object
+      required:
+      - product_id
+      title: PricingRequest
+      description: Request for pricing information.
+    RateCardEntry:
+      properties:
+        inventory_type:
+          type: string
+          title: Inventory Type
+        base_cpm:
+          type: number
+          title: Base Cpm
+        currency:
+          type: string
+          title: Currency
+          default: USD
+        effective_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Effective Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - inventory_type
+      - base_cpm
+      title: RateCardEntry
+      description: Rate card entry mapping inventory type to base CPM.
+x-refined-from:
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json

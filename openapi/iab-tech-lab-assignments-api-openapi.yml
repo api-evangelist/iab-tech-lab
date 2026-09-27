@@ -1,0 +1,381 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Assignments API
+  version: 1.5.1
+  description: 'Operations tagged Assignments across 2 of this provider''s published API definitions: iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-opendirect-1-5-1-swagger.yaml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://opendirect.example.com/v1.5.1
+security:
+- OauthSecurity:
+  - https://opendirect.example.com/scope/example
+tags:
+- name: Assignments
+paths:
+  /accounts/{accountId}/assignments:
+    get:
+      tags:
+      - Assignments
+      description: 'Gets a list of all assignments that belong to the account.
+
+        For advertisers, the list will include only assignments that they own. For agencies, the list will include the assignments that they own and the assignments that belong to accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/offset'
+      - name: $filter
+        in: query
+        description: 'Allows to get a list of assignments that match the specified filter criteria. The caller may use OData expressions with the following Assignment properties:
+
+          - CreativeId
+
+          - LineId
+
+          - StartDate
+
+          - EndDate
+
+          The user must have permissions to access the assignment. For example, advertisers and agencies may get assignments that they own. In addition, an agency may get assignments that belong to the accounts that they manage on behalf of advertisers.
+
+          '
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/AssignmentsResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Get accounts by account id assignments
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdAssignments
+      x-operation-id-source: derived
+    post:
+      tags:
+      - Assignments
+      description: 'Adds an assignment to the specified account. To add an assignment, the creative must be approved. An assignment may be added at any time prior to the order finishing its flight.
+
+        An advertiser or agency may add assignments to accounts that they own. In addition; an agency may add assignments to accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      responses:
+        201:
+          $ref: '#/components/responses/AssignmentResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Assignment'
+        required: true
+      summary: Create accounts by account id assignments
+      x-summary-source: derived
+      operationId: postAccountsByAccountIdAssignments
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/assignments/{assignmentId}:
+    get:
+      tags:
+      - Assignments
+      description: 'Gets the specified assignment.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the assignments that they own. In addition, an agency may get assignments that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/assignmentId'
+      responses:
+        200:
+          $ref: '#/components/responses/AssignmentResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Get accounts by account id assignments by assignment id
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdAssignmentsByAssignmentId
+      x-operation-id-source: derived
+    put:
+      tags:
+      - Assignments
+      description: 'Updates the specified assignment.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may update the assignments that they own. In addition, an agency may update assignments that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/assignmentId'
+      responses:
+        200:
+          $ref: '#/components/responses/AssignmentResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Replace accounts by account id assignments by assignment id
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdAssignmentsByAssignmentId
+      x-operation-id-source: derived
+    delete:
+      tags:
+      - Assignments
+      description: 'Deletes the specified assignment. May delete an assignment only if it has never delivered impressions.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may delete the assignments that they own. In addition, an agency may delete assignments that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/assignmentId'
+      responses:
+        204:
+          description: Assignment successfully deleted.
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Delete accounts by account id assignments by assignment id
+      x-summary-source: derived
+      operationId: deleteAccountsByAccountIdAssignmentsByAssignmentId
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/assignments/{assignmentId}?disable:
+    put:
+      tags:
+      - Assignments
+      description: 'Changes the status to “Inactive”.
+
+        The user must have permissions to access the assignment. For example, advertisers and agencies may disable Assignments that they own. In addition, an agency may disable assignments that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/assignmentId'
+      responses:
+        200:
+          $ref: '#/components/responses/AssignmentResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Replace accounts by account id assignments {assignment id}?disable
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdAssignments{assignmentId}?disable
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+components:
+  schemas:
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Assignments:
+      required:
+      - Assignments
+      properties:
+        Assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+    Assignment:
+      description: 'Defines an Assignment resource. An Assignment associates a creative with a line of the order. A creative may be assigned to one or more lines and a line may be assigned one or more creative.
+
+        Notes: The assignment must fail if the following are true.
+
+        - The language property for the creative does not match any of the languages in the language property for the product (products are defined in the LINE resource for an Order).
+
+        - The specified maturity level property for the creative does not match the maturity level property for the product specified in the LINE resource.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - $ref: '#/components/schemas/ProviderData'
+      - required:
+        - CreativeId
+        - LineId
+        - Status
+        properties:
+          CreativeId:
+            description: The ID of the creative to display when the line runs.
+            type: string
+            maxLength: 36
+          LineId:
+            description: The ID of the line that will display the creative.
+            type: string
+            maxLength: 36
+          Status:
+            description: 'A value that determines whether the creative serves.
+
+              The status may not transition from Inactive to Active.
+
+              '
+            type: string
+            enum:
+            - Active
+            - Inactive
+            readOnly: true
+          Weight:
+            description: 'Determines how much the creative is displayed relative to the other creative assigned to the same line.
+
+              To provide even rotation, do not specify a weight.
+
+              If weight is specified, all assignments that specify the same line must specify a weight and the weight of all the assignments must add up to 100. If the weight of all assignments does not add up to 100, even rotation is applied.
+
+              Assignments with heavier weight get proportionally more rotation compared to those with lesser weight.
+
+              For example, if the line has 2 creative, A and B, assigned with the same dates, and A has weight 25 and B has weight 75, B will serve three times as often as A.
+
+              '
+            type: integer
+            minimum: 1
+            maximum: 100
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    assignmentId:
+      name: assignmentId
+      in: path
+      required: true
+      x-example: '453365'
+      schema:
+        type: string
+        maxLength: 36
+  responses:
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    AssignmentsResponse:
+      description: Collection of Assignment
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Assignments'
+          example: "{\n  \"Assignments\": [\n    {\n      \"CreativeId\": \"394857\",\n      \"LineId\": \"394578\",\n      \"Weight\": 75,\n      \"Id\": \"34534\",\n      \"Status\": \"Active\",\n      \"ProviderData\": \"cid=98374\"\n    },\n    {\n      \"CreativeId\": \"54345\",\n      \"LineId\": \"394578\",\n      \"Weight\": 25,\n      \"Id\": \"453365\",\n      \"Status\": \"Active\",\n      \"ProviderData\": \"cid=34325\"\n    }\n  ]\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    AssignmentResponse:
+      description: Assignment resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Assignment'
+          example: "{\n  \"CreativeId\": \"54345\",\n  \"LineId\": \"394578\",\n  \"Weight\": 25,\n  \"Id\": \"453365\",\n  \"Status\": \"Active\",\n  \"ProviderData\": \"cid=34325\"\n}\n"
+  securitySchemes:
+    OauthSecurity:
+      type: oauth2
+      flows:
+        implicit:
+          scopes:
+            https://opendirect.example.com/scope/example: Example scope
+          authorizationUrl: https://opendirect.example.com/connect/authorize
+      description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+x-refined-from:
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml

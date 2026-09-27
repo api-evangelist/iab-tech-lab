@@ -10,6 +10,23 @@ description: 'IAB Technology Laboratory (IAB Tech Lab) is the non-profit consort
   3.1 contracts, JSON Schema primitives, MCP servers and A2A agent cards as reference implementations. The Tech
   Lab Tools Portal and its Core API sit behind a member login.'
 url: https://raw.githubusercontent.com/api-evangelist/iab-tech-lab/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  license_evidence:
+    not_product:
+    - iabtechlab/buyer-agent
+    - iabtechlab/seller-agent
+  open_source: unknown
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: low
+  source:
+  - openapi
+  - pricing
+  - repository-not-product
+  generated: '2026-09-25'
+  method: derived
 image: https://iabtechlab.com/wp-content/uploads/2017/08/IABTL_Logo_512.png
 x-type: company
 x-source: harvest:operator-attribution
@@ -43,55 +60,150 @@ tags_raw:
 - Agentic Advertising
 - Non-Profit
 apis:
-- aid: iab-tech-lab:opendirect-api
-  name: OpenDirect API
-  description: 'OpenDirect is IAB Tech Lab''s standard REST API for programmatic direct (guaranteed) media buying:
-    organizations, accounts, products, orders, lines, creatives, assignments, change requests and messages exchanged
-    between buyer and seller systems. The 1.5.1 Swagger 2.0 contract is published verbatim; OpenDirect 2.1 is published
-    as prose plus an MCP tool catalog (33 tools) in the mcp-config reference implementation. There is no IAB Tech
-    Lab-hosted instance — every seller hosts its own endpoint, which is why the contract''s host is a placeholder.'
-  humanURL: https://iabtechlab.com/standards/opendirect/
-  x-base-url-note: No hosted base URL. The specification names host opendirect.example.com (1.5.1) and https://opendirect.example.com/v2.1
-    (2.1) as placeholders; each implementing seller publishes its own.
+- aid: iab-tech-lab:openrtb
+  name: OpenRTB 2.x Protocol
+  description: >-
+    OpenRTB is the real-time bidding protocol between ad exchanges and bidders. IAB Tech Lab publishes
+    the 2.x specification (current release 2.6-202606) with a Protocol Buffers definition (package com.iabtechlab.openrtb.v2,
+    69 messages) that is maintained in lockstep with the specification and is the standard binary encoding
+    for OpenRTB.
+  humanURL: https://iabtechlab.com/standards/openrtb/
+  x-base-url-note: >-
+    A protocol, not a hosted endpoint — every exchange and bidder pair runs its own OpenRTB bid request/response
+    exchange.
   tags:
-  - Programmatic Direct
-  - Media Buying
-  - Order
-  tags_raw:
-  - Programmatic Direct
-  - Media Buying
-  - Orders
+  - Real-Time Bidding
+  - Programmatic
+  - Protocol Buffers
   properties:
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/openrtb2.x
+  - type: Protobuf
+    url: grpc/iab-tech-lab-openrtb-v2.proto
+  - type: ChangeLog
+    url: https://github.com/InteractiveAdvertisingBureau/openrtb2.x/releases
+  - type: Protobuf
+    url: grpc/iab-tech-lab-grpc-index.yml
+- aid: iab-tech-lab:adcom
+  name: AdCOM Protobuf
+  description: >-
+    Advertising Common Object Model (AdCOM) 1.0 is the shared object layer beneath OpenRTB 3.0, OpenDirect
+    and the Ad Management API — media (ads, assets), placement, context (site, app, user, device, geo)
+    and the standard enumerations. Published as five Protocol Buffers files under package com.iabtechlab.adcom.v1
+    in the IABTechLab/adcom-proto repository.
+  humanURL: https://github.com/IABTechLab/adcom-proto
+  x-base-url-note: A data model, not a hosted endpoint.
+  tags:
+  - Data Model
+  - Protocol Buffers
+  properties:
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/AdCOM
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-adcom.proto
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-media.proto
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-placement.proto
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-context.proto
+  - type: Protobuf
+    url: grpc/adcom/iab-tech-lab-adcom-enums.proto
+- aid: iab-tech-lab:agentic-rtb-framework
+  name: Agentic RTB Framework gRPC
+  description: >-
+    The Agentic Real-Time Framework (ARTF) 1.0 defines gRPC extension points an exchange calls during
+    an auction so that agents can mutate the bidstream. The RTBExtensionPoint service (package com.iabtechlab.bidstream.mutation.services.v1)
+    exposes a GetMutations RPC over OpenRTB 2.6 messages; the reference implementation also exposes the
+    same service as an MCP "Extend RTB" tool over Streamable HTTP. Published as proto3 files with a Rust
+    reference implementation.
+  humanURL: https://github.com/IABTechLab/agentic-real-time-framework
+  x-base-url-note: Self-hosted gRPC (reference implementation listens on :50051); no hosted endpoint.
+  tags:
+  - Real-Time Bidding
+  - gRPC
+  - Agentic Advertising
+  properties:
+  - type: Documentation
+    url: >-
+      https://github.com/IABTechLab/agentic-real-time-framework/blob/main/Agentic_Real_Time_Framework_Version_1_0_FINAL.md
+  - type: Protobuf
+    url: grpc/agentic-rtb-framework/iab-tech-lab-agenticrtbframeworkservices.proto
+  - type: Protobuf
+    url: grpc/agentic-rtb-framework/iab-tech-lab-agenticrtbframework.proto
+- aid: iab-tech-lab:vast
+  name: VAST and VMAP Schemas
+  description: >-
+    Video Ad Serving Template (VAST) is the XML contract between video players and ad servers; VMAP (Video
+    Multiple Ad Playlist) schedules ad breaks around content. IAB Tech Lab publishes XML Schema definitions
+    for VAST 4.1, 4.2 and 4.4 and VMAP 1.0 in its GitHub repositories (the vast_4.3.xsd file in the repository
+    is empty upstream).
+  humanURL: https://iabtechlab.com/standards/vast/
+  x-base-url-note: An XML document format exchanged between players and ad servers, not a hosted endpoint.
+  tags:
+  - Video Ads
+  - XML
+  properties:
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/VAST
+  - type: XMLSchema
+    url: xsd/iab-tech-lab-vast-4.4.xsd
+  - type: XMLSchema
+    url: xsd/iab-tech-lab-vast-4.2.xsd
+  - type: XMLSchema
+    url: xsd/iab-tech-lab-vast-4.1.xsd
+  - type: XMLSchema
+    url: xsd/iab-tech-lab-vmap-1.0.xsd
+- aid: iab-tech-lab:supply-chain-api
+  name: Supply Chain API
+  description: >-
+    IAB Tech Lab's hosted, subscription API for aggregated supply-chain data: crawled and validated ads.txt,
+    app-ads.txt and sellers.json files, plus the Transparency Center's compliance and identifier registries
+    (OM SDK and podcast compliance, MSPA signatory IDs, SKAdNetwork IDs, GPP data). Access is provisioned
+    through the Tech Lab Tools Portal (tools.iabtechlab.com, free login) at /transparencycenter/apiAccess/all;
+    the backing host api.iabtechlab.com (alias coreapi.iabtechlab.com) identifies itself as 'IAB Tech
+    Lab Core API' and answers /health, but /docs, /docs/oauth and /openapi.json all 302 to /login, so
+    the contract is gated behind a subscription. Basic tier is $2,500/yr for members and $4,500/yr for
+    non-members; API+ adds $2,500/yr.
+  humanURL: https://iabtechlab.com/software/iab-tech-lab-supply-chain-api/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Supply Chain
+  - ads.txt
+  - sellers.json
+  - Transparency
+  - Compliance
+  properties:
+  - type: Documentation
+    url: https://iabtechlab.com/software/transparency-center/
+  - type: Pricing
+    url: https://iabtechlab.com/software/iab-tech-lab-supply-chain-api/
+  - type: SignUp
+    url: https://tools.iabtechlab.com/
+  - type: Portal
+    url: https://tools.iabtechlab.com/
+  - type: Plans
+    url: plans/iab-tech-lab-plans-pricing.yml
+  x-base-url-note: >-
+    api.iabtechlab.com is the host the Tools Portal SDK (iabtechlab-sdk_v1.7.3.js) calls and the one that
+    names itself IAB Tech Lab Core API; coreapi.iabtechlab.com serves the identical page. The contract
+    behind /docs is gated (302 -> /login).
+- aid: iab-tech-lab:iab-tech-lab-a2a-api
+  name: IAB Tech Lab A2a API
+  description: The A2a API from IAB Tech Lab — 1 operation(s) for a2a.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - A2a
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-a2a-api-openapi.yml
   - type: Documentation
     url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
-  - type: OpenAPI
-    url: openapi/iab-tech-lab-opendirect-1-5-1-swagger.yaml
-  - type: MCPServer
-    url: mcp/iab-tech-lab-mcp.yml
   - type: ToolCrosswalk
     url: mcp/iab-tech-lab-tool-crosswalk.yml
-  - type: Overlay
-    url: overlays/iab-tech-lab-opendirect-1-5-1-overlay.yaml
-  - type: AgentSkill
-    url: skills/iab-tech-lab-opendirect-book-line.md
-- aid: iab-tech-lab:agentic-advertising-api
-  name: IAB Agentic Advertising API
-  description: The canonical wire protocol between IAB Tech Lab's buyer and seller agents, published from the iab-agentic-primitives
-    repository as an OpenAPI 3.1 document (catalog, quote-to-book deal flow, negotiation, change requests, A2A JSON-RPC
-    messaging and Agent Card discovery) plus sixteen JSON Schema primitives (Account, Agent, Deal, Line, MediaKit,
-    Negotiation, Order, Product, Proposal and others). Pre-release (0.1.0 / v0.5.1 tag) ahead of a 1.0 IAB Tech
-    Lab standardization.
-  humanURL: https://github.com/IABTechLab/iab-agentic-primitives
-  x-base-url-note: No hosted base URL; the spec declares no servers[] and is implemented by each seller agent.
-  tags:
-  - Agentic Advertising
-  - Deals
-  - Negotiation
-  properties:
   - type: Documentation
     url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
-  - type: OpenAPI
-    url: openapi/iab-tech-lab-agentic-advertising-api-openapi.yaml
   - type: JSONSchema
     url: json-schema/iab-tech-lab-agentic-primitive-deal.json
   - type: JSONSchema
@@ -124,192 +236,2411 @@ apis:
     url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
   - type: JSONSchema
     url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
-  - type: Overlay
-    url: overlays/iab-tech-lab-agentic-advertising-api-overlay.yaml
-- aid: iab-tech-lab:seller-agent-api
-  name: Seller Agent API
-  description: 'IAB Tech Lab''s reference seller agent for publishers: an OpenAPI 3.1 REST surface (87 operations
-    — products and avails, tiered pricing, quotes, deal booking, negotiation, change requests, orders, packages,
-    curators, SSP distribution, GAM/FreeWheel inventory sync, operator API keys), an MCP server with 46 tools at
-    /mcp/ (Streamable HTTP) or stdio, and an A2A agent card at /.well-known/agent.json. Self-hosted by each publisher;
-    IAB Tech Lab publishes the code and docs, not a hosted instance.'
-  humanURL: https://iabtechlab.github.io/seller-agent/
-  x-base-url-note: Self-hosted (uvicorn on the publisher's own host); docs use http://localhost:8000 and https://your-server.example.com
-    as placeholders. No IAB Tech Lab-hosted instance was found.
-  tags:
-  - Agentic Advertising
-  - Publishers
-  - Deals
-  - MCP
-  properties:
   - type: Documentation
     url: https://iabtechlab.github.io/seller-agent/
   - type: APIReference
     url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
-  - type: OpenAPI
-    url: openapi/iab-tech-lab-seller-agent-openapi.json
   - type: SourceCode
     url: https://github.com/IABTechLab/seller-agent
   - type: ChangeLog
     url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
-  - type: Overlay
-    url: overlays/iab-tech-lab-seller-agent-overlay.yaml
-  - type: MCPServer
-    url: mcp/iab-tech-lab-mcp.yml
-  - type: ToolCrosswalk
-    url: mcp/iab-tech-lab-tool-crosswalk.yml
-  - type: AgentSkill
-    url: skills/iab-tech-lab-quote-to-book-deal.md
-  - type: AgentSkill
-    url: skills/iab-tech-lab-negotiate-deal.md
   - type: ChangeLog
     url: changelog/iab-tech-lab-changelog.yml
   - type: CLI
     url: cli/iab-tech-lab-cli.yml
-- aid: iab-tech-lab:buyer-agent-api
-  name: Buyer Agent API
-  description: 'IAB Tech Lab''s reference buyer agent for DSPs, agencies and advertisers: an OpenAPI 3.1 REST surface
-    (14 operations — orders and audit trails, booking jobs and approvals, product search, events, reports and campaign
-    metadata) that drives MCP, A2A and REST clients against seller agents to browse media kits, negotiate and book
-    OpenDirect 2.1 deals. Self-hosted; no IAB Tech Lab-hosted instance.'
-  humanURL: https://iabtechlab.github.io/buyer-agent/
-  x-base-url-note: Self-hosted; the spec declares no servers[]. No IAB Tech Lab-hosted instance was found.
-  tags:
-  - Agentic Advertising
-  - Media Buying
-  - Deals
-  properties:
   - type: Documentation
     url: https://iabtechlab.github.io/buyer-agent/
-  - type: OpenAPI
-    url: openapi/iab-tech-lab-buyer-agent-openapi.json
   - type: SourceCode
     url: https://github.com/IABTechLab/buyer-agent
-  - type: Overlay
-    url: overlays/iab-tech-lab-buyer-agent-overlay.yaml
-- aid: iab-tech-lab:openrtb
-  name: OpenRTB 2.x Protocol
-  description: OpenRTB is the real-time bidding protocol between ad exchanges and bidders. IAB Tech Lab publishes
-    the 2.x specification (current release 2.6-202606) with a Protocol Buffers definition (package com.iabtechlab.openrtb.v2,
-    69 messages) that is maintained in lockstep with the specification and is the standard binary encoding for OpenRTB.
-  humanURL: https://iabtechlab.com/standards/openrtb/
-  x-base-url-note: A protocol, not a hosted endpoint — every exchange and bidder pair runs its own OpenRTB bid request/response
-    exchange.
+- aid: iab-tech-lab:iab-tech-lab-accounts-api
+  name: IAB Tech Lab Accounts API
+  description: The Accounts API from IAB Tech Lab — 2 operation(s) for accounts.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
   tags:
-  - Real-Time Bidding
-  - Programmatic
-  - Protocol Buffers
+  - Accounts
   properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-accounts-api-openapi.yml
   - type: Documentation
-    url: https://github.com/InteractiveAdvertisingBureau/openrtb2.x
-  - type: Protobuf
-    url: grpc/iab-tech-lab-openrtb-v2.proto
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
   - type: ChangeLog
-    url: https://github.com/InteractiveAdvertisingBureau/openrtb2.x/releases
-  - type: Protobuf
-    url: grpc/iab-tech-lab-grpc-index.yml
-- aid: iab-tech-lab:adcom
-  name: AdCOM Protobuf
-  description: Advertising Common Object Model (AdCOM) 1.0 is the shared object layer beneath OpenRTB 3.0, OpenDirect
-    and the Ad Management API — media (ads, assets), placement, context (site, app, user, device, geo) and the standard
-    enumerations. Published as five Protocol Buffers files under package com.iabtechlab.adcom.v1 in the IABTechLab/adcom-proto
-    repository.
-  humanURL: https://github.com/IABTechLab/adcom-proto
-  x-base-url-note: A data model, not a hosted endpoint.
-  tags:
-  - Data Model
-  - Protocol Buffers
-  properties:
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
   - type: Documentation
-    url: https://github.com/InteractiveAdvertisingBureau/AdCOM
-  - type: Protobuf
-    url: grpc/adcom/iab-tech-lab-adcom-adcom.proto
-  - type: Protobuf
-    url: grpc/adcom/iab-tech-lab-adcom-media.proto
-  - type: Protobuf
-    url: grpc/adcom/iab-tech-lab-adcom-placement.proto
-  - type: Protobuf
-    url: grpc/adcom/iab-tech-lab-adcom-context.proto
-  - type: Protobuf
-    url: grpc/adcom/iab-tech-lab-adcom-enums.proto
-- aid: iab-tech-lab:agentic-rtb-framework
-  name: Agentic RTB Framework gRPC
-  description: The Agentic Real-Time Framework (ARTF) 1.0 defines gRPC extension points an exchange calls during
-    an auction so that agents can mutate the bidstream. The RTBExtensionPoint service (package com.iabtechlab.bidstream.mutation.services.v1)
-    exposes a GetMutations RPC over OpenRTB 2.6 messages; the reference implementation also exposes the same service
-    as an MCP "Extend RTB" tool over Streamable HTTP. Published as proto3 files with a Rust reference implementation.
-  humanURL: https://github.com/IABTechLab/agentic-real-time-framework
-  x-base-url-note: Self-hosted gRPC (reference implementation listens on :50051); no hosted endpoint.
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-agent-registry-api
+  name: IAB Tech Lab Agent Registry API
+  description: A2A agent discovery and trust management
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
   tags:
-  - Real-Time Bidding
-  - gRPC
-  - Agentic Advertising
+  - Agent Registry
   properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-agent-registry-api-openapi.yml
   - type: Documentation
-    url: https://github.com/IABTechLab/agentic-real-time-framework/blob/main/Agentic_Real_Time_Framework_Version_1_0_FINAL.md
-  - type: Protobuf
-    url: grpc/agentic-rtb-framework/iab-tech-lab-agenticrtbframeworkservices.proto
-  - type: Protobuf
-    url: grpc/agentic-rtb-framework/iab-tech-lab-agenticrtbframework.proto
-- aid: iab-tech-lab:vast
-  name: VAST and VMAP Schemas
-  description: Video Ad Serving Template (VAST) is the XML contract between video players and ad servers; VMAP (Video
-    Multiple Ad Playlist) schedules ad breaks around content. IAB Tech Lab publishes XML Schema definitions for
-    VAST 4.1, 4.2 and 4.4 and VMAP 1.0 in its GitHub repositories (the vast_4.3.xsd file in the repository is empty
-    upstream).
-  humanURL: https://iabtechlab.com/standards/vast/
-  x-base-url-note: An XML document format exchanged between players and ad servers, not a hosted endpoint.
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-approvals-api
+  name: IAB Tech Lab Approvals API
+  description: Human-in-the-loop approval workflow
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
   tags:
-  - Video Ads
-  - XML
+  - Approvals
   properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-approvals-api-openapi.yml
   - type: Documentation
-    url: https://github.com/InteractiveAdvertisingBureau/VAST
-  - type: XMLSchema
-    url: xsd/iab-tech-lab-vast-4.4.xsd
-  - type: XMLSchema
-    url: xsd/iab-tech-lab-vast-4.2.xsd
-  - type: XMLSchema
-    url: xsd/iab-tech-lab-vast-4.1.xsd
-  - type: XMLSchema
-    url: xsd/iab-tech-lab-vmap-1.0.xsd
-- aid: iab-tech-lab:supply-chain-api
-  name: Supply Chain API
-  description: 'IAB Tech Lab''s hosted, subscription API for aggregated supply-chain data: crawled and validated
-    ads.txt, app-ads.txt and sellers.json files, plus the Transparency Center''s compliance and identifier registries
-    (OM SDK and podcast compliance, MSPA signatory IDs, SKAdNetwork IDs, GPP data). Access is provisioned through
-    the Tech Lab Tools Portal (tools.iabtechlab.com, free login) at /transparencycenter/apiAccess/all; the backing
-    host api.iabtechlab.com (alias coreapi.iabtechlab.com) identifies itself as ''IAB Tech Lab Core API'' and answers
-    /health, but /docs, /docs/oauth and /openapi.json all 302 to /login, so the contract is gated behind a subscription.
-    Basic tier is $2,500/yr for members and $4,500/yr for non-members; API+ adds $2,500/yr.'
-  humanURL: https://iabtechlab.com/software/iab-tech-lab-supply-chain-api/
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-assignments-api
+  name: IAB Tech Lab Assignments API
+  description: The Assignments API from IAB Tech Lab — 3 operation(s) for assignments.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Assignments
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-assignments-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-audience-api
+  name: IAB Tech Lab Audience API
+  description: The Audience API from IAB Tech Lab — 1 operation(s) for audience.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Audience
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-audience-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-audit-api
+  name: IAB Tech Lab Audit API
+  description: Order audit logs and operational reports
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Audit
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-audit-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-authentication-api
+  name: IAB Tech Lab Authentication API
+  description: API key lifecycle management
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Authentication
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-authentication-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-bookings-api
+  name: IAB Tech Lab Bookings API
+  description: Campaign booking workflow lifecycle
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Bookings
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-bookings-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-bulk-operations-api
+  name: IAB Tech Lab Bulk Operations API
+  description: Batch deal create/update/cancel
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Bulk Operations
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-bulk-operations-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-buyer-orders-api
+  name: IAB Tech Lab Buyer Orders API
+  description: The Buyer Orders API from IAB Tech Lab — 2 operation(s) for buyer orders.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Buyer Orders
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-buyer-orders-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-change-requests-api
+  name: IAB Tech Lab Change Requests API
+  description: The Change Requests API from IAB Tech Lab — 8 operation(s) for change requests.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Change Requests
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-change-requests-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-change-requests-lines-api
+  name: IAB Tech Lab Change Requests Lines API
+  description: >-
+    The Change Requests Lines API from IAB Tech Lab — 2 operation(s) for change requests lines.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Change Requests Lines
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-change-requests-lines-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-core-api
+  name: IAB Tech Lab Core API
+  description: Health check and API root
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Core
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-core-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-creatives-api
+  name: IAB Tech Lab Creatives API
+  description: The Creatives API from IAB Tech Lab — 2 operation(s) for creatives.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Creatives
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-creatives-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-curators-api
+  name: IAB Tech Lab Curators API
+  description: The Curators API from IAB Tech Lab — 3 operation(s) for curators.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Curators
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-curators-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-deal-booking-api
+  name: IAB Tech Lab Deal Booking API
+  description: Quote-to-deal booking (IAB Deals API v1.0)
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Deal Booking
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-deal-booking-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-deal-performance-api
+  name: IAB Tech Lab Deal Performance API
+  description: Deal delivery and performance metrics
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Deal Performance
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-deal-performance-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-deals-api
+  name: IAB Tech Lab Deals API
+  description: The Deals API from IAB Tech Lab — 3 operation(s) for deals.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Deals
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-deals-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-discovery-api
+  name: IAB Tech Lab Discovery API
+  description: Natural language inventory discovery
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Discovery
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-discovery-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-events-api
+  name: IAB Tech Lab Events API
+  description: Event bus query endpoints
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Events
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-events-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-health-api
+  name: IAB Tech Lab Health API
+  description: Service health and readiness
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Health
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-health-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-lines-api
+  name: IAB Tech Lab Lines API
+  description: The Lines API from IAB Tech Lab — 6 operation(s) for lines.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Lines
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-lines-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-media-kit-api
+  name: IAB Tech Lab Media Kit API
+  description: Public media kit and package catalog
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Media Kit
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-media-kit-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-negotiation-api
+  name: IAB Tech Lab Negotiation API
+  description: Multi-round price negotiation
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Negotiation
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-negotiation-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-negotiations-api
+  name: IAB Tech Lab Negotiations API
+  description: The Negotiations API from IAB Tech Lab — 2 operation(s) for negotiations.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Negotiations
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-negotiations-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-orders-api
+  name: IAB Tech Lab Orders API
+  description: The Orders API from IAB Tech Lab — 7 operation(s) for orders.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Orders
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-orders-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-organizations-api
+  name: IAB Tech Lab Organizations API
+  description: The Organizations API from IAB Tech Lab — 2 operation(s) for organizations.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Organizations
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-organizations-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-packages-api
+  name: IAB Tech Lab Packages API
+  description: Package management (authenticated/admin)
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Packages
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-packages-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-pricing-api
+  name: IAB Tech Lab Pricing API
+  description: Tiered pricing with buyer context
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Pricing
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-pricing-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-products-api
+  name: IAB Tech Lab Products API
+  description: The Products API from IAB Tech Lab — 6 operation(s) for products.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Products
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-products-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-proposals-api
+  name: IAB Tech Lab Proposals API
+  description: Proposal submission and evaluation
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Proposals
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-proposals-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-quotes-api
+  name: IAB Tech Lab Quotes API
+  description: The Quotes API from IAB Tech Lab — 2 operation(s) for quotes.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Quotes
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-quotes-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-registry-api
+  name: IAB Tech Lab Registry API
+  description: The Registry API from IAB Tech Lab — 1 operation(s) for registry.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Registry
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-registry-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-reporting-api
+  name: IAB Tech Lab Reporting API
+  description: The Reporting API from IAB Tech Lab — 7 operation(s) for reporting.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Reporting
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-reporting-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-sessions-api
+  name: IAB Tech Lab Sessions API
+  description: Multi-turn buyer conversation sessions
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - Sessions
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-sessions-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-supply-chain-api
+  name: IAB Tech Lab Supply Chain API
+  description: Supply chain transparency (sellers.json-like self-description)
+  humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
   - Supply Chain
-  - ads.txt
-  - sellers.json
-  - Transparency
-  - Compliance
   properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-supply-chain-api-openapi.yml
   - type: Documentation
-    url: https://iabtechlab.com/software/transparency-center/
-  - type: Pricing
-    url: https://iabtechlab.com/software/iab-tech-lab-supply-chain-api/
-  - type: SignUp
-    url: https://tools.iabtechlab.com/
-  - type: Portal
-    url: https://tools.iabtechlab.com/
-  - type: Plans
-    url: plans/iab-tech-lab-plans-pricing.yml
-  x-base-url-note: api.iabtechlab.com is the host the Tools Portal SDK (iabtechlab-sdk_v1.7.3.js) calls and the
-    one that names itself IAB Tech Lab Core API; coreapi.iabtechlab.com serves the identical page. The contract
-    behind /docs is gated (302 -> /login).
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
+- aid: iab-tech-lab:iab-tech-lab-well-known-api
+  name: IAB Tech Lab .well Known API
+  description: The .well Known API from IAB Tech Lab — 1 operation(s) for .well known.
+  humanURL: https://iabtechlab.com/standards/opendirect/
+  baseURL: https://api.iabtechlab.com
+  tags:
+  - .well Known
+  properties:
+  - type: OpenAPI
+    url: openapi/iab-tech-lab-well-known-api-openapi.yml
+  - type: Documentation
+    url: https://github.com/InteractiveAdvertisingBureau/OpenDirect
+  - type: ToolCrosswalk
+    url: mcp/iab-tech-lab-tool-crosswalk.yml
+  - type: Documentation
+    url: https://github.com/IABTechLab/iab-agentic-primitives/blob/main/spec/README.md
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-deal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-order.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-product.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-negotiation.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-proposal.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-mediakit.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-agent.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-line.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-account.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-organization.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creative.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-creativeapproval.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-assignment.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-changerequest.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-consentcontext.json
+  - type: JSONSchema
+    url: json-schema/iab-tech-lab-agentic-primitive-decisionrecord.json
+  - type: Documentation
+    url: https://iabtechlab.github.io/seller-agent/
+  - type: APIReference
+    url: https://iabtechlab.github.io/seller-agent/reference/endpoints/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/seller-agent
+  - type: ChangeLog
+    url: https://github.com/IABTechLab/seller-agent/blob/main/CHANGELOG.md
+  - type: ChangeLog
+    url: changelog/iab-tech-lab-changelog.yml
+  - type: CLI
+    url: cli/iab-tech-lab-cli.yml
+  - type: Documentation
+    url: https://iabtechlab.github.io/buyer-agent/
+  - type: SourceCode
+    url: https://github.com/IABTechLab/buyer-agent
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/iab-tech-lab-opendirect-1-5-1-overlay.yaml
+- type: AgentSkill
+  url: skills/iab-tech-lab-opendirect-book-line.md
+- type: Overlay
+  url: overlays/iab-tech-lab-agentic-advertising-api-overlay.yaml
+- type: Overlay
+  url: overlays/iab-tech-lab-seller-agent-overlay.yaml
+- type: AgentSkill
+  url: skills/iab-tech-lab-quote-to-book-deal.md
+- type: AgentSkill
+  url: skills/iab-tech-lab-negotiate-deal.md
+- type: Overlay
+  url: overlays/iab-tech-lab-buyer-agent-overlay.yaml
 - type: DomainSecurity
   url: security/iab-tech-lab-domain-security.yml
 - type: OAuthScopes

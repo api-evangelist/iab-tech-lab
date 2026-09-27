@@ -1,0 +1,754 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Lines API
+  version: 1.5.1
+  description: 'Operations tagged Lines across 2 of this provider''s published API definitions: iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-opendirect-1-5-1-swagger.yaml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://opendirect.example.com/v1.5.1
+security:
+- OauthSecurity:
+  - https://opendirect.example.com/scope/example
+tags:
+- name: Lines
+paths:
+  /accounts/{accountId}/orders/{orderId}/lines:
+    get:
+      tags:
+      - Lines
+      description: 'Gets a list of all lines in the order.
+
+        For advertisers, the list will include only lines that they own. For agencies, the list will include the lines that they own and the lines that belong to accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/offset'
+      - name: $filter
+        in: query
+        description: 'Allows to get a list of lines that match the specified filter criteria. The user may use OData expressions and method calls with the following Line properties:
+
+          - Name
+
+          - BookingStatus
+
+          - StartDate
+
+          - EndDate
+
+          May also support getting a list by IDs.
+
+          '
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/LinesResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Get accounts by account id orders by order id lines
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdOrdersByOrderIdLines
+      x-operation-id-source: derived
+    post:
+      tags:
+      - Lines
+      description: 'Adds a line to the order.
+
+        An advertiser or agency may add lines to orders that they own. In addition; an agency may add lines to orders that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      responses:
+        201:
+          $ref: '#/components/responses/LineResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Line'
+        required: true
+      summary: Create accounts by account id orders by order id lines
+      x-summary-source: derived
+      operationId: postAccountsByAccountIdOrdersByOrderIdLines
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}:
+    get:
+      tags:
+      - Lines
+      description: 'Gets the specified line from the order.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the Lines that they own. In addition, an agency may get the lines that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      - $ref: '#/components/parameters/lineId'
+      responses:
+        200:
+          $ref: '#/components/responses/LineResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Get accounts by account id orders by order id lines by line id
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdOrdersByOrderIdLinesByLineId
+      x-operation-id-source: derived
+    put:
+      tags:
+      - Lines
+      description: 'Updates the specified line. To update a line, the line must be in the Draft state.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may update the Lines that they own. In addition, an agency may update the lines that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      - $ref: '#/components/parameters/lineId'
+      responses:
+        200:
+          $ref: '#/components/responses/LineResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Replace accounts by account id orders by order id lines by line id
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdOrdersByOrderIdLinesByLineId
+      x-operation-id-source: derived
+    delete:
+      tags:
+      - Lines
+      description: 'Deletes the specified line. May delete a line only if it’s in the Draft state. Must also delete assignments that reference the line.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may delete the Lines that they own. In addition, an agency may delete the lines that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      - $ref: '#/components/parameters/lineId'
+      responses:
+        204:
+          description: Line successfully deleted.
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Delete accounts by account id orders by order id lines by line id
+      x-summary-source: derived
+      operationId: deleteAccountsByAccountIdOrdersByOrderIdLinesByLineId
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}?book:
+    put:
+      tags:
+      - Lines
+      description: 'Begins the booking process for the line. The booking process may be asynchronous.
+
+        To book a line, the line must:
+
+        - Be in the Draft or Reserved state.
+
+        - Have a creative assigned (if AllowNoCreative is false in Product).
+
+        - Have available impressions.
+
+        If successfully booked, the line moves to the Booked state; otherwise, it moves to Declined and sets StateChangedReason.
+
+        The user must have permissions to book the line. For example, advertisers and agencies may book Lines that they own. In addition, an agency may book lines that belong to the accounts that they manage on behalf of advertisers. Only organizations that have an Approved or Limited status may book lines.
+
+        The booking process may be asynchronous. If asynchronous, set the BookingStatus field to PendingBooking until the line is booked or declined. If successfully booked, set the BookingStatus field to Booked; otherwise, set the BookingStatus field to Declined and specify why the request was declined in the StateChangedReason field.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      - $ref: '#/components/parameters/lineId'
+      responses:
+        200:
+          $ref: '#/components/responses/AssignmentResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Replace accounts by account id orders by order id lines {line id}?book
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdOrdersByOrderIdLines{lineId}?book
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}?reserve:
+    put:
+      tags:
+      - Lines
+      description: 'Reserves the line. The reserve process may be asynchronous. To reserve a line, the line must be in the Draft state. If successfully reserved, the line moves to the Reserved state; otherwise, it moves to Declined and StateChangedReason is set.
+
+        The user must have permissions to reserve the line. For example, advertisers and agencies may reserve Lines that they own. In addition, an agency may reserve lines that belong to the accounts that they manage on behalf of advertisers.
+
+        Only organizations that have an Approved or Limited status may reserve lines.
+
+        The reservation process may be asynchronous. If asynchronous, set the BookingStatus field to PendingReservation until the line is reserved or declined. If successfully reserved, set the BookingStatus field to Reserved and the ReservedExpiryDate field to the date and time that the reservation expires. If the line was not reserved, set the BookingStatus field to Declined and specify why the request was declined in the StateChangedReason field.
+
+        Supporting reserve is optional.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      - $ref: '#/components/parameters/lineId'
+      responses:
+        200:
+          $ref: '#/components/responses/AssignmentResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Replace accounts by account id orders by order id lines {line id}?reserve
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdOrdersByOrderIdLines{lineId}?reserve
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}?cancel:
+    put:
+      tags:
+      - Lines
+      description: 'Cancels the line. To cancel a line, the line must be in the Reserved, Booked, or InFlight state. If successfully canceled, the line moves to the Canceled state. If the status was InFlight, StateChangedReason is set.
+
+        The user must have permissions to cancel the line. For example, advertisers and agencies may cancel Lines that they own. In addition, an agency may cancel lines that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      - $ref: '#/components/parameters/lineId'
+      responses:
+        200:
+          $ref: '#/components/responses/AssignmentResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Replace accounts by account id orders by order id lines {line id}?cancel
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdOrdersByOrderIdLines{lineId}?cancel
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}?reset:
+    put:
+      tags:
+      - Lines
+      description: 'Resets a line back to the Draft state.
+
+        The user must have permissions to reset the line. For example, advertisers and agencies may reset Lines that they own. In addition, an agency may reset lines that belong to the accounts that they manage on behalf of advertisers. To reset a line, the line must be in the Reserved, Declined, or Expired booking state. If successfully reset, set the BookingStatus field to Draft.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      - $ref: '#/components/parameters/lineId'
+      responses:
+        200:
+          $ref: '#/components/responses/AssignmentResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Replace accounts by account id orders by order id lines {line id}?reset
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdOrdersByOrderIdLines{lineId}?reset
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+components:
+  parameters:
+    lineId:
+      name: lineId
+      in: path
+      required: true
+      x-example: '345233'
+      schema:
+        type: string
+        maxLength: 36
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    orderId:
+      name: orderId
+      in: path
+      required: true
+      x-example: '1235872'
+      schema:
+        type: string
+        maxLength: 36
+  responses:
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    AssignmentResponse:
+      description: Assignment resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Assignment'
+          example: "{\n  \"CreativeId\": \"54345\",\n  \"LineId\": \"394578\",\n  \"Weight\": 25,\n  \"Id\": \"453365\",\n  \"Status\": \"Active\",\n  \"ProviderData\": \"cid=34325\"\n}\n"
+    LineResponse:
+      description: Line resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Line'
+          example: "{\n  \"BookingStatus\": \"Draft\",\n  \"Comment\": \"Free form comment\",\n  \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n  \"FrequencyCount\": 3,\n  \"FrequencyInterval\": \"Day\",\n  \"Id\": \"345233\",\n  \"Quantity\": 30000,\n  \"Name\": \"My Line 1\",\n  \"OrderId\": \"1235872\",\n  \"ProductId\": \"456366\",\n  \"ProviderData\": \"cid=88873\",\n  \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Targeting\": [\n    {\n      \"Target\": \"Age\",\n      \"TargetValues\": [\"18-24\",\"25-34\"]\n    },\n    {\n      \"Target\": \"Gender\",\n      \"TargetValues\": [\"Male\"]\n    }\n  ]\n  \"UsesExpandables\": False\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    LinesResponse:
+      description: Collection of Line
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Lines'
+          example: "{\n  \"Lines\": [\n    {\n      \"BookingStatus\": \"Draft\",\n      \"Comment\": \"Free form comment\",\n      \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n      \"FrequencyCount\": 3,\n      \"FrequencyInterval\": \"Day\",\n      \"Id\": \"345233\",\n      \"Quantity\": 30000,\n      \"Name\": \"My Line 1\",\n      \"OrderId\": \"1235872\",\n      \"ProductId\": \"456366\",\n      \"ProviderData\": \"cid=88873\",\n      \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n      \"Targeting\": [\n        {\n          \"Target\": \"Age\",\n          \"TargetValues\": [\"18-24\",\"25-34\"]\n        },\n        {\n          \"Target\": \"Gender\",\n          \"TargetValues\": [\"Male\"]\n        }\n      ]\n      \"UsesExpandables\": False\n    }\n  ]\n}\n"
+  schemas:
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+    Assignment:
+      description: 'Defines an Assignment resource. An Assignment associates a creative with a line of the order. A creative may be assigned to one or more lines and a line may be assigned one or more creative.
+
+        Notes: The assignment must fail if the following are true.
+
+        - The language property for the creative does not match any of the languages in the language property for the product (products are defined in the LINE resource for an Order).
+
+        - The specified maturity level property for the creative does not match the maturity level property for the product specified in the LINE resource.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - $ref: '#/components/schemas/ProviderData'
+      - required:
+        - CreativeId
+        - LineId
+        - Status
+        properties:
+          CreativeId:
+            description: The ID of the creative to display when the line runs.
+            type: string
+            maxLength: 36
+          LineId:
+            description: The ID of the line that will display the creative.
+            type: string
+            maxLength: 36
+          Status:
+            description: 'A value that determines whether the creative serves.
+
+              The status may not transition from Inactive to Active.
+
+              '
+            type: string
+            enum:
+            - Active
+            - Inactive
+            readOnly: true
+          Weight:
+            description: 'Determines how much the creative is displayed relative to the other creative assigned to the same line.
+
+              To provide even rotation, do not specify a weight.
+
+              If weight is specified, all assignments that specify the same line must specify a weight and the weight of all the assignments must add up to 100. If the weight of all assignments does not add up to 100, even rotation is applied.
+
+              Assignments with heavier weight get proportionally more rotation compared to those with lesser weight.
+
+              For example, if the line has 2 creative, A and B, assigned with the same dates, and A has weight 25 and B has weight 75, B will serve three times as often as A.
+
+              '
+            type: integer
+            minimum: 1
+            maximum: 100
+    FrequencyCapInterval:
+      description: 'Defines the frequency cap intervals that the API supports.
+
+        The frequency interval specifies the units in which the frequency count is expressed. For example, if a line’s frequency count is 2 and interval is Day, display the ad to the same user a Max 2 times in the same calendar day.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The name of the interval.
+            type: string
+            enum:
+            - Day
+            - Month
+            - Week
+            - Hour
+            - LineDuration
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    RateType:
+      description: Defines a unit of measure that a cost (i.e. BasePrice) is expressed in. The API may support all or a subset of the specified values.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The rate type’s display name.
+            type: string
+            enum:
+            - CPM
+            - CPMV
+            - CPC
+            - CPD
+            - FlatRate
+    TargetValue:
+      description: 'Defines a target value.
+
+        The API must support the specified values per target category.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Value
+        - TargetId
+        properties:
+          Value:
+            description: The target value
+            type: string
+            enum:
+            - Age - Publisher-defined age ranges
+            - Gender - Female
+            - Gender - Male
+            - DMA - Publisher-defined  source (such as Digital Envoy)
+            - Country - Publisher-defined source
+            - State-Province - Publisher-defined source
+            - Daypart - 0 through 23 hours
+            - Weekpart - Sunday
+            - Weekpart - Monday
+            - Weekpart - Tuesday
+            - Weekpart - Wednesday
+            - Weekpart - Thursday
+            - Weekpart - Friday
+            - Weekpart - Saturday
+          TargetId:
+            description: A system-generated ID that identifies the target category that this value belongs to.
+            type: string
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+    Segment:
+      description: The segment object is made up of TARGET and TARGET VALUE reference data objects and is used to specify targeting options for a LINE resource
+      required:
+      - Target
+      - TargetValues
+      properties:
+        Target:
+          $ref: '#/components/schemas/Target'
+        TargetValues:
+          description: A list of target values. For example, age range 18-24 and 25-34.
+          type: array
+          items:
+            $ref: '#/components/schemas/TargetValue'
+    Line:
+      description: 'Line resources are included in an order and provide details about the product being booked, status, start and end dates, and other settings for the order item.
+
+        Creative are assigned to the LINE resource of an order using the ASSIGNMENT resource. Notes: The user may update a line only if it’s in the Draft state. If the line is in the Reserved or Declined state, the user may call Reset to move the line back to the Draft state in order to update the line.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - $ref: '#/components/schemas/ProviderData'
+      - required:
+        - BookingStatus
+        - Cost
+        - EndDate
+        - Quantity
+        - Name
+        - OrderId
+        - ProductId
+        - Rate
+        - RateType
+        - StartDate
+        - StateChangeReason
+        properties:
+          BookingStatus:
+            description: A value that determines whether the line is booked and is capable of delivering ads. If the line is reset, the StateChangeReason should be cleared.
+            type: string
+            enum:
+            - Draft
+            - PendingReservation
+            - Reserved
+            - PendingBooking
+            - Booked
+            - InFlight
+            - Finished
+            - Stopped
+            - Canceled
+            - Pause
+            - Expired
+            - Declined
+            - ChangePending
+            readOnly: true
+          Comment:
+            description: User notes related to this line.
+            type: string
+            maxLength: 255
+          Cost:
+            description: 'The projected cost of the line is based on the specified quantity, rate and targeting. The actual cost (the amount billed) is based on the actual number of impressions.
+
+              The cost is specified in the currency for the order. If the order uses a different currency than what the product uses, the cost for the line must be converted to the order’s currency.
+
+              The cost is determined at the time the line is saved with the following statuses: Drafted, Reserved, or Booked.
+
+              '
+            type: number
+            readOnly: true
+          EndDate:
+            description: 'The date and time that the line will stop.
+
+              If the time is missing, 11:59 PM is assumed.
+
+              The line end date must be later than the line start date and should be less than or equal to the order’s end date.
+
+              If the line end date is later than the order’s end date, the order’s end date should be extended to match the line’s end date.
+
+              '
+            type: string
+            format: date-time
+          FrequencyCount:
+            description: The maximum number of times that a unique user must see ads from this line during the specified interval (see FrequencyInterval).
+            type: integer
+          FrequencyInterval:
+            $ref: '#/components/schemas/FrequencyCapInterval'
+          Quantity:
+            description: 'The quantity requested for the specified date range. This value will differ based on various cost types. For CPM, for examples, the value would be impressions.
+
+              The line must contain a quantity before the user may reserve or book it. If the requested quantity is not available, reserving or booking the line must fail and bookingStatus must be set to Declined.
+
+              '
+            type: integer
+          Name:
+            description: 'The line’s display name.
+
+              Should be unique.
+
+              '
+            type: string
+            maxLength: 200
+          OrderId:
+            description: The ID of the order that this line belongs to.
+            type: string
+            maxLength: 36
+            readOnly: true
+          ProductId:
+            description: The ID of the product where the creatives run.
+            type: string
+            maxLength: 36
+          Rate:
+            description: 'The price per unit of impressions. For example, $10 per 1,000 impressions (CPM).
+
+              The rate is determined each time the line is saved (added, updated, booked, or reserved).
+
+              Value in currency for the order.
+
+              '
+            type: number
+            readOnly: true
+          RateType:
+            description: The rate type is determined at the time the line is saved (added, updated, booked, or reserved).
+            $ref: '#/components/schemas/RateType'
+            readOnly: true
+          ReservedExpiryDate:
+            description: 'The date and time that the reserved inventory will expire.
+
+              If the line is reserved, the expiry date must be set.
+
+              '
+            type: string
+            format: date-time
+            readOnly: true
+          StartDate:
+            description: 'The date and time that the line will start.
+
+              If the time is missing, 12:00 AM is assumed.
+
+              The date and time must be greater than or equal to now and should be greater than or equal to the order’s start date.
+
+              If the line start date is earlier than the order’s start date, the order’s start date should be moved to match the line’s start date. Both dates must be later than the present day.
+
+              Start dates that are in the past may not be updated.
+
+              '
+            type: string
+            format: date-time
+          StateChangeReason:
+            description: 'The reason why the state was changed by the publisher.
+
+              The reason must be specified if:
+
+              - The publisher declined the booking or reservation.
+
+              - The publisher or user canceled the flight.
+
+              '
+            type: string
+            readOnly: true
+          Targeting:
+            description: The creative assigned to the LINE resource is display when the line includes user segments and the delivery engine can determine whether the user matches the specified segments.
+            $ref: '#/components/schemas/Segment'
+          UsesExpandables:
+            description: 'A Boolean value that indicates whether the line will be assigned expandable creatives. Used to determine availability.
+
+              The default is false.
+
+              '
+            type: boolean
+    Lines:
+      required:
+      - Lines
+      properties:
+        Lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/Line'
+    Target:
+      description: Defines a target category. The API must support the specified target categories and may support additional categories such as zip code or postal code.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The target category.
+            type: string
+            enum:
+            - Age
+            - Gender
+            - DMA
+            - Country
+            - State/Province
+            - Daypart
+            - Weekpart
+            - Behavioral
+            - Device
+  securitySchemes:
+    OauthSecurity:
+      type: oauth2
+      flows:
+        implicit:
+          scopes:
+            https://opendirect.example.com/scope/example: Example scope
+          authorizationUrl: https://opendirect.example.com/connect/authorize
+      description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+x-refined-from:
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml

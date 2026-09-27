@@ -1,0 +1,474 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Reporting API
+  version: '1.0'
+  description: 'Operations tagged Reporting across 6 of this provider''s published API definitions: iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://opendirect.example.com/v1.5.1
+tags:
+- name: Reporting
+paths:
+  /reports/{job_id}:
+    get:
+      tags:
+      - Reporting
+      summary: Get Campaign Report
+      description: 'Get delivery reports for a completed booking job.
+
+
+        Fetches data from:
+
+        - Meta Ads API (for social channel bookings — campaign insights)
+
+        - Seller agent deal performance API (for orchestrator-booked lines,
+
+        keyed by the seller-issued ``deal_id``)
+
+
+        Requires META_ACCESS_TOKEN + META_AD_ACCOUNT_ID + META_PAGE_ID in .env
+
+        for Meta reporting.'
+      operationId: get_campaign_report_reports__job_id__get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      - name: date_range
+        in: query
+        required: false
+        schema:
+          type: string
+          default: last_30d
+          title: Date Range
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Campaign Report Reports  Job Id  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /meta/campaigns:
+    get:
+      tags:
+      - Reporting
+      summary: Meta List Campaigns
+      description: 'List Meta Ads campaigns directly from the ad account (no booking job required).
+
+
+        Returns campaigns with id, name, status, and objective.
+
+        Requires META_ACCESS_TOKEN and META_AD_ACCOUNT_ID in .env.'
+      operationId: meta_list_campaigns_meta_campaigns_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 10
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Meta List Campaigns Meta Campaigns Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /meta/report:
+    get:
+      tags:
+      - Reporting
+      summary: Meta Direct Report
+      description: 'Pull insights directly from Meta Ads by campaign ID(s).
+
+
+        Args:
+
+        campaign_ids: Comma-separated Meta campaign IDs
+
+        date_preset: last_7d | last_14d | last_30d | last_90d | this_month
+
+
+        Returns spend, impressions, reach, clicks, CTR, CPM per campaign.
+
+        Requires META_ACCESS_TOKEN and META_AD_ACCOUNT_ID in .env.'
+      operationId: meta_direct_report_meta_report_get
+      parameters:
+      - name: campaign_ids
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Campaign Ids
+      - name: date_preset
+        in: query
+        required: false
+        schema:
+          type: string
+          default: last_30d
+          title: Date Preset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Meta Direct Report Meta Report Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /accounts/{accountId}/orders/{orderId}/lines/stats:
+    get:
+      tags:
+      - Reporting
+      description: Aggregates the impressions and clicks for all lines in the order.
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      responses:
+        200:
+          $ref: '#/components/responses/ReportingResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Get accounts by account id orders by order id lines stats
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdOrdersByOrderIdLinesStats
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/orders/{orderId}/lines/{lineId}/stats:
+    get:
+      tags:
+      - Reporting
+      description: Aggregates the impressions and clicks for all lines in the order.
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/orderId'
+      - $ref: '#/components/parameters/lineId'
+      responses:
+        200:
+          $ref: '#/components/responses/ReportingResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      security:
+      - OauthSecurity:
+        - https://opendirect.example.com/scope/example
+      summary: Get accounts by account id orders by order id lines by line id stats
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdOrdersByOrderIdLinesByLineIdStats
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /gam/orders:
+    get:
+      tags:
+      - Reporting
+      summary: Gam List Orders
+      description: 'List recent GAM orders directly from the ad server.
+
+
+        Args:
+
+        limit: Maximum number of orders to return (default 50)
+
+        agent_created_only: If true, return only orders created by the agent
+
+        (deals whose stored record carries a gam_order_id link)
+
+
+        Requires GAM_ENABLED=true, GAM_NETWORK_CODE, GAM_JSON_KEY_PATH in .env.'
+      operationId: gam_list_orders_gam_orders_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 50
+          title: Limit
+      - name: agent_created_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Agent Created Only
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Gam List Orders Gam Orders Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /gam/report:
+    get:
+      tags:
+      - Reporting
+      summary: Gam Delivery Report
+      description: 'Pull a delivery report from GAM by order ID(s).
+
+
+        Args:
+
+        order_ids: Comma-separated numeric GAM order IDs
+
+        days: Look-back window in days (default 30)
+
+
+        Returns order metadata, line items, and delivery data (impressions,
+
+        clicks, revenue). Requires GAM_ENABLED=true, GAM_NETWORK_CODE,
+
+        GAM_JSON_KEY_PATH in .env.'
+      operationId: gam_delivery_report_gam_report_get
+      parameters:
+      - name: order_ids
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Order Ids
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 30
+          title: Days
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      - name: X-Api-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Gam Delivery Report Gam Report Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Reporting:
+      required:
+      - Clicks
+      - ImpressionsServed
+      - ReportDate
+      properties:
+        Clicks:
+          description: The number of clicks to date. The value must be zero if no clicks have occurred.
+          type: integer
+        CTR:
+          description: The click through rate to date. The formula to calculate CTR is (clicks / impressions) * 100.
+          type: number
+        ImpressionsServed:
+          description: The number of impressions served to date. The value must be zero if no impressions have been served.
+          type: integer
+        ReportDate:
+          description: The data and time of the report. The date and time is reported in the order’s time zone.
+          type: string
+          format: date-time
+        Spend:
+          description: The amount spent to date.
+          type: number
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+  parameters:
+    lineId:
+      name: lineId
+      in: path
+      required: true
+      x-example: '345233'
+      schema:
+        type: string
+        maxLength: 36
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    orderId:
+      name: orderId
+      in: path
+      required: true
+      x-example: '1235872'
+      schema:
+        type: string
+        maxLength: 36
+  responses:
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    ReportingResponse:
+      description: Reporting resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Reporting'
+          example: "{\n  \"Clicks\": 32573,\n  \"CTR\": 7.54,\n  \"ImpressionsServed\": 432009,\n  \"ReportDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Spend\": 371523.41\n}\n"
+  securitySchemes:
+    OauthSecurity:
+      type: oauth2
+      flows:
+        implicit:
+          scopes:
+            https://opendirect.example.com/scope/example: Example scope
+          authorizationUrl: https://opendirect.example.com/connect/authorize
+      description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+x-refined-from:
+- iab-tech-lab-buyer-agent-openapi.json
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-buyer-agent-openapi.json
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-seller-agent-openapi.json

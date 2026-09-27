@@ -1,0 +1,456 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Creatives API
+  version: 1.5.1
+  description: 'Operations tagged Creatives across 2 of this provider''s published API definitions: iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-opendirect-1-5-1-swagger.yaml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://opendirect.example.com/v1.5.1
+security:
+- OauthSecurity:
+  - https://opendirect.example.com/scope/example
+tags:
+- name: Creatives
+paths:
+  /accounts/{accountId}/creatives:
+    get:
+      tags:
+      - Creatives
+      description: 'Gets a list of all creatives that belong to the account.
+
+        For advertisers, the list will include only creatives that they own. For agencies, the list will include the creatives that they own and the creatives that belong to accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/count'
+      - $ref: '#/components/parameters/offset'
+      - name: $filter
+        in: query
+        description: 'Allows to get a list of creatives that match the specified filter criteria. The user may use OData expressions with the following Creative properties:
+
+          - AdStatus
+
+          May support getting a list by IDs.
+
+          '
+        schema:
+          type: string
+      responses:
+        200:
+          $ref: '#/components/responses/CreativesResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Get accounts by account id creatives
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdCreatives
+      x-operation-id-source: derived
+    post:
+      tags:
+      - Creatives
+      description: 'Adds an assignment to the specified account. To add an assignment, the creative must be approved. An assignment may be added at any time prior to the order finishing its flight.
+
+        An advertiser or agency may add assignments to accounts that they own. In addition; an agency may add assignments to accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      responses:
+        201:
+          $ref: '#/components/responses/CreativeResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Creative'
+        required: true
+      summary: Create accounts by account id creatives
+      x-summary-source: derived
+      operationId: postAccountsByAccountIdCreatives
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+  /accounts/{accountId}/creatives/{creativeId}:
+    get:
+      tags:
+      - Creatives
+      description: 'Gets the specified assignment.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may get the assignments that they own. In addition, an agency may get assignments that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/creativeId'
+      responses:
+        200:
+          $ref: '#/components/responses/CreativeResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Get accounts by account id creatives by creative id
+      x-summary-source: derived
+      operationId: getAccountsByAccountIdCreativesByCreativeId
+      x-operation-id-source: derived
+    put:
+      tags:
+      - Creatives
+      description: 'Updates the specified assignment.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may update the assignments that they own. In addition, an agency may update assignments that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/creativeId'
+      responses:
+        200:
+          $ref: '#/components/responses/CreativeResponse'
+        400:
+          $ref: '#/components/responses/Standard400ErrorResponse'
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Replace accounts by account id creatives by creative id
+      x-summary-source: derived
+      operationId: putAccountsByAccountIdCreativesByCreativeId
+      x-operation-id-source: derived
+    delete:
+      tags:
+      - Creatives
+      description: 'Deletes the specified assignment. May delete an assignment only if it has never delivered impressions.
+
+        The user must have permissions to perform the requested action. For example, advertisers and agencies may delete the assignments that they own. In addition, an agency may delete assignments that belong to the accounts that they manage on behalf of advertisers.'
+      parameters:
+      - $ref: '#/components/parameters/accountId'
+      - $ref: '#/components/parameters/creativeId'
+      responses:
+        204:
+          description: Creative successfully deleted.
+        401:
+          $ref: '#/components/responses/Standard401ErrorResponse'
+        404:
+          $ref: '#/components/responses/Standard404ErrorResponse'
+        500:
+          $ref: '#/components/responses/Standard500ErrorResponse'
+      summary: Delete accounts by account id creatives by creative id
+      x-summary-source: derived
+      operationId: deleteAccountsByAccountIdCreativesByCreativeId
+      x-operation-id-source: derived
+    servers:
+    - url: https://opendirect.example.com/v1.5.1
+components:
+  responses:
+    CreativesResponse:
+      description: Collection of Creative
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Creatives'
+          example: "{\n  \"Creatives\": [\n    {\n      \"AccountId\": \"23873345\",\n      \"AdFormatType\": \"Tag\",\n      \"AdStatus\": \"Pending\",\n      \"CreativeAsset\": \"<third-party script goes here>\",\n      \"Geometry\": {\n        \"Height\": \"160\",\n        \"Width\": \"600\"\n      },\n      \"HttpsCompatible\": False,\n      \"Id\": \"53444\",\n      \"Language\": \"EN\",\n      \"MaturityLevel\":  {\n        \"Level\": \"Over12\"\n      },\n      \"Name\": \"My Creative\",\n      \"ProviderData\": \"cid=54574\"\n    }\n  ]\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    CreativeResponse:
+      description: Creative resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Creative'
+          example: "{\n  \"AccountId\": \"23873345\",\n  \"AdFormatType\": \"Tag\",\n  \"AdStatus\": \"Pending\",\n  \"CreativeAsset\": \"<third-party script goes here>\",\n  \"Geometry\": {\n    \"Height\": \"160\",\n    \"Width\": \"600\"\n  },\n  \"HttpsCompatible\": 0,\n  \"Id\": \"53444\",\n  \"Language\": \"EN\",\n  \"MaturityLevel\":  {\n    \"Level\": \"Over12\"\n  },\n  \"Name\": \"My Creative\",\n  \"ProviderData\": \"cid=54574\"\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+  schemas:
+    Language:
+      description: Defines a language that the API supports. The API may support all or a subset of the languages specified in ISO 639-1.
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The language’s two-character ISO code as specified in ISO 639-1.
+          type: string
+          minLength: 2
+          maxLength: 2
+    Creative:
+      description: 'Defines a Creative resource. The Creative provides information about the ad to be displayed for a line of the order. Creative are assigned to the LINE resource of an order using the ASSIGNMENT resource.
+
+        See Assignment for instructions on updating a creative.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - $ref: '#/components/schemas/ProviderData'
+      - required:
+        - AccountId
+        - AdFormatType
+        - CreativeAsset
+        - Geometry
+        - Language
+        - Name
+        properties:
+          AccountId:
+            description: The ID of the account that owns the creative.
+            type: string
+            maxLength: 36
+          AdFormatType:
+            description: The ad’s format. Publisher-supported ad format types are supplied as options using reference data. The ad format type for the creative must be supported for the product.
+            $ref: '#/components/schemas/AdFormatType'
+          AdRejectionReason:
+            description: The reason why the creative audit did not approve the creative.
+            type: string
+          AdStatus:
+            description: A status value that indicates where in the audit process the creative is.
+            type: string
+            enum:
+            - Pending
+            - Approved
+            - Rejected
+          BackupFlashAsset:
+            description: 'A base64 string that contains the backup Image in case the user’s browser does not support Flash. The image must be of one of the following mime types.
+
+              - GIF
+
+              - JPEG
+
+              - PNG
+
+              The CreativeAsset property contains the Flash creative.
+
+              The publisher’s documentation should indicate any size constraints. If the asset exceeds the constraint, the publisher must return error code, BackupCreativeTooLarge.
+
+              '
+            type: string
+          ClickUrl:
+            description: The URL of a webpage that the user is taken to if they click the ad. The URL may be specified if AdFormatType is set to Flash, FlashExpandable, or Image.
+            type: string
+            x-publisher-support-required: true
+          CreativeAsset:
+            description: 'A string that contains the creative. The AdFormatType determines whether the string is a character string or a base64 string. Image and Flash creatives, must use base64 strings and all others (tags, text, and video) use character strings.
+
+              If the creative is an image, it must be of one of the following mime types.
+
+              - GIF
+
+              - JPEG
+
+              - PNG
+
+              The publisher’s documentation should indicate any size constraints. If the asset exceeds the constraint, the publisher must return error code, CreativeTooLarge.
+
+              '
+            type: string
+          Geometry:
+            description: The options available for ad size are publisher-provided using the SIZE object.
+            $ref: '#/components/schemas/Size'
+          HttpsCompatible:
+            description: A Boolean value that determines whether the creative can properly render on an HTML web page served over HTTPS. True indicates the creative is HTTPS-compatible. Defaults to False.
+            type: boolean
+          Language:
+            description: The ISO 639-1 language code that identifies the language used in the ad. For example, if the ad uses English, the ISO code would be EN. Publisher-supported languages are provided using reference data.
+            $ref: '#/components/schemas/Language'
+          MaturityLevel:
+            description: 'The maturity level of the creative content.
+
+              At assignment time, the assignment must be rejected if the specified maturity level for the creative does not match the maturity level of the product specified in the LINE resource. The default is “All” Publisher support for this property is optional.
+
+              '
+            $ref: '#/components/schemas/MaturityLevel'
+          Name:
+            description: The display name of the creative.
+            type: string
+        example:
+          Id: 53444
+          ProviderData: cid=54574
+          AccountId: 23873345
+          AdFormatType: Tag
+          AdRejectionReason: USD
+          AdStatus: Pending
+          BackupFlashAsset: null
+          ClickUrl: https://www.example.com
+          CreativeAsset: <third-party script>
+          Geometry:
+            Height: 160
+            Width: 600
+          HttpsCompatible: true
+          Language: EN
+          MaturityLevel:
+            Level: Over12
+          Name: My Creative
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+    Creatives:
+      required:
+      - Creatives
+      properties:
+        Creatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/Creative'
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    AdFormatType:
+      description: Defines the possible ad formats.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The ad format’s display name.
+            type: string
+            enum:
+            - HTML5
+            - HTML5Expandable
+            - Flash
+            - FlashExpandable
+            - Image
+            - Tag
+            - TagExpandable
+            - Text
+            - Video
+            - VPAID
+            - MRAID
+    MaturityLevel:
+      description: Defines a list of maturity levels. Current maturity level definitions comply with those provided in section 4.2.3 of the TAG's Inventory Quality Guidelines released December, 2015. Current guidelines can be found on the tagtoday.net website. The API may support all or a subset of the  specified values.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Level
+        properties:
+          Level:
+            description: The accepted maturity level for the specified inventory.
+            type: string
+            enum:
+            - All
+            - Over12
+            - Mature
+            - NotSpecified
+    Size:
+      description: The Size object defines the height and width (in pixels) that a publisher accepts. The size object populates publisher-accepted sizes in the GEOMETRY property of relevant resources, such as CREATIVE.
+      required:
+      - Height
+      - Width
+      properties:
+        Height:
+          description: The height of accepted creative size in pixels.
+          type: integer
+        Width:
+          description: The width of accepted creative size in pixels.
+          type: integer
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+  parameters:
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    creativeId:
+      name: creativeId
+      in: path
+      required: true
+      x-example: '53444'
+      schema:
+        type: string
+        maxLength: 36
+  securitySchemes:
+    OauthSecurity:
+      type: oauth2
+      flows:
+        implicit:
+          scopes:
+            https://opendirect.example.com/scope/example: Example scope
+          authorizationUrl: https://opendirect.example.com/connect/authorize
+      description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
+x-refined-from:
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml
+- iab-tech-lab-opendirect-1-5-1-swagger.yaml

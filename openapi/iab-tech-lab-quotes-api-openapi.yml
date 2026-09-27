@@ -1,0 +1,906 @@
+openapi: 3.2.0
+info:
+  title: Iab Tech Lab Quotes API
+  version: '1.0'
+  description: 'Operations tagged Quotes across 3 of this provider''s published API definitions: iab-tech-lab-agentic-advertising-api-openapi.yaml, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+tags:
+- name: Quotes
+paths:
+  /api/v1/quotes:
+    post:
+      operationId: createQuote
+      summary: Request a non-binding quote (money-mutating; idempotency_key required)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ../jsonschema/protocol/QuoteRequest.json
+      responses:
+        '201':
+          description: Quote envelope wrapping the Quote primitive.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/QuoteResponse.json
+        '400':
+          description: Validation failure, or the FD-6 structured capability rejection (error=unsupported_capability with the unsupported list, e.g. linear_tv).
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/ErrorEnvelope.json
+        '404':
+          $ref: '#/components/responses/Error'
+      tags:
+      - Quotes
+  /api/v1/quotes/{quote_id}:
+    get:
+      operationId: getQuote
+      summary: Retrieve a quote
+      parameters:
+      - name: quote_id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Quote envelope.
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/QuoteResponse.json
+        '404':
+          $ref: '#/components/responses/Error'
+        '410':
+          description: Quote expired (error=quote_expired).
+          content:
+            application/json:
+              schema:
+                $ref: ../jsonschema/protocol/ErrorEnvelope.json
+      tags:
+      - Quotes
+components:
+  responses:
+    Error:
+      description: 'Structured error envelope: {"detail": {"error": <ErrorCode>, "message": "...", "unsupported": [...]}}.'
+      content:
+        application/json:
+          schema:
+            $ref: ../jsonschema/protocol/ErrorEnvelope.json
+  schemas:
+    LinearTVParams:
+      properties:
+        target_demo:
+          type: string
+          title: Target Demo
+          description: Target demographic, e.g. "A18-49", "A25-54", "HH" (households).
+        grps_requested:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Grps Requested
+          description: Requested volume in GRPs (gross rating points).
+        dayparts:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Dayparts
+          description: Target dayparts, e.g. "primetime", "daytime", "late_night".
+        networks:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Networks
+          description: Target networks, e.g. ["NBC", "ESPN"].
+        dmas:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Dmas
+          description: Nielsen DMA (designated market area) codes; None means national.
+        spot_length:
+          type: integer
+          title: Spot Length
+          description: 'Spot length in seconds: 15, 30, or 60.'
+          default: 30
+        target_cpp:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+          description: Buyer's desired CPP (cost per point).
+        measurement_currency:
+          type: string
+          title: Measurement Currency
+          description: 'Audience measurement provider: "nielsen", "comscore", "videoamp".'
+          default: nielsen
+        rotation:
+          type: string
+          title: Rotation
+          description: 'Spot rotation: "ros" (run of schedule), "fixed", "program_specific".'
+          default: ros
+      type: object
+      required:
+      - target_demo
+      title: LinearTVParams
+      description: 'Linear-TV-specific request parameters (buyer-supplied).
+
+
+        Used when ``media_type == "linear_tv"``. GRP = gross rating point;
+
+        CPP = cost per point; DMA = designated market area.'
+    Quote:
+      properties:
+        quote_id:
+          type: string
+          title: Quote Id
+          description: Seller-issued quote identifier.
+        status:
+          $ref: '#/components/schemas/QuoteStatus'
+          default: available
+        deal_type:
+          $ref: '#/components/schemas/DealType'
+        product:
+          $ref: '#/components/schemas/ProductRef'
+        pricing:
+          $ref: '#/components/schemas/QuotePricing'
+        terms:
+          $ref: '#/components/schemas/QuoteTerms'
+        availability:
+          anyOf:
+          - $ref: '#/components/schemas/QuoteAvailability'
+          - type: 'null'
+        buyer_tier:
+          $ref: '#/components/schemas/AccessTier'
+          default: public
+        rate_card_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rate Card Id
+          description: Seller-issued id of the private rate card this quote prices against, when the pair has one (FD-9). The rate card itself is never embedded.
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Expires At
+        seller_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seller Id
+          description: Registry-issued id of the quoting seller agent.
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        deal_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deal Id
+          description: Seller-issued deal id, set once the quote is booked.
+        media_type:
+          $ref: '#/components/schemas/MediaType'
+          default: digital
+        linear_tv:
+          anyOf:
+          - $ref: '#/components/schemas/LinearTVQuoteDetails'
+          - type: 'null'
+          description: Linear TV details; None for digital/CTV.
+        consent_context:
+          anyOf:
+          - $ref: '#/components/schemas/ConsentContext'
+          - type: 'null'
+          description: Privacy consent signals riding with the quote (FD-10).
+      type: object
+      required:
+      - quote_id
+      - deal_type
+      - product
+      - pricing
+      - terms
+      title: Quote
+      description: 'A non-binding price quote from a seller (Deals API v1.0 quote phase).
+
+
+        Carries ``media_type`` and optional ``linear_tv`` details on the shared
+
+        schema (flagged decision FD-6) so sellers that do not support linear TV
+
+        can reject structurally instead of silently mispricing.
+
+
+        ID minting: ``quote_id`` is seller-issued.'
+    QuoteStatus:
+      type: string
+      enum:
+      - available
+      - booked
+      - expired
+      - declined
+      title: QuoteStatus
+      description: Status of a price quote (identical in both source repos).
+    AccessTier:
+      type: string
+      enum:
+      - public
+      - seat
+      - agency
+      - advertiser
+      title: AccessTier
+      description: 'Access tier for tiered pricing, derived from revealed buyer identity.
+
+
+        - ``public``: no identity — price ranges only
+
+        - ``seat``: authenticated DSP (demand-side platform) seat
+
+        - ``agency``: agency identity revealed
+
+        - ``advertiser``: advertiser identity revealed (best rates)'
+    QuoteResponse:
+      properties:
+        quote:
+          $ref: '#/components/schemas/Quote'
+      type: object
+      required:
+      - quote
+      title: QuoteResponse
+      description: 'Success envelope for the quote endpoints: wraps the Quote primitive.
+
+
+        The quote carries its own ``media_type``, ``linear_tv`` details,
+
+        ``rate_card_id``, pricing, terms, availability, and ``expires_at``
+
+        (quotes are ephemeral — the seller enforces a TTL and answers a
+
+        ``quote_expired`` error after it elapses).'
+    QuoteAvailability:
+      properties:
+        inventory_available:
+          type: boolean
+          title: Inventory Available
+          default: true
+        estimated_fill_rate:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Estimated Fill Rate
+        competing_demand:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Competing Demand
+      type: object
+      title: QuoteAvailability
+      description: Inventory availability information in a quote.
+    ProductRef:
+      properties:
+        product_id:
+          type: string
+          title: Product Id
+          description: Seller-issued product identifier.
+        name:
+          type: string
+          title: Name
+        inventory_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Inventory Type
+      type: object
+      required:
+      - product_id
+      - name
+      title: ProductRef
+      description: Lightweight product summary embedded in quotes and deals.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MediaType:
+      type: string
+      enum:
+      - digital
+      - ctv
+      - linear_tv
+      title: MediaType
+      description: 'Media type discriminator carried on quotes and deals.
+
+
+        Sellers that do not support ``linear_tv`` MUST return a structured
+
+        rejection rather than silently mispricing (flagged decision FD-6);
+
+        the field exists on the shared schema so that rejection can be
+
+        structural.'
+    PricingModel:
+      type: string
+      enum:
+      - cpm
+      - cpmv
+      - cpv
+      - cpc
+      - cpcv
+      - cpd
+      - cpp
+      - flat_fee
+      - unit_rate
+      - hybrid
+      title: PricingModel
+      description: 'Unit of pricing. Union of the buyer''s ``RateType`` and the seller''s
+
+        ``PricingModel`` plus the linear TV additions.
+
+
+        - ``cpm``: cost per mille (thousand impressions)
+
+        - ``cpmv``: cost per thousand viewable impressions
+
+        - ``cpv``: cost per view
+
+        - ``cpc``: cost per click
+
+        - ``cpcv``: cost per completed view
+
+        - ``cpd``: cost per day
+
+        - ``cpp``: cost per (gross rating) point — linear TV
+
+        - ``flat_fee``: flat fee (buyer repo''s ``FlatRate`` maps here)
+
+        - ``unit_rate``: per-unit rate
+
+        - ``hybrid``: mixed CPM/CPP pricing — linear TV'
+    PricingType:
+      type: string
+      enum:
+      - fixed
+      - floor
+      - on_request
+      title: PricingType
+      description: "How a price signal should be interpreted.\n\n- ``fixed``: price is set by the seller, use as-is\n- ``floor``: minimum price; negotiation expected above this level\n- ``on_request``: no price available; buyer must negotiate before any\n  pricing exists (pricing fields are None — buyers must never fabricate\n  a price for on_request inventory)"
+    QuotePricing:
+      properties:
+        pricing_type:
+          $ref: '#/components/schemas/PricingType'
+          default: fixed
+        base_cpm:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+        tier_discount_pct:
+          type: number
+          title: Tier Discount Pct
+          default: 0.0
+        volume_discount_pct:
+          type: number
+          title: Volume Discount Pct
+          default: 0.0
+        final_cpm:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+        pricing_model:
+          $ref: '#/components/schemas/PricingModel'
+          default: cpm
+        rationale:
+          type: string
+          title: Rationale
+          default: ''
+        base_cpp:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+          description: Linear TV base CPP; None for digital/CTV.
+        final_cpp:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+          description: Linear TV final CPP; None for digital/CTV.
+      type: object
+      title: QuotePricing
+      description: 'Pricing breakdown on a quote or deal.
+
+
+        ``base_cpm``/``final_cpm`` are optional to support
+
+        ``pricing_type=on_request`` — when the seller has not provided pricing,
+
+        these fields are None. CPM = cost per mille (thousand impressions);
+
+        CPP = cost per point (linear TV).'
+    LinearTVQuoteDetails:
+      properties:
+        target_demo:
+          type: string
+          title: Target Demo
+        estimated_grps:
+          type: number
+          title: Estimated Grps
+          description: Estimated GRPs (gross rating points).
+        estimated_rating:
+          type: number
+          title: Estimated Rating
+        cpp:
+          $ref: '#/components/schemas/Money'
+          description: CPP (cost per point) offered by the seller.
+        dayparts:
+          items:
+            type: string
+          type: array
+          title: Dayparts
+        networks:
+          items:
+            type: string
+          type: array
+          title: Networks
+        spots_per_week:
+          type: integer
+          title: Spots Per Week
+        total_spots:
+          type: integer
+          title: Total Spots
+        spot_length:
+          type: integer
+          title: Spot Length
+        measurement_currency:
+          type: string
+          title: Measurement Currency
+        audience_estimate:
+          additionalProperties: true
+          type: object
+          title: Audience Estimate
+          description: Audience estimates; expected keys "demo", "universe", "impressions_equiv".
+        cancellation_terms:
+          anyOf:
+          - $ref: '#/components/schemas/CancellationTerms'
+          - type: 'null'
+        makegood_policy:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Makegood Policy
+          description: 'Makegood policy: "standard" (audience deficiency unit), "negotiated", or "none".'
+      type: object
+      required:
+      - target_demo
+      - estimated_grps
+      - estimated_rating
+      - cpp
+      - dayparts
+      - networks
+      - spots_per_week
+      - total_spots
+      - spot_length
+      - measurement_currency
+      title: LinearTVQuoteDetails
+      description: 'Linear-TV-specific quote details (seller-populated).
+
+
+        Nested under ``Quote.linear_tv`` when ``media_type == "linear_tv"``.'
+    BuyerIdentity:
+      properties:
+        seat_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Id
+          description: DSP seat identifier.
+        seat_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Name
+          description: DSP platform display name.
+        dsp_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dsp Platform
+          description: DSP platform slug (e.g. 'ttd', 'dv360').
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        agency_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Name
+        agency_holding_company:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Holding Company
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        advertiser_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Name
+        advertiser_industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Industry
+        campaign_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Campaign Id
+          description: Optional campaign scope for campaign-specific deals.
+        campaign_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Campaign Name
+      type: object
+      title: BuyerIdentity
+      description: 'Buyer identity revealed progressively to unlock better pricing.
+
+
+        Superset of the buyer repo''s ``BuyerIdentity`` and the seller repo''s
+
+        ``BuyerIdentity``/``QuoteBuyerIdentity``; every field is optional so a
+
+        partially revealed identity is always representable. The tier derived
+
+        from these fields is capped server-side by the registry-verified trust
+
+        status of the calling agent — it is never self-asserted.'
+    ConsentContext:
+      properties:
+        applicable_regimes:
+          items:
+            type: string
+          type: array
+          title: Applicable Regimes
+          description: Privacy regime identifiers in scope (e.g. 'GDPR', 'CCPA').
+        gpp_string:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Gpp String
+          description: GPP (Global Privacy Platform) consent string.
+        gpp_section_ids:
+          items:
+            type: integer
+          type: array
+          title: Gpp Section Ids
+          description: GPP section ids present in the string.
+        tcf_string:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tcf String
+          description: TCF (Transparency & Consent Framework) TC string, when GDPR applies.
+        gdpr_applies:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Gdpr Applies
+          description: Whether GDPR (EU General Data Protection Regulation) applies to this context; None when undetermined. Gates interpretation of the TCF string.
+        us_privacy:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Us Privacy
+          description: US Privacy (CCPA) string, e.g. '1YNN'; superseded by GPP where present.
+        diligence_status:
+          $ref: '#/components/schemas/DiligenceStatus'
+          description: Counterparty diligence status (SGP = SafeGuard Privacy / IAB Diligence Platform).
+          default: unknown
+        verified_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Verified At
+          description: Timezone-aware timestamp of the last diligence verification, if any.
+      type: object
+      title: ConsentContext
+      description: 'Privacy consent signals that travel with a deal (flagged decision FD-10).
+
+
+        Full build-out (EP-10.4) of the EP-1.2 placeholder: the three
+
+        interoperable consent-string carriers — GPP (Global Privacy Platform)
+
+        with its applicable section ids, TCF (Transparency & Consent Framework)
+
+        with the ``gdpr_applies`` gate, and the US Privacy (``us_privacy``)
+
+        string — plus the SGP (SafeGuard Privacy / IAB Diligence Platform)
+
+        ``diligence_status``. Field names from the EP-1.2 placeholder are kept
+
+        unchanged for backward compatibility; the build-out is purely additive.
+
+        It travels with the Deal, Quote, and Order. Strings are carried opaque:
+
+        no decoding/vendor-list validation is claimed (see the conformance
+
+        standards registry).'
+    DealType:
+      type: string
+      enum:
+      - PG
+      - PD
+      - PA
+      title: DealType
+      description: 'Programmatic deal types. The short wire encoding is canonical.
+
+
+        - ``PG`` = Programmatic Guaranteed: fixed price, guaranteed impressions
+
+        - ``PD`` = Preferred Deal: fixed price, non-guaranteed first look
+
+        - ``PA`` = Private Auction: auction with floor price, invited buyers
+
+
+        Mapping from the seller repo''s retired long-form encoding
+
+        (``models/core.py``): ``programmaticguaranteed`` -> ``PG``,
+
+        ``preferreddeal`` -> ``PD``, ``privateauction`` -> ``PA``. The
+
+        long-form strings are NOT valid wire values.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    QuoteRequest:
+      properties:
+        idempotency_key:
+          type: string
+          minLength: 1
+          title: Idempotency Key
+          description: Requester-minted opaque key (UUID recommended). Same key -> same response, no duplicate side effects (FD-12). Reusing a key with a different body is an idempotency_conflict error.
+        product_id:
+          type: string
+          title: Product Id
+          description: Seller-issued product to quote.
+        deal_type:
+          $ref: '#/components/schemas/DealType'
+          description: '''PG'' (Programmatic Guaranteed), ''PD'' (Preferred Deal), ''PA'' (Private Auction). Typed — the retired long-form strings are not valid wire values.'
+        impressions:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Impressions
+          description: Requested volume; required for PG.
+        flight_start:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Flight Start
+        flight_end:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Flight End
+        target_cpm:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+          description: Buyer's desired CPM (exact micros; FD-11). Advisory.
+        buyer_identity:
+          anyOf:
+          - $ref: '#/components/schemas/BuyerIdentity'
+          - type: 'null'
+          description: Progressively revealed identity for tiered pricing; the effective tier is capped server-side by registry-verified trust.
+        agent_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Url
+          description: A2A endpoint of the requesting buyer agent, for registry trust verification. The buyer already sent this; the seller's model dropped it — now part of the contract.
+        rate_card_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Rate Card Id
+          description: Seller-issued id of the pair's private rate card to price against (FD-9). The rate card itself never crosses the wire.
+        media_type:
+          $ref: '#/components/schemas/MediaType'
+          description: Media discriminator (FD-6). Sellers that do not support the requested type MUST reject structurally.
+          default: digital
+        linear_tv:
+          anyOf:
+          - $ref: '#/components/schemas/LinearTVParams'
+          - type: 'null'
+          description: Linear TV parameters; required when media_type == 'linear_tv', must be None otherwise.
+        audience_plan:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Audience Plan
+          description: Audience plan slot (open object; the typed model lands with the audience-plan bead). Sellers pre-flight it against their capabilities and reject unsupported parts structurally (FD-6).
+        consent_context:
+          anyOf:
+          - $ref: '#/components/schemas/ConsentContext'
+          - type: 'null'
+          description: Privacy consent signals riding with the request (FD-10).
+      type: object
+      required:
+      - idempotency_key
+      - product_id
+      - deal_type
+      title: QuoteRequest
+      description: 'Request body for ``POST /api/v1/quotes`` (money-mutating: FD-12).
+
+
+        ID minting: the seller mints ``quote_id`` in the response; the buyer
+
+        never proposes one.'
+    DiligenceStatus:
+      type: string
+      enum:
+      - unknown
+      - pending
+      - passed
+      - failed
+      title: DiligenceStatus
+      description: Status of counterparty privacy diligence (IAB Diligence Platform).
+    Money:
+      properties:
+        amount_micros:
+          type: integer
+          title: Amount Micros
+          description: Amount in micros; 1,000,000 micros = 1 currency unit.
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          title: Currency
+          description: ISO 4217 alpha-3 currency code.
+          default: USD
+      type: object
+      required:
+      - amount_micros
+      title: Money
+      description: 'Exact money amount in integer micros (flagged decision FD-11).
+
+
+        ``1_000_000`` micros = 1 currency unit — the ad-industry convention
+
+        (Google Ad Manager, among others, prices in micros). Float is BANNED on
+
+        the wire for money: IEEE 754 floating point is non-deterministic for
+
+        money math (``0.1 + 0.2 != 0.3``, and repeated CPM — cost per mille —
+
+        arithmetic accumulates error), and the two source repos used ``float``
+
+        end-to-end; that defect must not be fossilized into the spec. Every
+
+        price, rate, budget, and offer in the shared contract is a ``Money``.
+
+
+        ``amount_micros`` is a strict integer: float inputs are rejected at
+
+        validation time rather than silently truncated.'
+    QuoteTerms:
+      properties:
+        impressions:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Impressions
+        flight_start:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Flight Start
+        flight_end:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Flight End
+        guaranteed:
+          type: boolean
+          title: Guaranteed
+          default: false
+        grps:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Grps
+          description: Linear TV volume in GRPs (gross rating points).
+        guaranteed_grps:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Guaranteed Grps
+        target_demo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Demo
+          description: Linear TV target demographic.
+      type: object
+      title: QuoteTerms
+      description: Volume, flight, and guarantee terms on a quote or deal.
+    CancellationTerms:
+      properties:
+        notice_days:
+          type: integer
+          title: Notice Days
+          description: Days of notice required before cancellation.
+        cancellable_pct:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Cancellable Pct
+          description: Portion of the deal that can be cancelled (0.0-1.0).
+        deadline:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Deadline
+          description: Absolute deadline for cancellation.
+        force_majeure:
+          type: boolean
+          title: Force Majeure
+          description: Whether force majeure exceptions apply.
+          default: true
+      type: object
+      required:
+      - notice_days
+      - cancellable_pct
+      title: CancellationTerms
+      description: Structured cancellation window for linear TV deals.
+x-refined-from:
+- iab-tech-lab-agentic-advertising-api-openapi.yaml
+- iab-tech-lab-seller-agent-openapi.json
+- iab-tech-lab-seller-agent-openapi.json
