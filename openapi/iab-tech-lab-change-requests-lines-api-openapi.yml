@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Change Requests Lines API
   version: 1.5.1
-  description: 'Operations tagged Change Requests Lines across 2 of this provider''s published API definitions: iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-opendirect-1-5-1-swagger.yaml. Each path carries the servers of the definition it was published in.'
+  title: OpenDirect Change Requests Lines API
+  description: OpenDirect enables publishers to offer premium inventory using a programmatic interface that partners and vendors build according to the OpenDirect specifications.
 servers:
 - url: https://opendirect.example.com/v1.5.1
 security:
@@ -75,8 +75,6 @@ paths:
       x-summary-source: derived
       operationId: postAccountsByAccountIdChangerequestByChangerequestIdLines
       x-operation-id-source: derived
-    servers:
-    - url: https://opendirect.example.com/v1.5.1
   /accounts/{accountId}/changerequest/{changerequestId}/lines/{lineId}:
     get:
       tags:
@@ -143,107 +141,21 @@ paths:
       x-summary-source: derived
       operationId: deleteAccountsByAccountIdChangerequestByChangerequestIdLinesByLineId
       x-operation-id-source: derived
-    servers:
-    - url: https://opendirect.example.com/v1.5.1
 components:
-  parameters:
-    lineId:
-      name: lineId
-      in: path
-      required: true
-      x-example: '345233'
-      schema:
-        type: string
-        maxLength: 36
-    changerequestId:
-      name: changerequestId
-      in: path
-      required: true
-      x-example: '398421'
-      schema:
-        type: string
-        maxLength: 36
-    accountId:
-      name: accountId
-      in: path
-      required: true
-      x-example: '23873345'
-      schema:
-        type: string
-        maxLength: 36
-  responses:
-    Standard500ErrorResponse:
-      description: Unexpected error occurred
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
-    Standard400ErrorResponse:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
-    LineResponse:
-      description: Line resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Line'
-          example: "{\n  \"BookingStatus\": \"Draft\",\n  \"Comment\": \"Free form comment\",\n  \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n  \"FrequencyCount\": 3,\n  \"FrequencyInterval\": \"Day\",\n  \"Id\": \"345233\",\n  \"Quantity\": 30000,\n  \"Name\": \"My Line 1\",\n  \"OrderId\": \"1235872\",\n  \"ProductId\": \"456366\",\n  \"ProviderData\": \"cid=88873\",\n  \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Targeting\": [\n    {\n      \"Target\": \"Age\",\n      \"TargetValues\": [\"18-24\",\"25-34\"]\n    },\n    {\n      \"Target\": \"Gender\",\n      \"TargetValues\": [\"Male\"]\n    }\n  ]\n  \"UsesExpandables\": False\n}\n"
-    Standard401ErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
-    Standard404ErrorResponse:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
-    LinesResponse:
-      description: Collection of Line
-      headers:
-        X-Total-Count:
-          description: Total number of results
-          schema:
-            type: integer
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Lines'
-          example: "{\n  \"Lines\": [\n    {\n      \"BookingStatus\": \"Draft\",\n      \"Comment\": \"Free form comment\",\n      \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n      \"FrequencyCount\": 3,\n      \"FrequencyInterval\": \"Day\",\n      \"Id\": \"345233\",\n      \"Quantity\": 30000,\n      \"Name\": \"My Line 1\",\n      \"OrderId\": \"1235872\",\n      \"ProductId\": \"456366\",\n      \"ProviderData\": \"cid=88873\",\n      \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n      \"Targeting\": [\n        {\n          \"Target\": \"Age\",\n          \"TargetValues\": [\"18-24\",\"25-34\"]\n        },\n        {\n          \"Target\": \"Gender\",\n          \"TargetValues\": [\"Male\"]\n        }\n      ]\n      \"UsesExpandables\": False\n    }\n  ]\n}\n"
   schemas:
-    Errors:
-      type: array
-      items:
-        $ref: '#/components/schemas/Error'
-    FrequencyCapInterval:
-      description: 'Defines the frequency cap intervals that the API supports.
-
-        The frequency interval specifies the units in which the frequency count is expressed. For example, if a line’s frequency count is 2 and interval is Day, display the ad to the same user a Max 2 times in the same calendar day.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The name of the interval.
-            type: string
-            enum:
-            - Day
-            - Month
-            - Week
-            - Hour
-            - LineDuration
+    Segment:
+      description: The segment object is made up of TARGET and TARGET VALUE reference data objects and is used to specify targeting options for a LINE resource
+      required:
+      - Target
+      - TargetValues
+      properties:
+        Target:
+          $ref: '#/components/schemas/Target'
+        TargetValues:
+          description: A list of target values. For example, age range 18-24 and 25-34.
+          type: array
+          items:
+            $ref: '#/components/schemas/TargetValue'
     Error:
       type: object
       required:
@@ -274,49 +186,26 @@ components:
             - CPC
             - CPD
             - FlatRate
-    TargetValue:
-      description: 'Defines a target value.
-
-        The API must support the specified values per target category.
-
-        '
+    Target:
+      description: Defines a target category. The API must support the specified target categories and may support additional categories such as zip code or postal code.
       allOf:
       - $ref: '#/components/schemas/Identity'
       - required:
-        - Value
-        - TargetId
+        - Name
         properties:
-          Value:
-            description: The target value
+          Name:
+            description: The target category.
             type: string
             enum:
-            - Age - Publisher-defined age ranges
-            - Gender - Female
-            - Gender - Male
-            - DMA - Publisher-defined  source (such as Digital Envoy)
-            - Country - Publisher-defined source
-            - State-Province - Publisher-defined source
-            - Daypart - 0 through 23 hours
-            - Weekpart - Sunday
-            - Weekpart - Monday
-            - Weekpart - Tuesday
-            - Weekpart - Wednesday
-            - Weekpart - Thursday
-            - Weekpart - Friday
-            - Weekpart - Saturday
-          TargetId:
-            description: A system-generated ID that identifies the target category that this value belongs to.
-            type: string
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
+            - Age
+            - Gender
+            - DMA
+            - Country
+            - State/Province
+            - Daypart
+            - Weekpart
+            - Behavioral
+            - Device
     ProviderData:
       description: Common definition for all entities with provider data.
       properties:
@@ -328,19 +217,14 @@ components:
             '
           type: string
           maxLength: 1000
-    Segment:
-      description: The segment object is made up of TARGET and TARGET VALUE reference data objects and is used to specify targeting options for a LINE resource
+    Lines:
       required:
-      - Target
-      - TargetValues
+      - Lines
       properties:
-        Target:
-          $ref: '#/components/schemas/Target'
-        TargetValues:
-          description: A list of target values. For example, age range 18-24 and 25-34.
+        Lines:
           type: array
           items:
-            $ref: '#/components/schemas/TargetValue'
+            $ref: '#/components/schemas/Line'
     Line:
       description: 'Line resources are included in an order and provide details about the product being booked, status, start and end dates, and other settings for the order item.
 
@@ -495,34 +379,146 @@ components:
 
               '
             type: boolean
-    Lines:
+    Identity:
+      description: Common definition for all entities with identity.
       required:
-      - Lines
+      - Id
       properties:
-        Lines:
-          type: array
-          items:
-            $ref: '#/components/schemas/Line'
-    Target:
-      description: Defines a target category. The API must support the specified target categories and may support additional categories such as zip code or postal code.
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    FrequencyCapInterval:
+      description: 'Defines the frequency cap intervals that the API supports.
+
+        The frequency interval specifies the units in which the frequency count is expressed. For example, if a line’s frequency count is 2 and interval is Day, display the ad to the same user a Max 2 times in the same calendar day.
+
+        '
       allOf:
       - $ref: '#/components/schemas/Identity'
       - required:
         - Name
         properties:
           Name:
-            description: The target category.
+            description: The name of the interval.
             type: string
             enum:
-            - Age
-            - Gender
-            - DMA
-            - Country
-            - State/Province
-            - Daypart
-            - Weekpart
-            - Behavioral
-            - Device
+            - Day
+            - Month
+            - Week
+            - Hour
+            - LineDuration
+    TargetValue:
+      description: 'Defines a target value.
+
+        The API must support the specified values per target category.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Value
+        - TargetId
+        properties:
+          Value:
+            description: The target value
+            type: string
+            enum:
+            - Age - Publisher-defined age ranges
+            - Gender - Female
+            - Gender - Male
+            - DMA - Publisher-defined  source (such as Digital Envoy)
+            - Country - Publisher-defined source
+            - State-Province - Publisher-defined source
+            - Daypart - 0 through 23 hours
+            - Weekpart - Sunday
+            - Weekpart - Monday
+            - Weekpart - Tuesday
+            - Weekpart - Wednesday
+            - Weekpart - Thursday
+            - Weekpart - Friday
+            - Weekpart - Saturday
+          TargetId:
+            description: A system-generated ID that identifies the target category that this value belongs to.
+            type: string
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+  responses:
+    LinesResponse:
+      description: Collection of Line
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Lines'
+          example: "{\n  \"Lines\": [\n    {\n      \"BookingStatus\": \"Draft\",\n      \"Comment\": \"Free form comment\",\n      \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n      \"FrequencyCount\": 3,\n      \"FrequencyInterval\": \"Day\",\n      \"Id\": \"345233\",\n      \"Quantity\": 30000,\n      \"Name\": \"My Line 1\",\n      \"OrderId\": \"1235872\",\n      \"ProductId\": \"456366\",\n      \"ProviderData\": \"cid=88873\",\n      \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n      \"Targeting\": [\n        {\n          \"Target\": \"Age\",\n          \"TargetValues\": [\"18-24\",\"25-34\"]\n        },\n        {\n          \"Target\": \"Gender\",\n          \"TargetValues\": [\"Male\"]\n        }\n      ]\n      \"UsesExpandables\": False\n    }\n  ]\n}\n"
+    LineResponse:
+      description: Line resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Line'
+          example: "{\n  \"BookingStatus\": \"Draft\",\n  \"Comment\": \"Free form comment\",\n  \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n  \"FrequencyCount\": 3,\n  \"FrequencyInterval\": \"Day\",\n  \"Id\": \"345233\",\n  \"Quantity\": 30000,\n  \"Name\": \"My Line 1\",\n  \"OrderId\": \"1235872\",\n  \"ProductId\": \"456366\",\n  \"ProviderData\": \"cid=88873\",\n  \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Targeting\": [\n    {\n      \"Target\": \"Age\",\n      \"TargetValues\": [\"18-24\",\"25-34\"]\n    },\n    {\n      \"Target\": \"Gender\",\n      \"TargetValues\": [\"Male\"]\n    }\n  ]\n  \"UsesExpandables\": False\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+  parameters:
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    lineId:
+      name: lineId
+      in: path
+      required: true
+      x-example: '345233'
+      schema:
+        type: string
+        maxLength: 36
+    changerequestId:
+      name: changerequestId
+      in: path
+      required: true
+      x-example: '398421'
+      schema:
+        type: string
+        maxLength: 36
   securitySchemes:
     OauthSecurity:
       type: oauth2
@@ -532,6 +528,3 @@ components:
             https://opendirect.example.com/scope/example: Example scope
           authorizationUrl: https://opendirect.example.com/connect/authorize
       description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
-x-refined-from:
-- iab-tech-lab-opendirect-1-5-1-swagger.yaml
-- iab-tech-lab-opendirect-1-5-1-swagger.yaml

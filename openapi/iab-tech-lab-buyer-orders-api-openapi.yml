@@ -1,14 +1,14 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Buyer Orders API
-  version: 1.0.0
+  title: Ad Buyer Agent Buyer Orders API
+  description: Automated advertising buyer agent using CrewAI and IAB OpenDirect 2.1. Orchestrates budget allocation, inventory research, recommendation consolidation, and deal booking against seller agent APIs.
   contact:
     name: IAB Tech Lab
     url: https://iabtechlab.com/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Buyer Orders across 2 of this provider''s published API definitions: iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-buyer-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  version: 1.0.0
 tags:
 - name: Buyer Orders
 paths:
@@ -130,6 +130,3 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-x-refined-from:
-- iab-tech-lab-buyer-agent-openapi.json
-- iab-tech-lab-buyer-agent-openapi.json

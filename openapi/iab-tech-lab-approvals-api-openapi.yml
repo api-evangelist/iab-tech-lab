@@ -1,14 +1,14 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Approvals API
-  version: 1.0.0
+  title: Ad Seller System Approvals API
+  description: IAB OpenDirect 2.1 compliant seller agent for programmatic advertising. Supports product discovery, tiered pricing, proposal evaluation, multi-round negotiation, deal execution, order management, and change requests.
   contact:
     name: IAB Tech Lab
     url: https://iabtechlab.com/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Approvals across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  version: 1.0.0
 tags:
 - name: Approvals
   description: Human-in-the-loop approval workflow
@@ -198,6 +198,29 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ApprovalDecisionRequest:
+      properties:
+        decision:
+          type: string
+          title: Decision
+        decided_by:
+          type: string
+          title: Decided By
+          default: anonymous
+        reason:
+          type: string
+          title: Reason
+          default: ''
+        modifications:
+          additionalProperties: true
+          type: object
+          title: Modifications
+          default: {}
+      type: object
+      required:
+      - decision
+      title: ApprovalDecisionRequest
+      description: Request to submit an approval decision.
     ValidationError:
       properties:
         loc:
@@ -224,29 +247,6 @@ components:
       - msg
       - type
       title: ValidationError
-    ApprovalDecisionRequest:
-      properties:
-        decision:
-          type: string
-          title: Decision
-        decided_by:
-          type: string
-          title: Decided By
-          default: anonymous
-        reason:
-          type: string
-          title: Reason
-          default: ''
-        modifications:
-          additionalProperties: true
-          type: object
-          title: Modifications
-          default: {}
-      type: object
-      required:
-      - decision
-      title: ApprovalDecisionRequest
-      description: Request to submit an approval decision.
     HTTPValidationError:
       properties:
         detail:
@@ -256,6 +256,3 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-x-refined-from:
-- iab-tech-lab-seller-agent-openapi.json
-- iab-tech-lab-seller-agent-openapi.json

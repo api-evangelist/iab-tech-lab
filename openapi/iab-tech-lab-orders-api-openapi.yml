@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Iab Tech Lab Orders API
   version: '1.0'
-  description: 'Operations tagged Orders across 4 of this provider''s published API definitions: iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Orders across 2 of this provider''s published API definitions: iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://opendirect.example.com/v1.5.1
 tags:
@@ -442,87 +442,69 @@ paths:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
-  responses:
-    OrdersResponse:
-      description: Collection of Order
-      headers:
-        X-Total-Count:
-          description: Total number of results
-          schema:
-            type: integer
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Orders'
-          example: "{\n  \"Orders\": [\n    {\n      \"AccountId\": \"23873345\",\n      \"Brand\": \"Four Wakes\",\n      \"Budget\": 50000,\n      \"Currency\": \"USD\",\n      \"EndDate\": \"2014-12-24T18:00:00.000Z\",\n      \"Id\": \"1235872\",\n      \"Name\": \"My Order\",\n      \"PreferredBillingMethod\": \"Electronic\",\n      \"ProviderData\": \"cid=563364\",\n      \"StartDate\": \"2014-11-24T06:00:00.000Z\",\n    }\n  ]\n}\n"
-    Standard500ErrorResponse:
-      description: Unexpected error occurred
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
-    Standard400ErrorResponse:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
-    Standard401ErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
-    OrderResponse:
-      description: Order resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Order'
-          example: "{\n  \"AccountId\": \"23873345\",\n  \"Brand\": \"Four Wakes\",\n  \"Budget\": 50000,\n  \"Currency\": \"USD\",\n  \"EndDate\": \"2014-12-24T18:00:00.000Z\",\n  \"Id\": \"1235872\",\n  \"Name\": \"My Order\",\n  \"PreferredBillingMethod\": \"Electronic\",\n  \"ProviderData\": \"cid=563364\",\n  \"StartDate\": \"2014-11-24T06:00:00.000Z\",\n}\n"
-    Standard404ErrorResponse:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
   schemas:
-    Currency:
-      description: 'Defines a currency that the API supports.
-
-        The API may support all or a subset of the currencies specified in ISO-4217.
-
-        '
+    Contact:
+      description: Defines an agency or advertiser contact.
       required:
-      - IsoCode
+      - FirstName
+      - LastName
+      - Type
       properties:
-        IsoCode:
-          description: The currency’s three-character ISO code (ISO 4217).
+        Address:
+          description: Required if TYPE is Billing and the preferred billing method for the organization or order is paper.
+          $ref: '#/components/schemas/Address'
+        Email:
+          description: 'The contact’s email address.
+
+            Required if TYPE is Billing and the preferred billing method for the organization or order is electronic.
+
+            '
           type: string
-          minLength: 3
-          maxLength: 3
-    Errors:
-      type: array
-      items:
-        $ref: '#/components/schemas/Error'
-    ContactType:
-      description: Defines the possible types of Contacts.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The type’s display name.
-            type: string
-            enum:
-            - Billing
-            - Buyer
-            - Creative
+          maxLength: 254
+          x-publisher-support-required: true
+        Honorific:
+          description: Honorific such as Mr. or Ms.
+          type: string
+          maxLength: 20
+        Fax:
+          description: The contact’s fax number.
+          type: string
+          maxLength: 20
+        FirstName:
+          description: The contact’s first name.
+          type: string
+          maxLength: 20
+        LastName:
+          description: The contact’s last name.
+          type: string
+          maxLength: 20
+        Phone:
+          description: The contact’s phone number
+          type: string
+          maxLength: 20
+          x-publisher-support-required: true
+        Title:
+          description: The contact’s job title.
+          type: string
+          maxLength: 30
+          x-publisher-support-required: true
+        Type:
+          $ref: '#/components/schemas/ContactType'
+          readOnly: true
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
     Orders:
       required:
       - Orders
@@ -531,6 +513,51 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Order'
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+    Industry:
+      description: Defines an industry that the advertiser belongs to. Uses “IAB Tech Lab Content Taxonomy”.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        - ParentId
+        - SubIndustries
+        properties:
+          Name:
+            description: The industry’s display name.
+            type: string
+          ParentId:
+            description: The ID of the sub-industry’s parent. Is NULL for the top-level parent.
+            type: string
+          SubIndustries:
+            description: A list of sub-industries. The list is empty if the industry has no sub-industries.
+            type: array
+            items:
+              $ref: '#/components/schemas/Industry'
+    Country:
+      description: 'Defines a country that the API supports.
+
+        The API may support all or a subset of the countries specified in ISO 3166-1.
+
+        '
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The country’s two-character ISO code (ISO 3166-1).
+          type: string
+          minLength: 2
+          maxLength: 2
     Address:
       description: The address object is used to provide values for the ORGANIZAION resource.
       required:
@@ -563,20 +590,48 @@ components:
           type: string
           maxLength: 35
           x-publisher-support-required: true
-    Error:
-      type: object
+    Identity:
+      description: Common definition for all entities with identity.
       required:
-      - ErrorCode
-      - ErrorMessage
+      - Id
       properties:
-        ErrorCode:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
           type: string
-        ErrorMessage:
+          maxLength: 36
+          readOnly: true
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+    ContactType:
+      description: Defines the possible types of Contacts.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The type’s display name.
+            type: string
+            enum:
+            - Billing
+            - Buyer
+            - Creative
+    Currency:
+      description: 'Defines a currency that the API supports.
+
+        The API may support all or a subset of the currencies specified in ISO-4217.
+
+        '
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The currency’s three-character ISO code (ISO 4217).
           type: string
-        Context:
-          type: object
-        Link:
-          type: string
+          minLength: 3
+          maxLength: 3
     Order:
       description: 'The Order resource specifies the plan’s start and end dates, estimated budget, currency, and preferred billing method for all line items in the order.
 
@@ -682,109 +737,30 @@ components:
               '
             type: string
             format: date-time
-    Contact:
-      description: Defines an agency or advertiser contact.
+    TransitionOrderRequest:
+      properties:
+        to_status:
+          type: string
+          title: To Status
+        actor:
+          type: string
+          title: Actor
+          default: system
+        reason:
+          type: string
+          title: Reason
+          default: ''
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
       required:
-      - FirstName
-      - LastName
-      - Type
-      properties:
-        Address:
-          description: Required if TYPE is Billing and the preferred billing method for the organization or order is paper.
-          $ref: '#/components/schemas/Address'
-        Email:
-          description: 'The contact’s email address.
-
-            Required if TYPE is Billing and the preferred billing method for the organization or order is electronic.
-
-            '
-          type: string
-          maxLength: 254
-          x-publisher-support-required: true
-        Honorific:
-          description: Honorific such as Mr. or Ms.
-          type: string
-          maxLength: 20
-        Fax:
-          description: The contact’s fax number.
-          type: string
-          maxLength: 20
-        FirstName:
-          description: The contact’s first name.
-          type: string
-          maxLength: 20
-        LastName:
-          description: The contact’s last name.
-          type: string
-          maxLength: 20
-        Phone:
-          description: The contact’s phone number
-          type: string
-          maxLength: 20
-          x-publisher-support-required: true
-        Title:
-          description: The contact’s job title.
-          type: string
-          maxLength: 30
-          x-publisher-support-required: true
-        Type:
-          $ref: '#/components/schemas/ContactType'
-          readOnly: true
-    Country:
-      description: 'Defines a country that the API supports.
-
-        The API may support all or a subset of the countries specified in ISO 3166-1.
-
-        '
-      required:
-      - IsoCode
-      properties:
-        IsoCode:
-          description: The country’s two-character ISO code (ISO 3166-1).
-          type: string
-          minLength: 2
-          maxLength: 2
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
-    ProviderData:
-      description: Common definition for all entities with provider data.
-      properties:
-        ProviderData:
-          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
-
-            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
-
-            '
-          type: string
-          maxLength: 1000
-    Industry:
-      description: Defines an industry that the advertiser belongs to. Uses “IAB Tech Lab Content Taxonomy”.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        - ParentId
-        - SubIndustries
-        properties:
-          Name:
-            description: The industry’s display name.
-            type: string
-          ParentId:
-            description: The ID of the sub-industry’s parent. Is NULL for the top-level parent.
-            type: string
-          SubIndustries:
-            description: A list of sub-industries. The list is empty if the industry has no sub-industries.
-            type: array
-            items:
-              $ref: '#/components/schemas/Industry'
+      - to_status
+      title: TransitionOrderRequest
+      description: Request to transition an order to a new state.
     ValidationError:
       properties:
         loc:
@@ -811,30 +787,15 @@ components:
       - msg
       - type
       title: ValidationError
-    TransitionOrderRequest:
+    HTTPValidationError:
       properties:
-        to_status:
-          type: string
-          title: To Status
-        actor:
-          type: string
-          title: Actor
-          default: system
-        reason:
-          type: string
-          title: Reason
-          default: ''
-        metadata:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Metadata
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - to_status
-      title: TransitionOrderRequest
-      description: Request to transition an order to a new state.
+      title: HTTPValidationError
     CreateOrderRequest:
       properties:
         deal_id:
@@ -856,24 +817,7 @@ components:
       type: object
       title: CreateOrderRequest
       description: Request to create a new order.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
   parameters:
-    count:
-      name: count
-      in: query
-      description: Indicates the number of desired records to be returned in the response.
-      schema:
-        type: integer
-        default: 250
-        minimum: 1
     offset:
       name: offset
       in: query
@@ -882,14 +826,14 @@ components:
         type: integer
         default: 0
         minimum: 0
-    accountId:
-      name: accountId
-      in: path
-      required: true
-      x-example: '23873345'
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
       schema:
-        type: string
-        maxLength: 36
+        type: integer
+        default: 250
+        minimum: 1
     orderId:
       name: orderId
       in: path
@@ -898,6 +842,62 @@ components:
       schema:
         type: string
         maxLength: 36
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+  responses:
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    OrdersResponse:
+      description: Collection of Order
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Orders'
+          example: "{\n  \"Orders\": [\n    {\n      \"AccountId\": \"23873345\",\n      \"Brand\": \"Four Wakes\",\n      \"Budget\": 50000,\n      \"Currency\": \"USD\",\n      \"EndDate\": \"2014-12-24T18:00:00.000Z\",\n      \"Id\": \"1235872\",\n      \"Name\": \"My Order\",\n      \"PreferredBillingMethod\": \"Electronic\",\n      \"ProviderData\": \"cid=563364\",\n      \"StartDate\": \"2014-11-24T06:00:00.000Z\",\n    }\n  ]\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    OrderResponse:
+      description: Order resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Order'
+          example: "{\n  \"AccountId\": \"23873345\",\n  \"Brand\": \"Four Wakes\",\n  \"Budget\": 50000,\n  \"Currency\": \"USD\",\n  \"EndDate\": \"2014-12-24T18:00:00.000Z\",\n  \"Id\": \"1235872\",\n  \"Name\": \"My Order\",\n  \"PreferredBillingMethod\": \"Electronic\",\n  \"ProviderData\": \"cid=563364\",\n  \"StartDate\": \"2014-11-24T06:00:00.000Z\",\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
   securitySchemes:
     OauthSecurity:
       type: oauth2
@@ -908,7 +908,5 @@ components:
           authorizationUrl: https://opendirect.example.com/connect/authorize
       description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
 x-refined-from:
-- iab-tech-lab-opendirect-1-5-1-swagger.yaml
-- iab-tech-lab-seller-agent-openapi.json
 - iab-tech-lab-opendirect-1-5-1-swagger.yaml
 - iab-tech-lab-seller-agent-openapi.json

@@ -1,14 +1,14 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Deal Performance API
-  version: 1.0.0
+  title: Ad Seller System Deal Performance API
+  description: IAB OpenDirect 2.1 compliant seller agent for programmatic advertising. Supports product discovery, tiered pricing, proposal evaluation, multi-round negotiation, deal execution, order management, and change requests.
   contact:
     name: IAB Tech Lab
     url: https://iabtechlab.com/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Deal Performance across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  version: 1.0.0
 tags:
 - name: Deal Performance
   description: Deal delivery and performance metrics
@@ -83,6 +83,3 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-x-refined-from:
-- iab-tech-lab-seller-agent-openapi.json
-- iab-tech-lab-seller-agent-openapi.json

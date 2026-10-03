@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Iab Tech Lab Deals API
   version: '1.0'
-  description: 'Operations tagged Deals across 3 of this provider''s published API definitions: iab-tech-lab-agentic-advertising-api-openapi.yaml, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Deals across 2 of this provider''s published API definitions: iab-tech-lab-agentic-advertising-api-openapi.yaml, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Deals
 paths:
@@ -101,32 +101,6 @@ components:
           schema:
             $ref: ../jsonschema/protocol/ErrorEnvelope.json
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     DealResponse:
       properties:
         deal_id:
@@ -160,6 +134,41 @@ components:
       - activation_instructions
       title: DealResponse
       description: Deal generation response.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     DealRequest:
       properties:
         proposal_id:
@@ -175,16 +184,6 @@ components:
       - proposal_id
       title: DealRequest
       description: Request to generate a deal.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
 x-refined-from:
 - iab-tech-lab-agentic-advertising-api-openapi.yaml
-- iab-tech-lab-seller-agent-openapi.json
 - iab-tech-lab-seller-agent-openapi.json

@@ -8,7 +8,7 @@ info:
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Events across 4 of this provider''s published API definitions: iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Events across 2 of this provider''s published API definitions: iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
 tags:
 - name: Events
   description: Event bus query endpoints
@@ -139,7 +139,5 @@ components:
       type: object
       title: HTTPValidationError
 x-refined-from:
-- iab-tech-lab-buyer-agent-openapi.json
-- iab-tech-lab-seller-agent-openapi.json
 - iab-tech-lab-buyer-agent-openapi.json
 - iab-tech-lab-seller-agent-openapi.json

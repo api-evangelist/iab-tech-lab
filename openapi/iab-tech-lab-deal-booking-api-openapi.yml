@@ -1,14 +1,14 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Deal Booking API
-  version: 1.0.0
+  title: Ad Seller System Deal Booking API
+  description: IAB OpenDirect 2.1 compliant seller agent for programmatic advertising. Supports product discovery, tiered pricing, proposal evaluation, multi-round negotiation, deal execution, order management, and change requests.
   contact:
     name: IAB Tech Lab
     url: https://iabtechlab.com/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Deal Booking across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  version: 1.0.0
 tags:
 - name: Deal Booking
   description: Quote-to-deal booking (IAB Deals API v1.0)
@@ -541,24 +541,206 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    AccessTier:
+    DealPushRequest:
+      properties:
+        deal_id:
+          type: string
+          title: Deal Id
+        buyer_urls:
+          items:
+            type: string
+          type: array
+          title: Buyer Urls
+        buyer_api_keys:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Buyer Api Keys
+        deal_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Deal Type
+        price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Price
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        impressions:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Impressions
+        flight_start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Flight Start
+        flight_end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Flight End
+        buyer_seat_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Buyer Seat Ids
+      type: object
+      required:
+      - deal_id
+      - buyer_urls
+      title: DealPushRequest
+      description: Request to push a deal to buyer(s).
+    PricingType:
       type: string
       enum:
-      - public
-      - seat
-      - agency
-      - advertiser
-      title: AccessTier
-      description: 'Access tier for tiered pricing, derived from revealed buyer identity.
+      - fixed
+      - floor
+      - on_request
+      title: PricingType
+      description: "How a price signal should be interpreted.\n\n- ``fixed``: price is set by the seller, use as-is\n- ``floor``: minimum price; negotiation expected above this level\n- ``on_request``: no price available; buyer must negotiate before any\n  pricing exists (pricing fields are None — buyers must never fabricate\n  a price for on_request inventory)"
+    OpenRTBParams:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Deal id as it appears in the OpenRTB bid stream.
+        bidfloor:
+          $ref: '#/components/schemas/Money'
+          description: Bid floor (exact micros; FD-11). Adapters translate to the raw OpenRTB float `bidfloor`/`bidfloorcur` encoding at the DSP edge.
+        at:
+          type: integer
+          title: At
+          description: Auction type (3 = fixed price).
+          default: 3
+        wseat:
+          items:
+            type: string
+          type: array
+          title: Wseat
+          description: Allowed buyer seats.
+        wadomain:
+          items:
+            type: string
+          type: array
+          title: Wadomain
+          description: Allowed advertiser domains.
+      type: object
+      required:
+      - id
+      - bidfloor
+      title: OpenRTBParams
+      description: 'OpenRTB (Open Real-Time Bidding) deal parameters for DSP
+
+        (demand-side platform) activation.'
+    DealStatus:
+      type: string
+      enum:
+      - proposed
+      - negotiating
+      - accepted
+      - booked
+      - active
+      - makegood_pending
+      - partially_cancelled
+      - completed
+      - rejected
+      - failed
+      - cancelled
+      - expired
+      title: DealStatus
+      description: 'ONE deal status vocabulary, unioned from the four competing sets.
 
 
-        - ``public``: no identity — price ranges only
+        Sources: buyer ``DealResponse.status`` (proposed/active/rejected/
 
-        - ``seat``: authenticated DSP (demand-side platform) seat
+        expired/completed), seller ``DealBookingStatus`` (proposed/active/
 
-        - ``agency``: agency identity revealed
+        expired/cancelled), buyer ``BuyerDealStatus`` (quoted/negotiating/
 
-        - ``advertiser``: advertiser identity revealed (best rates)'
+        accepted/booking/booked/delivering/... + linear TV extensions).
+
+
+        Recorded aliases (retired values, NOT valid on the wire):
+
+        ``delivering`` -> ``active``; ``booking`` -> ``booked``;
+
+        ``quoted`` -> represented by QuoteStatus, not a deal state;
+
+        ``partially_canceled`` -> ``partially_cancelled``.'
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    Money:
+      properties:
+        amount_micros:
+          type: integer
+          title: Amount Micros
+          description: Amount in micros; 1,000,000 micros = 1 currency unit.
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          title: Currency
+          description: ISO 4217 alpha-3 currency code.
+          default: USD
+      type: object
+      required:
+      - amount_micros
+      title: Money
+      description: 'Exact money amount in integer micros (flagged decision FD-11).
+
+
+        ``1_000_000`` micros = 1 currency unit — the ad-industry convention
+
+        (Google Ad Manager, among others, prices in micros). Float is BANNED on
+
+        the wire for money: IEEE 754 floating point is non-deterministic for
+
+        money math (``0.1 + 0.2 != 0.3``, and repeated CPM — cost per mille —
+
+        arithmetic accumulates error), and the two source repos used ``float``
+
+        end-to-end; that defect must not be fossilized into the spec. Every
+
+        price, rate, budget, and offer in the shared contract is a ``Money``.
+
+
+        ``amount_micros`` is a strict integer: float inputs are rejected at
+
+        validation time rather than silently truncated.'
     DealMigrationRequest:
       properties:
         old_deal_id:
@@ -615,6 +797,397 @@ components:
       - old_deal_id
       title: DealMigrationRequest
       description: Request to migrate (replace) an existing deal.
+    CancellationTerms:
+      properties:
+        notice_days:
+          type: integer
+          title: Notice Days
+          description: Days of notice required before cancellation.
+        cancellable_pct:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Cancellable Pct
+          description: Portion of the deal that can be cancelled (0.0-1.0).
+        deadline:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Deadline
+          description: Absolute deadline for cancellation.
+        force_majeure:
+          type: boolean
+          title: Force Majeure
+          description: Whether force majeure exceptions apply.
+          default: true
+      type: object
+      required:
+      - notice_days
+      - cancellable_pct
+      title: CancellationTerms
+      description: Structured cancellation window for linear TV deals.
+    QuoteBuyerIdentityModel:
+      properties:
+        seat_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Id
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        dsp_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dsp Platform
+      type: object
+      title: QuoteBuyerIdentityModel
+      description: Buyer identity in a quote request.
+    PricingModel:
+      type: string
+      enum:
+      - cpm
+      - cpmv
+      - cpv
+      - cpc
+      - cpcv
+      - cpd
+      - cpp
+      - flat_fee
+      - unit_rate
+      - hybrid
+      title: PricingModel
+      description: 'Unit of pricing. Union of the buyer''s ``RateType`` and the seller''s
+
+        ``PricingModel`` plus the linear TV additions.
+
+
+        - ``cpm``: cost per mille (thousand impressions)
+
+        - ``cpmv``: cost per thousand viewable impressions
+
+        - ``cpv``: cost per view
+
+        - ``cpc``: cost per click
+
+        - ``cpcv``: cost per completed view
+
+        - ``cpd``: cost per day
+
+        - ``cpp``: cost per (gross rating) point — linear TV
+
+        - ``flat_fee``: flat fee (buyer repo''s ``FlatRate`` maps here)
+
+        - ``unit_rate``: per-unit rate
+
+        - ``hybrid``: mixed CPM/CPP pricing — linear TV'
+    DealBookingRequest:
+      properties:
+        idempotency_key:
+          type: string
+          minLength: 1
+          title: Idempotency Key
+          description: Requester-minted opaque key (UUID recommended). Same key -> same response, no duplicate side effects (FD-12). Reusing a key with a different body is an idempotency_conflict error.
+        quote_id:
+          type: string
+          title: Quote Id
+          description: Seller-issued quote being booked.
+        buyer_identity:
+          anyOf:
+          - $ref: '#/components/schemas/BuyerIdentity'
+          - type: 'null'
+          description: Must be consistent with the identity the quote was priced for; the seller re-verifies tier at booking.
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        audience_plan:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Audience Plan
+          description: Audience plan frozen with the booking (open object; typed model lands with the audience-plan bead). Unsupported parts are rejected structurally (FD-6) so the buyer can degrade and retry.
+        consent_context:
+          anyOf:
+          - $ref: '#/components/schemas/ConsentContext'
+          - type: 'null'
+          description: Privacy consent signals riding with the booking (FD-10).
+      type: object
+      required:
+      - idempotency_key
+      - quote_id
+      title: DealBookingRequest
+      description: 'Request body for ``POST /api/v1/deals`` (money-mutating: FD-12).
+
+
+        This is the commit point — the referenced quote becomes bound. The
+
+        seller mints ``deal_id`` in the response.'
+    DealFromTemplateRequest:
+      properties:
+        deal_type:
+          type: string
+          title: Deal Type
+        product_id:
+          type: string
+          title: Product Id
+        impressions:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Impressions
+        max_cpm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max Cpm
+        flight_start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Flight Start
+        flight_end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Flight End
+        buyer_identity:
+          anyOf:
+          - $ref: '#/components/schemas/QuoteBuyerIdentityModel'
+          - type: 'null'
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        agent_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Url
+      type: object
+      required:
+      - deal_type
+      - product_id
+      title: DealFromTemplateRequest
+      description: Request model for POST /api/v1/deals/from-template.
+    DealDeprecationRequest:
+      properties:
+        reason:
+          type: string
+          title: Reason
+        replacement_deal_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Replacement Deal Id
+      type: object
+      required:
+      - reason
+      title: DealDeprecationRequest
+      description: Request to deprecate a deal.
+    DealFromTemplateResponse:
+      properties:
+        deal_id:
+          type: string
+          title: Deal Id
+        status:
+          type: string
+          title: Status
+        deal_type:
+          type: string
+          title: Deal Type
+        product_id:
+          type: string
+          title: Product Id
+        actual_price_cpm:
+          type: number
+          title: Actual Price Cpm
+        currency:
+          type: string
+          title: Currency
+          default: USD
+        impressions:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Impressions
+        flight_start:
+          type: string
+          title: Flight Start
+        flight_end:
+          type: string
+          title: Flight End
+        buyer_tier:
+          type: string
+          title: Buyer Tier
+        activation_instructions:
+          additionalProperties:
+            type: string
+          type: object
+          title: Activation Instructions
+        schain:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Schain
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+      - deal_id
+      - status
+      - deal_type
+      - product_id
+      - actual_price_cpm
+      - flight_start
+      - flight_end
+      - buyer_tier
+      - activation_instructions
+      - created_at
+      title: DealFromTemplateResponse
+      description: Response for template-based deal creation.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    QuoteTerms:
+      properties:
+        impressions:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Impressions
+        flight_start:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Flight Start
+        flight_end:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Flight End
+        guaranteed:
+          type: boolean
+          title: Guaranteed
+          default: false
+        grps:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Grps
+          description: Linear TV volume in GRPs (gross rating points).
+        guaranteed_grps:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Guaranteed Grps
+        target_demo:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Target Demo
+          description: Linear TV target demographic.
+      type: object
+      title: QuoteTerms
+      description: Volume, flight, and guarantee terms on a quote or deal.
+    BuyerIdentity:
+      properties:
+        seat_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Id
+          description: DSP seat identifier.
+        seat_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Name
+          description: DSP platform display name.
+        dsp_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dsp Platform
+          description: DSP platform slug (e.g. 'ttd', 'dv360').
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        agency_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Name
+        agency_holding_company:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Holding Company
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        advertiser_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Name
+        advertiser_industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Industry
+        campaign_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Campaign Id
+          description: Optional campaign scope for campaign-specific deals.
+        campaign_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Campaign Name
+      type: object
+      title: BuyerIdentity
+      description: 'Buyer identity revealed progressively to unlock better pricing.
+
+
+        Superset of the buyer repo''s ``BuyerIdentity`` and the seller repo''s
+
+        ``BuyerIdentity``/``QuoteBuyerIdentity``; every field is optional so a
+
+        partially revealed identity is always representable. The tier derived
+
+        from these fields is capped server-side by the registry-verified trust
+
+        status of the calling agent — it is never self-asserted.'
     ProductRef:
       properties:
         product_id:
@@ -635,15 +1208,6 @@ components:
       - name
       title: ProductRef
       description: Lightweight product summary embedded in quotes and deals.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     Deal:
       properties:
         deal_id:
@@ -732,256 +1296,6 @@ components:
 
 
         ID minting: ``deal_id`` is seller-issued.'
-    MediaType:
-      type: string
-      enum:
-      - digital
-      - ctv
-      - linear_tv
-      title: MediaType
-      description: 'Media type discriminator carried on quotes and deals.
-
-
-        Sellers that do not support ``linear_tv`` MUST return a structured
-
-        rejection rather than silently mispricing (flagged decision FD-6);
-
-        the field exists on the shared schema so that rejection can be
-
-        structural.'
-    DealStatus:
-      type: string
-      enum:
-      - proposed
-      - negotiating
-      - accepted
-      - booked
-      - active
-      - makegood_pending
-      - partially_cancelled
-      - completed
-      - rejected
-      - failed
-      - cancelled
-      - expired
-      title: DealStatus
-      description: 'ONE deal status vocabulary, unioned from the four competing sets.
-
-
-        Sources: buyer ``DealResponse.status`` (proposed/active/rejected/
-
-        expired/completed), seller ``DealBookingStatus`` (proposed/active/
-
-        expired/cancelled), buyer ``BuyerDealStatus`` (quoted/negotiating/
-
-        accepted/booking/booked/delivering/... + linear TV extensions).
-
-
-        Recorded aliases (retired values, NOT valid on the wire):
-
-        ``delivering`` -> ``active``; ``booking`` -> ``booked``;
-
-        ``quoted`` -> represented by QuoteStatus, not a deal state;
-
-        ``partially_canceled`` -> ``partially_cancelled``.'
-    DealBookingRequest:
-      properties:
-        idempotency_key:
-          type: string
-          minLength: 1
-          title: Idempotency Key
-          description: Requester-minted opaque key (UUID recommended). Same key -> same response, no duplicate side effects (FD-12). Reusing a key with a different body is an idempotency_conflict error.
-        quote_id:
-          type: string
-          title: Quote Id
-          description: Seller-issued quote being booked.
-        buyer_identity:
-          anyOf:
-          - $ref: '#/components/schemas/BuyerIdentity'
-          - type: 'null'
-          description: Must be consistent with the identity the quote was priced for; the seller re-verifies tier at booking.
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        audience_plan:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Audience Plan
-          description: Audience plan frozen with the booking (open object; typed model lands with the audience-plan bead). Unsupported parts are rejected structurally (FD-6) so the buyer can degrade and retry.
-        consent_context:
-          anyOf:
-          - $ref: '#/components/schemas/ConsentContext'
-          - type: 'null'
-          description: Privacy consent signals riding with the booking (FD-10).
-      type: object
-      required:
-      - idempotency_key
-      - quote_id
-      title: DealBookingRequest
-      description: 'Request body for ``POST /api/v1/deals`` (money-mutating: FD-12).
-
-
-        This is the commit point — the referenced quote becomes bound. The
-
-        seller mints ``deal_id`` in the response.'
-    PricingModel:
-      type: string
-      enum:
-      - cpm
-      - cpmv
-      - cpv
-      - cpc
-      - cpcv
-      - cpd
-      - cpp
-      - flat_fee
-      - unit_rate
-      - hybrid
-      title: PricingModel
-      description: 'Unit of pricing. Union of the buyer''s ``RateType`` and the seller''s
-
-        ``PricingModel`` plus the linear TV additions.
-
-
-        - ``cpm``: cost per mille (thousand impressions)
-
-        - ``cpmv``: cost per thousand viewable impressions
-
-        - ``cpv``: cost per view
-
-        - ``cpc``: cost per click
-
-        - ``cpcv``: cost per completed view
-
-        - ``cpd``: cost per day
-
-        - ``cpp``: cost per (gross rating) point — linear TV
-
-        - ``flat_fee``: flat fee (buyer repo''s ``FlatRate`` maps here)
-
-        - ``unit_rate``: per-unit rate
-
-        - ``hybrid``: mixed CPM/CPP pricing — linear TV'
-    DealPushRequest:
-      properties:
-        deal_id:
-          type: string
-          title: Deal Id
-        buyer_urls:
-          items:
-            type: string
-          type: array
-          title: Buyer Urls
-        buyer_api_keys:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Buyer Api Keys
-        deal_type:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Deal Type
-        price:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Price
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-        impressions:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Impressions
-        flight_start:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Flight Start
-        flight_end:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Flight End
-        buyer_seat_ids:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Buyer Seat Ids
-      type: object
-      required:
-      - deal_id
-      - buyer_urls
-      title: DealPushRequest
-      description: Request to push a deal to buyer(s).
-    DealFromTemplateRequest:
-      properties:
-        deal_type:
-          type: string
-          title: Deal Type
-        product_id:
-          type: string
-          title: Product Id
-        impressions:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Impressions
-        max_cpm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Max Cpm
-        flight_start:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Flight Start
-        flight_end:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Flight End
-        buyer_identity:
-          anyOf:
-          - $ref: '#/components/schemas/QuoteBuyerIdentityModel'
-          - type: 'null'
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        agent_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Url
-      type: object
-      required:
-      - deal_type
-      - product_id
-      title: DealFromTemplateRequest
-      description: Request model for POST /api/v1/deals/from-template.
-    PricingType:
-      type: string
-      enum:
-      - fixed
-      - floor
-      - on_request
-      title: PricingType
-      description: "How a price signal should be interpreted.\n\n- ``fixed``: price is set by the seller, use as-is\n- ``floor``: minimum price; negotiation expected above this level\n- ``on_request``: no price available; buyer must negotiate before any\n  pricing exists (pricing fields are None — buyers must never fabricate\n  a price for on_request inventory)"
     SSPDealDistributeRequest:
       properties:
         deal_id:
@@ -1046,385 +1360,15 @@ components:
       - deal_id
       title: SSPDealDistributeRequest
       description: Request to distribute a deal through configured SSPs.
-    DealFromTemplateResponse:
-      properties:
-        deal_id:
-          type: string
-          title: Deal Id
-        status:
-          type: string
-          title: Status
-        deal_type:
-          type: string
-          title: Deal Type
-        product_id:
-          type: string
-          title: Product Id
-        actual_price_cpm:
-          type: number
-          title: Actual Price Cpm
-        currency:
-          type: string
-          title: Currency
-          default: USD
-        impressions:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Impressions
-        flight_start:
-          type: string
-          title: Flight Start
-        flight_end:
-          type: string
-          title: Flight End
-        buyer_tier:
-          type: string
-          title: Buyer Tier
-        activation_instructions:
-          additionalProperties:
-            type: string
-          type: object
-          title: Activation Instructions
-        schain:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Schain
-        created_at:
-          type: string
-          title: Created At
-      type: object
-      required:
-      - deal_id
-      - status
-      - deal_type
-      - product_id
-      - actual_price_cpm
-      - flight_start
-      - flight_end
-      - buyer_tier
-      - activation_instructions
-      - created_at
-      title: DealFromTemplateResponse
-      description: Response for template-based deal creation.
-    QuoteBuyerIdentityModel:
-      properties:
-        seat_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Seat Id
-        agency_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Id
-        advertiser_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Id
-        dsp_platform:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dsp Platform
-      type: object
-      title: QuoteBuyerIdentityModel
-      description: Buyer identity in a quote request.
-    DealBookingResponse:
-      properties:
-        deal:
-          $ref: '#/components/schemas/Deal'
-        audience_plan_snapshot:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Audience Plan Snapshot
-          description: Verbatim snapshot of the audience plan the booking carried, authoritative for the deal's lifetime. None for non-audience bookings.
-        audience_match_summary:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Audience Match Summary
-          description: Per-role match summary for the frozen plan (open object; typed model lands with the audience-plan bead).
-      type: object
-      required:
-      - deal
-      title: DealBookingResponse
-      description: 'Success envelope for the deal endpoints: wraps the Deal primitive.'
-    SupplyChainNode:
-      properties:
-        asi:
-          type: string
-          title: Asi
-          description: Advertising system identifier (canonical domain of the system).
-        sid:
-          type: string
-          title: Sid
-          description: Seller id within the ``asi`` system; matches its sellers.json seller_id.
-        hp:
-          type: integer
-          maximum: 1.0
-          minimum: 0.0
-          title: Hp
-          description: 'Handled-payment flag (OpenRTB 0/1): 1 = node is paid for this inventory.'
-          default: 1
-        rid:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Rid
-          description: Request id issued by the seller (OpenRTB ``rid``), when present.
-        name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name
-          description: Business name of the entity represented by this node.
-        domain:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Domain
-          description: Business domain of the entity represented by this node.
-        ext:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Ext
-          description: Extension slot.
-      type: object
-      required:
-      - asi
-      - sid
-      title: SupplyChainNode
-      description: 'One hop in the OpenRTB supply chain (``schain`` node).
-
-
-        Field names are the OpenRTB SupplyChainNode names verbatim. ``asi`` is
-
-        the advertising system identifier (the canonical domain of the system
-
-        the node operates in, e.g. ``"exchange.example.com"``); ``sid`` is the
-
-        seller id **within that system** and matches a ``seller_id`` in that
-
-        system''s sellers.json.'
-    DealDeprecationRequest:
-      properties:
-        reason:
-          type: string
-          title: Reason
-        replacement_deal_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Replacement Deal Id
-      type: object
-      required:
-      - reason
-      title: DealDeprecationRequest
-      description: Request to deprecate a deal.
-    QuotePricing:
-      properties:
-        pricing_type:
-          $ref: '#/components/schemas/PricingType'
-          default: fixed
-        base_cpm:
-          anyOf:
-          - $ref: '#/components/schemas/Money'
-          - type: 'null'
-        tier_discount_pct:
-          type: number
-          title: Tier Discount Pct
-          default: 0.0
-        volume_discount_pct:
-          type: number
-          title: Volume Discount Pct
-          default: 0.0
-        final_cpm:
-          anyOf:
-          - $ref: '#/components/schemas/Money'
-          - type: 'null'
-        pricing_model:
-          $ref: '#/components/schemas/PricingModel'
-          default: cpm
-        rationale:
-          type: string
-          title: Rationale
-          default: ''
-        base_cpp:
-          anyOf:
-          - $ref: '#/components/schemas/Money'
-          - type: 'null'
-          description: Linear TV base CPP; None for digital/CTV.
-        final_cpp:
-          anyOf:
-          - $ref: '#/components/schemas/Money'
-          - type: 'null'
-          description: Linear TV final CPP; None for digital/CTV.
-      type: object
-      title: QuotePricing
-      description: 'Pricing breakdown on a quote or deal.
-
-
-        ``base_cpm``/``final_cpm`` are optional to support
-
-        ``pricing_type=on_request`` — when the seller has not provided pricing,
-
-        these fields are None. CPM = cost per mille (thousand impressions);
-
-        CPP = cost per point (linear TV).'
-    LinearTVQuoteDetails:
-      properties:
-        target_demo:
-          type: string
-          title: Target Demo
-        estimated_grps:
-          type: number
-          title: Estimated Grps
-          description: Estimated GRPs (gross rating points).
-        estimated_rating:
-          type: number
-          title: Estimated Rating
-        cpp:
-          $ref: '#/components/schemas/Money'
-          description: CPP (cost per point) offered by the seller.
-        dayparts:
-          items:
-            type: string
-          type: array
-          title: Dayparts
-        networks:
-          items:
-            type: string
-          type: array
-          title: Networks
-        spots_per_week:
-          type: integer
-          title: Spots Per Week
-        total_spots:
-          type: integer
-          title: Total Spots
-        spot_length:
-          type: integer
-          title: Spot Length
-        measurement_currency:
-          type: string
-          title: Measurement Currency
-        audience_estimate:
-          additionalProperties: true
-          type: object
-          title: Audience Estimate
-          description: Audience estimates; expected keys "demo", "universe", "impressions_equiv".
-        cancellation_terms:
-          anyOf:
-          - $ref: '#/components/schemas/CancellationTerms'
-          - type: 'null'
-        makegood_policy:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Makegood Policy
-          description: 'Makegood policy: "standard" (audience deficiency unit), "negotiated", or "none".'
-      type: object
-      required:
-      - target_demo
-      - estimated_grps
-      - estimated_rating
-      - cpp
-      - dayparts
-      - networks
-      - spots_per_week
-      - total_spots
-      - spot_length
-      - measurement_currency
-      title: LinearTVQuoteDetails
-      description: 'Linear-TV-specific quote details (seller-populated).
-
-
-        Nested under ``Quote.linear_tv`` when ``media_type == "linear_tv"``.'
-    BuyerIdentity:
-      properties:
-        seat_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Seat Id
-          description: DSP seat identifier.
-        seat_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Seat Name
-          description: DSP platform display name.
-        dsp_platform:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dsp Platform
-          description: DSP platform slug (e.g. 'ttd', 'dv360').
-        agency_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Id
-        agency_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Name
-        agency_holding_company:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Holding Company
-        advertiser_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Id
-        advertiser_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Name
-        advertiser_industry:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Industry
-        campaign_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Campaign Id
-          description: Optional campaign scope for campaign-specific deals.
-        campaign_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Campaign Name
-      type: object
-      title: BuyerIdentity
-      description: 'Buyer identity revealed progressively to unlock better pricing.
-
-
-        Superset of the buyer repo''s ``BuyerIdentity`` and the seller repo''s
-
-        ``BuyerIdentity``/``QuoteBuyerIdentity``; every field is optional so a
-
-        partially revealed identity is always representable. The tier derived
-
-        from these fields is capped server-side by the registry-verified trust
-
-        status of the calling agent — it is never self-asserted.'
+    DiligenceStatus:
+      type: string
+      enum:
+      - unknown
+      - pending
+      - passed
+      - failed
+      title: DiligenceStatus
+      description: Status of counterparty privacy diligence (IAB Diligence Platform).
     ConsentContext:
       properties:
         applicable_regimes:
@@ -1498,90 +1442,6 @@ components:
         no decoding/vendor-list validation is claimed (see the conformance
 
         standards registry).'
-    DealType:
-      type: string
-      enum:
-      - PG
-      - PD
-      - PA
-      title: DealType
-      description: 'Programmatic deal types. The short wire encoding is canonical.
-
-
-        - ``PG`` = Programmatic Guaranteed: fixed price, guaranteed impressions
-
-        - ``PD`` = Preferred Deal: fixed price, non-guaranteed first look
-
-        - ``PA`` = Private Auction: auction with floor price, invited buyers
-
-
-        Mapping from the seller repo''s retired long-form encoding
-
-        (``models/core.py``): ``programmaticguaranteed`` -> ``PG``,
-
-        ``preferreddeal`` -> ``PD``, ``privateauction`` -> ``PA``. The
-
-        long-form strings are NOT valid wire values.'
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    OpenRTBParams:
-      properties:
-        id:
-          type: string
-          title: Id
-          description: Deal id as it appears in the OpenRTB bid stream.
-        bidfloor:
-          $ref: '#/components/schemas/Money'
-          description: Bid floor (exact micros; FD-11). Adapters translate to the raw OpenRTB float `bidfloor`/`bidfloorcur` encoding at the DSP edge.
-        at:
-          type: integer
-          title: At
-          description: Auction type (3 = fixed price).
-          default: 3
-        wseat:
-          items:
-            type: string
-          type: array
-          title: Wseat
-          description: Allowed buyer seats.
-        wadomain:
-          items:
-            type: string
-          type: array
-          title: Wadomain
-          description: Allowed advertiser domains.
-      type: object
-      required:
-      - id
-      - bidfloor
-      title: OpenRTBParams
-      description: 'OpenRTB (Open Real-Time Bidding) deal parameters for DSP
-
-        (demand-side platform) activation.'
     SupplyChain:
       properties:
         complete:
@@ -1621,126 +1481,263 @@ components:
         hops). Nodes are ordered from the first seller to the entity making the
 
         request. Carried optionally on the :class:`Deal` for transparency.'
-    DiligenceStatus:
+    DealType:
       type: string
       enum:
-      - unknown
-      - pending
-      - passed
-      - failed
-      title: DiligenceStatus
-      description: Status of counterparty privacy diligence (IAB Diligence Platform).
-    Money:
+      - PG
+      - PD
+      - PA
+      title: DealType
+      description: 'Programmatic deal types. The short wire encoding is canonical.
+
+
+        - ``PG`` = Programmatic Guaranteed: fixed price, guaranteed impressions
+
+        - ``PD`` = Preferred Deal: fixed price, non-guaranteed first look
+
+        - ``PA`` = Private Auction: auction with floor price, invited buyers
+
+
+        Mapping from the seller repo''s retired long-form encoding
+
+        (``models/core.py``): ``programmaticguaranteed`` -> ``PG``,
+
+        ``preferreddeal`` -> ``PD``, ``privateauction`` -> ``PA``. The
+
+        long-form strings are NOT valid wire values.'
+    QuotePricing:
       properties:
-        amount_micros:
-          type: integer
-          title: Amount Micros
-          description: Amount in micros; 1,000,000 micros = 1 currency unit.
-        currency:
-          type: string
-          pattern: ^[A-Z]{3}$
-          title: Currency
-          description: ISO 4217 alpha-3 currency code.
-          default: USD
-      type: object
-      required:
-      - amount_micros
-      title: Money
-      description: 'Exact money amount in integer micros (flagged decision FD-11).
-
-
-        ``1_000_000`` micros = 1 currency unit — the ad-industry convention
-
-        (Google Ad Manager, among others, prices in micros). Float is BANNED on
-
-        the wire for money: IEEE 754 floating point is non-deterministic for
-
-        money math (``0.1 + 0.2 != 0.3``, and repeated CPM — cost per mille —
-
-        arithmetic accumulates error), and the two source repos used ``float``
-
-        end-to-end; that defect must not be fossilized into the spec. Every
-
-        price, rate, budget, and offer in the shared contract is a ``Money``.
-
-
-        ``amount_micros`` is a strict integer: float inputs are rejected at
-
-        validation time rather than silently truncated.'
-    QuoteTerms:
-      properties:
-        impressions:
+        pricing_type:
+          $ref: '#/components/schemas/PricingType'
+          default: fixed
+        base_cpm:
           anyOf:
-          - type: integer
-            minimum: 0.0
+          - $ref: '#/components/schemas/Money'
           - type: 'null'
-          title: Impressions
-        flight_start:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Flight Start
-        flight_end:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Flight End
-        guaranteed:
-          type: boolean
-          title: Guaranteed
-          default: false
-        grps:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Grps
-          description: Linear TV volume in GRPs (gross rating points).
-        guaranteed_grps:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Guaranteed Grps
-        target_demo:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Target Demo
-          description: Linear TV target demographic.
-      type: object
-      title: QuoteTerms
-      description: Volume, flight, and guarantee terms on a quote or deal.
-    CancellationTerms:
-      properties:
-        notice_days:
-          type: integer
-          title: Notice Days
-          description: Days of notice required before cancellation.
-        cancellable_pct:
+        tier_discount_pct:
           type: number
+          title: Tier Discount Pct
+          default: 0.0
+        volume_discount_pct:
+          type: number
+          title: Volume Discount Pct
+          default: 0.0
+        final_cpm:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+        pricing_model:
+          $ref: '#/components/schemas/PricingModel'
+          default: cpm
+        rationale:
+          type: string
+          title: Rationale
+          default: ''
+        base_cpp:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+          description: Linear TV base CPP; None for digital/CTV.
+        final_cpp:
+          anyOf:
+          - $ref: '#/components/schemas/Money'
+          - type: 'null'
+          description: Linear TV final CPP; None for digital/CTV.
+      type: object
+      title: QuotePricing
+      description: 'Pricing breakdown on a quote or deal.
+
+
+        ``base_cpm``/``final_cpm`` are optional to support
+
+        ``pricing_type=on_request`` — when the seller has not provided pricing,
+
+        these fields are None. CPM = cost per mille (thousand impressions);
+
+        CPP = cost per point (linear TV).'
+    MediaType:
+      type: string
+      enum:
+      - digital
+      - ctv
+      - linear_tv
+      title: MediaType
+      description: 'Media type discriminator carried on quotes and deals.
+
+
+        Sellers that do not support ``linear_tv`` MUST return a structured
+
+        rejection rather than silently mispricing (flagged decision FD-6);
+
+        the field exists on the shared schema so that rejection can be
+
+        structural.'
+    SupplyChainNode:
+      properties:
+        asi:
+          type: string
+          title: Asi
+          description: Advertising system identifier (canonical domain of the system).
+        sid:
+          type: string
+          title: Sid
+          description: Seller id within the ``asi`` system; matches its sellers.json seller_id.
+        hp:
+          type: integer
           maximum: 1.0
           minimum: 0.0
-          title: Cancellable Pct
-          description: Portion of the deal that can be cancelled (0.0-1.0).
-        deadline:
+          title: Hp
+          description: 'Handled-payment flag (OpenRTB 0/1): 1 = node is paid for this inventory.'
+          default: 1
+        rid:
           anyOf:
           - type: string
-            format: date
           - type: 'null'
-          title: Deadline
-          description: Absolute deadline for cancellation.
-        force_majeure:
-          type: boolean
-          title: Force Majeure
-          description: Whether force majeure exceptions apply.
-          default: true
+          title: Rid
+          description: Request id issued by the seller (OpenRTB ``rid``), when present.
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+          description: Business name of the entity represented by this node.
+        domain:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Domain
+          description: Business domain of the entity represented by this node.
+        ext:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Ext
+          description: Extension slot.
       type: object
       required:
-      - notice_days
-      - cancellable_pct
-      title: CancellationTerms
-      description: Structured cancellation window for linear TV deals.
-x-refined-from:
-- iab-tech-lab-seller-agent-openapi.json
-- iab-tech-lab-seller-agent-openapi.json
+      - asi
+      - sid
+      title: SupplyChainNode
+      description: 'One hop in the OpenRTB supply chain (``schain`` node).
+
+
+        Field names are the OpenRTB SupplyChainNode names verbatim. ``asi`` is
+
+        the advertising system identifier (the canonical domain of the system
+
+        the node operates in, e.g. ``"exchange.example.com"``); ``sid`` is the
+
+        seller id **within that system** and matches a ``seller_id`` in that
+
+        system''s sellers.json.'
+    DealBookingResponse:
+      properties:
+        deal:
+          $ref: '#/components/schemas/Deal'
+        audience_plan_snapshot:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Audience Plan Snapshot
+          description: Verbatim snapshot of the audience plan the booking carried, authoritative for the deal's lifetime. None for non-audience bookings.
+        audience_match_summary:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Audience Match Summary
+          description: Per-role match summary for the frozen plan (open object; typed model lands with the audience-plan bead).
+      type: object
+      required:
+      - deal
+      title: DealBookingResponse
+      description: 'Success envelope for the deal endpoints: wraps the Deal primitive.'
+    LinearTVQuoteDetails:
+      properties:
+        target_demo:
+          type: string
+          title: Target Demo
+        estimated_grps:
+          type: number
+          title: Estimated Grps
+          description: Estimated GRPs (gross rating points).
+        estimated_rating:
+          type: number
+          title: Estimated Rating
+        cpp:
+          $ref: '#/components/schemas/Money'
+          description: CPP (cost per point) offered by the seller.
+        dayparts:
+          items:
+            type: string
+          type: array
+          title: Dayparts
+        networks:
+          items:
+            type: string
+          type: array
+          title: Networks
+        spots_per_week:
+          type: integer
+          title: Spots Per Week
+        total_spots:
+          type: integer
+          title: Total Spots
+        spot_length:
+          type: integer
+          title: Spot Length
+        measurement_currency:
+          type: string
+          title: Measurement Currency
+        audience_estimate:
+          additionalProperties: true
+          type: object
+          title: Audience Estimate
+          description: Audience estimates; expected keys "demo", "universe", "impressions_equiv".
+        cancellation_terms:
+          anyOf:
+          - $ref: '#/components/schemas/CancellationTerms'
+          - type: 'null'
+        makegood_policy:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Makegood Policy
+          description: 'Makegood policy: "standard" (audience deficiency unit), "negotiated", or "none".'
+      type: object
+      required:
+      - target_demo
+      - estimated_grps
+      - estimated_rating
+      - cpp
+      - dayparts
+      - networks
+      - spots_per_week
+      - total_spots
+      - spot_length
+      - measurement_currency
+      title: LinearTVQuoteDetails
+      description: 'Linear-TV-specific quote details (seller-populated).
+
+
+        Nested under ``Quote.linear_tv`` when ``media_type == "linear_tv"``.'
+    AccessTier:
+      type: string
+      enum:
+      - public
+      - seat
+      - agency
+      - advertiser
+      title: AccessTier
+      description: 'Access tier for tiered pricing, derived from revealed buyer identity.
+
+
+        - ``public``: no identity — price ranges only
+
+        - ``seat``: authenticated DSP (demand-side platform) seat
+
+        - ``agency``: agency identity revealed
+
+        - ``advertiser``: advertiser identity revealed (best rates)'

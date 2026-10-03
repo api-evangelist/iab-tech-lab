@@ -1,14 +1,14 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Supply Chain API
-  version: 1.0.0
+  title: Ad Seller System Supply Chain API
+  description: IAB OpenDirect 2.1 compliant seller agent for programmatic advertising. Supports product discovery, tiered pricing, proposal evaluation, multi-round negotiation, deal execution, order management, and change requests.
   contact:
     name: IAB Tech Lab
     url: https://iabtechlab.com/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Supply Chain across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  version: 1.0.0
 tags:
 - name: Supply Chain
   description: Supply chain transparency (sellers.json-like self-description)
@@ -36,6 +36,41 @@ paths:
                 $ref: '#/components/schemas/SupplyChainResponse'
 components:
   schemas:
+    SupplyChainNodeModel:
+      properties:
+        asi:
+          type: string
+          title: Asi
+        sid:
+          type: string
+          title: Sid
+        name:
+          type: string
+          title: Name
+        domain:
+          type: string
+          title: Domain
+        seller_type:
+          type: string
+          title: Seller Type
+        is_direct:
+          type: boolean
+          title: Is Direct
+        comment:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Comment
+      type: object
+      required:
+      - asi
+      - sid
+      - name
+      - domain
+      - seller_type
+      - is_direct
+      title: SupplyChainNodeModel
+      description: A node in the supply chain (sellers.json format).
     SupplyChainResponse:
       properties:
         seller_id:
@@ -83,41 +118,3 @@ components:
       - schain
       title: SupplyChainResponse
       description: Supply chain transparency response (sellers.json-like self-description).
-    SupplyChainNodeModel:
-      properties:
-        asi:
-          type: string
-          title: Asi
-        sid:
-          type: string
-          title: Sid
-        name:
-          type: string
-          title: Name
-        domain:
-          type: string
-          title: Domain
-        seller_type:
-          type: string
-          title: Seller Type
-        is_direct:
-          type: boolean
-          title: Is Direct
-        comment:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Comment
-      type: object
-      required:
-      - asi
-      - sid
-      - name
-      - domain
-      - seller_type
-      - is_direct
-      title: SupplyChainNodeModel
-      description: A node in the supply chain (sellers.json format).
-x-refined-from:
-- iab-tech-lab-seller-agent-openapi.json
-- iab-tech-lab-seller-agent-openapi.json

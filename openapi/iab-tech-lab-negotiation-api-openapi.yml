@@ -1,14 +1,14 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Negotiation API
-  version: 1.0.0
+  title: Ad Seller System Negotiation API
+  description: IAB OpenDirect 2.1 compliant seller agent for programmatic advertising. Supports product discovery, tiered pricing, proposal evaluation, multi-round negotiation, deal execution, order management, and change requests.
   contact:
     name: IAB Tech Lab
     url: https://iabtechlab.com/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Negotiation across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  version: 1.0.0
 tags:
 - name: Negotiation
   description: Multi-round price negotiation
@@ -159,50 +159,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    NegotiationStatus:
-      type: string
-      enum:
-      - active
-      - accepted
-      - rejected
-      - expired
-      title: NegotiationStatus
-      description: Status of a negotiation (typed; was a raw string in the seller repo).
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     NegotiationMessage:
       properties:
         idempotency_key:
@@ -265,6 +221,79 @@ components:
         continue, or ``proposal_id``/``quote_id`` to open (the seller mints
 
         ``negotiation_id`` on open).'
+    NegotiationStatus:
+      type: string
+      enum:
+      - active
+      - accepted
+      - rejected
+      - expired
+      title: NegotiationStatus
+      description: Status of a negotiation (typed; was a raw string in the seller repo).
+    CounterOfferRequest:
+      properties:
+        buyer_price:
+          type: number
+          title: Buyer Price
+        buyer_tier:
+          type: string
+          title: Buyer Tier
+          default: public
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        agent_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Url
+      type: object
+      required:
+      - buyer_price
+      title: CounterOfferRequest
+      description: Request to submit a counter-offer in a negotiation.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    NegotiationAction:
+      type: string
+      enum:
+      - accept
+      - counter
+      - reject
+      - final_offer
+      title: NegotiationAction
+      description: Action taken in a negotiation round.
     Money:
       properties:
         amount_micros:
@@ -302,119 +331,6 @@ components:
         ``amount_micros`` is a strict integer: float inputs are rejected at
 
         validation time rather than silently truncated.'
-    CounterOfferRequest:
-      properties:
-        buyer_price:
-          type: number
-          title: Buyer Price
-        buyer_tier:
-          type: string
-          title: Buyer Tier
-          default: public
-        agency_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Id
-        advertiser_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Id
-        agent_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Url
-      type: object
-      required:
-      - buyer_price
-      title: CounterOfferRequest
-      description: Request to submit a counter-offer in a negotiation.
-    BuyerIdentity:
-      properties:
-        seat_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Seat Id
-          description: DSP seat identifier.
-        seat_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Seat Name
-          description: DSP platform display name.
-        dsp_platform:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dsp Platform
-          description: DSP platform slug (e.g. 'ttd', 'dv360').
-        agency_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Id
-        agency_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Name
-        agency_holding_company:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Holding Company
-        advertiser_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Id
-        advertiser_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Name
-        advertiser_industry:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Industry
-        campaign_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Campaign Id
-          description: Optional campaign scope for campaign-specific deals.
-        campaign_name:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Campaign Name
-      type: object
-      title: BuyerIdentity
-      description: 'Buyer identity revealed progressively to unlock better pricing.
-
-
-        Superset of the buyer repo''s ``BuyerIdentity`` and the seller repo''s
-
-        ``BuyerIdentity``/``QuoteBuyerIdentity``; every field is optional so a
-
-        partially revealed identity is always representable. The tier derived
-
-        from these fields is capped server-side by the registry-verified trust
-
-        status of the calling agent — it is never self-asserted.'
-    NegotiationAction:
-      type: string
-      enum:
-      - accept
-      - counter
-      - reject
-      - final_offer
-      title: NegotiationAction
-      description: Action taken in a negotiation round.
     NegotiationRound:
       properties:
         round_number:
@@ -493,6 +409,87 @@ components:
         the SELLER''s move (accept/counter/reject/final_offer); when
 
         ``status`` is terminal the round is the last one.'
-x-refined-from:
-- iab-tech-lab-seller-agent-openapi.json
-- iab-tech-lab-seller-agent-openapi.json
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    BuyerIdentity:
+      properties:
+        seat_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Id
+          description: DSP seat identifier.
+        seat_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Name
+          description: DSP platform display name.
+        dsp_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dsp Platform
+          description: DSP platform slug (e.g. 'ttd', 'dv360').
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        agency_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Name
+        agency_holding_company:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Holding Company
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        advertiser_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Name
+        advertiser_industry:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Industry
+        campaign_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Campaign Id
+          description: Optional campaign scope for campaign-specific deals.
+        campaign_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Campaign Name
+      type: object
+      title: BuyerIdentity
+      description: 'Buyer identity revealed progressively to unlock better pricing.
+
+
+        Superset of the buyer repo''s ``BuyerIdentity`` and the seller repo''s
+
+        ``BuyerIdentity``/``QuoteBuyerIdentity``; every field is optional so a
+
+        partially revealed identity is always representable. The tier derived
+
+        from these fields is capped server-side by the registry-verified trust
+
+        status of the calling agent — it is never self-asserted.'

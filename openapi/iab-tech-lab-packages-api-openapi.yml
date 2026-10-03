@@ -1,14 +1,14 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Packages API
-  version: 1.0.0
+  title: Ad Seller System Packages API
+  description: IAB OpenDirect 2.1 compliant seller agent for programmatic advertising. Supports product discovery, tiered pricing, proposal evaluation, multi-round negotiation, deal execution, order management, and change requests.
   contact:
     name: IAB Tech Lab
     url: https://iabtechlab.com/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Packages across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  version: 1.0.0
 tags:
 - name: Packages
   description: Package management (authenticated/admin)
@@ -321,6 +321,22 @@ paths:
               schema: {}
 components:
   schemas:
+    DynamicPackageRequest:
+      properties:
+        name:
+          type: string
+          title: Name
+        product_ids:
+          items:
+            type: string
+          type: array
+          title: Product Ids
+      type: object
+      required:
+      - name
+      - product_ids
+      title: DynamicPackageRequest
+      description: Request to assemble a dynamic package from product IDs.
     ValidationError:
       properties:
         loc:
@@ -347,6 +363,15 @@ components:
       - msg
       - type
       title: ValidationError
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     PackageCreateRequest:
       properties:
         name:
@@ -442,31 +467,3 @@ components:
         into `audience_capabilities.standard_segment_ids` (with implicit
 
         AT 1.1) by `create_package`.'
-    DynamicPackageRequest:
-      properties:
-        name:
-          type: string
-          title: Name
-        product_ids:
-          items:
-            type: string
-          type: array
-          title: Product Ids
-      type: object
-      required:
-      - name
-      - product_ids
-      title: DynamicPackageRequest
-      description: Request to assemble a dynamic package from product IDs.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-x-refined-from:
-- iab-tech-lab-seller-agent-openapi.json
-- iab-tech-lab-seller-agent-openapi.json

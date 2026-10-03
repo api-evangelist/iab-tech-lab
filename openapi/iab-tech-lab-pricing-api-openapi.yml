@@ -1,14 +1,14 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Pricing API
-  version: 1.0.0
+  title: Ad Seller System Pricing API
+  description: IAB OpenDirect 2.1 compliant seller agent for programmatic advertising. Supports product discovery, tiered pricing, proposal evaluation, multi-round negotiation, deal execution, order management, and change requests.
   contact:
     name: IAB Tech Lab
     url: https://iabtechlab.com/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Pricing across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  version: 1.0.0
 tags:
 - name: Pricing
   description: Tiered pricing with buyer context
@@ -136,6 +136,43 @@ components:
       - msg
       - type
       title: ValidationError
+    RateCardEntry:
+      properties:
+        inventory_type:
+          type: string
+          title: Inventory Type
+        base_cpm:
+          type: number
+          title: Base Cpm
+        currency:
+          type: string
+          title: Currency
+          default: USD
+        effective_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Effective Date
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - inventory_type
+      - base_cpm
+      title: RateCardEntry
+      description: Rate card entry mapping inventory type to base CPM.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     PricingResponse:
       properties:
         product_id:
@@ -170,15 +207,6 @@ components:
       - rationale
       title: PricingResponse
       description: Pricing response.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     PricingRequest:
       properties:
         product_id:
@@ -212,34 +240,3 @@ components:
       - product_id
       title: PricingRequest
       description: Request for pricing information.
-    RateCardEntry:
-      properties:
-        inventory_type:
-          type: string
-          title: Inventory Type
-        base_cpm:
-          type: number
-          title: Base Cpm
-        currency:
-          type: string
-          title: Currency
-          default: USD
-        effective_date:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Effective Date
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      type: object
-      required:
-      - inventory_type
-      - base_cpm
-      title: RateCardEntry
-      description: Rate card entry mapping inventory type to base CPM.
-x-refined-from:
-- iab-tech-lab-seller-agent-openapi.json
-- iab-tech-lab-seller-agent-openapi.json

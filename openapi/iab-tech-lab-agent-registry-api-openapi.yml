@@ -1,14 +1,14 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Agent Registry API
-  version: 1.0.0
+  title: Ad Seller System Agent Registry API
+  description: IAB OpenDirect 2.1 compliant seller agent for programmatic advertising. Supports product discovery, tiered pricing, proposal evaluation, multi-round negotiation, deal execution, order management, and change requests.
   contact:
     name: IAB Tech Lab
     url: https://iabtechlab.com/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0
-  description: 'Operations tagged Agent Registry across 2 of this provider''s published API definitions: iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  version: 1.0.0
 tags:
 - name: Agent Registry
   description: A2A agent discovery and trust management
@@ -206,6 +206,21 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    UpdateTrustRequest:
+      properties:
+        trust_status:
+          type: string
+          title: Trust Status
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - trust_status
+      title: UpdateTrustRequest
+      description: Request to update an agent's trust status.
     ValidationError:
       properties:
         loc:
@@ -232,21 +247,15 @@ components:
       - msg
       - type
       title: ValidationError
-    UpdateTrustRequest:
+    HTTPValidationError:
       properties:
-        trust_status:
-          type: string
-          title: Trust Status
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
       type: object
-      required:
-      - trust_status
-      title: UpdateTrustRequest
-      description: Request to update an agent's trust status.
+      title: HTTPValidationError
     DiscoverAgentRequest:
       properties:
         agent_url:
@@ -257,15 +266,3 @@ components:
       - agent_url
       title: DiscoverAgentRequest
       description: Request to discover an agent by URL.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-x-refined-from:
-- iab-tech-lab-seller-agent-openapi.json
-- iab-tech-lab-seller-agent-openapi.json

@@ -2,7 +2,7 @@ openapi: 3.2.0
 info:
   title: Iab Tech Lab Reporting API
   version: '1.0'
-  description: 'Operations tagged Reporting across 6 of this provider''s published API definitions: iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json, iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
+  description: 'Operations tagged Reporting across 3 of this provider''s published API definitions: iab-tech-lab-buyer-agent-openapi.json, iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-seller-agent-openapi.json. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://opendirect.example.com/v1.5.1
 tags:
@@ -384,6 +384,10 @@ components:
         Spend:
           description: The amount spent to date.
           type: number
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
     Error:
       type: object
       required:
@@ -398,24 +402,20 @@ components:
           type: object
         Link:
           type: string
-    Errors:
-      type: array
-      items:
-        $ref: '#/components/schemas/Error'
   parameters:
-    lineId:
-      name: lineId
-      in: path
-      required: true
-      x-example: '345233'
-      schema:
-        type: string
-        maxLength: 36
     accountId:
       name: accountId
       in: path
       required: true
       x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    lineId:
+      name: lineId
+      in: path
+      required: true
+      x-example: '345233'
       schema:
         type: string
         maxLength: 36
@@ -428,27 +428,6 @@ components:
         type: string
         maxLength: 36
   responses:
-    Standard401ErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
-    Standard500ErrorResponse:
-      description: Unexpected error occurred
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
-    Standard404ErrorResponse:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
     ReportingResponse:
       description: Reporting resource
       content:
@@ -456,6 +435,27 @@ components:
           schema:
             $ref: '#/components/schemas/Reporting'
           example: "{\n  \"Clicks\": 32573,\n  \"CTR\": 7.54,\n  \"ImpressionsServed\": 432009,\n  \"ReportDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Spend\": 371523.41\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
   securitySchemes:
     OauthSecurity:
       type: oauth2
@@ -466,9 +466,6 @@ components:
           authorizationUrl: https://opendirect.example.com/connect/authorize
       description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
 x-refined-from:
-- iab-tech-lab-buyer-agent-openapi.json
-- iab-tech-lab-opendirect-1-5-1-swagger.yaml
-- iab-tech-lab-seller-agent-openapi.json
 - iab-tech-lab-buyer-agent-openapi.json
 - iab-tech-lab-opendirect-1-5-1-swagger.yaml
 - iab-tech-lab-seller-agent-openapi.json

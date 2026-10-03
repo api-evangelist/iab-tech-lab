@@ -1,8 +1,8 @@
 openapi: 3.2.0
 info:
-  title: Iab Tech Lab Organizations API
   version: 1.5.1
-  description: 'Operations tagged Organizations across 2 of this provider''s published API definitions: iab-tech-lab-opendirect-1-5-1-swagger.yaml, iab-tech-lab-opendirect-1-5-1-swagger.yaml. Each path carries the servers of the definition it was published in.'
+  title: OpenDirect Organizations API
+  description: OpenDirect enables publishers to offer premium inventory using a programmatic interface that partners and vendors build according to the OpenDirect specifications.
 servers:
 - url: https://opendirect.example.com/v1.5.1
 security:
@@ -68,8 +68,6 @@ paths:
       x-summary-source: derived
       operationId: postOrganizations
       x-operation-id-source: derived
-    servers:
-    - url: https://opendirect.example.com/v1.5.1
   /organizations/{organizationId}:
     get:
       tags:
@@ -134,10 +132,253 @@ paths:
       x-summary-source: derived
       operationId: deleteOrganizationsByOrganizationId
       x-operation-id-source: derived
-    servers:
-    - url: https://opendirect.example.com/v1.5.1
 components:
   schemas:
+    Contact:
+      description: Defines an agency or advertiser contact.
+      required:
+      - FirstName
+      - LastName
+      - Type
+      properties:
+        Address:
+          description: Required if TYPE is Billing and the preferred billing method for the organization or order is paper.
+          $ref: '#/components/schemas/Address'
+        Email:
+          description: 'The contact’s email address.
+
+            Required if TYPE is Billing and the preferred billing method for the organization or order is electronic.
+
+            '
+          type: string
+          maxLength: 254
+          x-publisher-support-required: true
+        Honorific:
+          description: Honorific such as Mr. or Ms.
+          type: string
+          maxLength: 20
+        Fax:
+          description: The contact’s fax number.
+          type: string
+          maxLength: 20
+        FirstName:
+          description: The contact’s first name.
+          type: string
+          maxLength: 20
+        LastName:
+          description: The contact’s last name.
+          type: string
+          maxLength: 20
+        Phone:
+          description: The contact’s phone number
+          type: string
+          maxLength: 20
+          x-publisher-support-required: true
+        Title:
+          description: The contact’s job title.
+          type: string
+          maxLength: 30
+          x-publisher-support-required: true
+        Type:
+          $ref: '#/components/schemas/ContactType'
+          readOnly: true
+    DeliveryType:
+      description: Defines the possible types of delivery.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The delivery type’s display name.
+            type: string
+            enum:
+            - Exclusive
+            - Guaranteed
+    Language:
+      description: Defines a language that the API supports. The API may support all or a subset of the languages specified in ISO 639-1.
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The language’s two-character ISO code as specified in ISO 639-1.
+          type: string
+          minLength: 2
+          maxLength: 2
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    RateType:
+      description: Defines a unit of measure that a cost (i.e. BasePrice) is expressed in. The API may support all or a subset of the specified values.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The rate type’s display name.
+            type: string
+            enum:
+            - CPM
+            - CPMV
+            - CPC
+            - CPD
+            - FlatRate
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+    Industry:
+      description: Defines an industry that the advertiser belongs to. Uses “IAB Tech Lab Content Taxonomy”.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        - ParentId
+        - SubIndustries
+        properties:
+          Name:
+            description: The industry’s display name.
+            type: string
+          ParentId:
+            description: The ID of the sub-industry’s parent. Is NULL for the top-level parent.
+            type: string
+          SubIndustries:
+            description: A list of sub-industries. The list is empty if the industry has no sub-industries.
+            type: array
+            items:
+              $ref: '#/components/schemas/Industry'
+    Target:
+      description: Defines a target category. The API must support the specified target categories and may support additional categories such as zip code or postal code.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The target category.
+            type: string
+            enum:
+            - Age
+            - Gender
+            - DMA
+            - Country
+            - State/Province
+            - Daypart
+            - Weekpart
+            - Behavioral
+            - Device
+    MaturityLevel:
+      description: Defines a list of maturity levels. Current maturity level definitions comply with those provided in section 4.2.3 of the TAG's Inventory Quality Guidelines released December, 2015. Current guidelines can be found on the tagtoday.net website. The API may support all or a subset of the  specified values.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Level
+        properties:
+          Level:
+            description: The accepted maturity level for the specified inventory.
+            type: string
+            enum:
+            - All
+            - Over12
+            - Mature
+            - NotSpecified
+    Country:
+      description: 'Defines a country that the API supports.
+
+        The API may support all or a subset of the countries specified in ISO 3166-1.
+
+        '
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The country’s two-character ISO code (ISO 3166-1).
+          type: string
+          minLength: 2
+          maxLength: 2
+    Address:
+      description: The address object is used to provide values for the ORGANIZAION resource.
+      required:
+      - City
+      - Country
+      - AddressLine1
+      properties:
+        City:
+          description: The city name of an organization or contact for which this address is associated.
+          type: string
+          maxLength: 35
+        Country:
+          $ref: '#/components/schemas/Country'
+        AddressLine1:
+          description: The first line of the address of an organization or contact for which this address is associated.
+          type: string
+          maxLength: 255
+        AddressLine2:
+          description: The optional second line of the address.
+          type: string
+          maxLength: 255
+          x-publisher-support-required: true
+        PostalCode:
+          description: The postal or ZIP code for the address.
+          type: string
+          maxLength: 15
+          x-publisher-support-required: true
+        State:
+          description: The state or province for the address.
+          type: string
+          maxLength: 35
+          x-publisher-support-required: true
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    AdFormatType:
+      description: Defines the possible ad formats.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The ad format’s display name.
+            type: string
+            enum:
+            - HTML5
+            - HTML5Expandable
+            - Flash
+            - FlashExpandable
+            - Image
+            - Tag
+            - TagExpandable
+            - Text
+            - Video
+            - VPAID
+            - MRAID
     Organization:
       description: 'The organization resource may represent an advertiser or agency (buyer). The Account determines the role that the organization plays by using the organization ID in place of the BuyerId or AdvertiserId. The organization’s role may vary by account. For example, the organization may be an advertiser in one account and a buyer in another. An advertiser may create one or more organizations to meet their business needs. For example, they may create a single organization and then create accounts for each brand, subsidiary, or division. Or, they may create an organization for each brand. It is up to the advertiser to determine how they use Organization and Account to meet their organizational needs.
 
@@ -199,208 +440,6 @@ components:
             description: A URL to the organization’s website.
             type: string
             maxLength: 1024
-    DeliveryType:
-      description: Defines the possible types of delivery.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The delivery type’s display name.
-            type: string
-            enum:
-            - Exclusive
-            - Guaranteed
-    Language:
-      description: Defines a language that the API supports. The API may support all or a subset of the languages specified in ISO 639-1.
-      required:
-      - IsoCode
-      properties:
-        IsoCode:
-          description: The language’s two-character ISO code as specified in ISO 639-1.
-          type: string
-          minLength: 2
-          maxLength: 2
-    Currency:
-      description: 'Defines a currency that the API supports.
-
-        The API may support all or a subset of the currencies specified in ISO-4217.
-
-        '
-      required:
-      - IsoCode
-      properties:
-        IsoCode:
-          description: The currency’s three-character ISO code (ISO 4217).
-          type: string
-          minLength: 3
-          maxLength: 3
-    Errors:
-      type: array
-      items:
-        $ref: '#/components/schemas/Error'
-    ContactType:
-      description: Defines the possible types of Contacts.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The type’s display name.
-            type: string
-            enum:
-            - Billing
-            - Buyer
-            - Creative
-    Address:
-      description: The address object is used to provide values for the ORGANIZAION resource.
-      required:
-      - City
-      - Country
-      - AddressLine1
-      properties:
-        City:
-          description: The city name of an organization or contact for which this address is associated.
-          type: string
-          maxLength: 35
-        Country:
-          $ref: '#/components/schemas/Country'
-        AddressLine1:
-          description: The first line of the address of an organization or contact for which this address is associated.
-          type: string
-          maxLength: 255
-        AddressLine2:
-          description: The optional second line of the address.
-          type: string
-          maxLength: 255
-          x-publisher-support-required: true
-        PostalCode:
-          description: The postal or ZIP code for the address.
-          type: string
-          maxLength: 15
-          x-publisher-support-required: true
-        State:
-          description: The state or province for the address.
-          type: string
-          maxLength: 35
-          x-publisher-support-required: true
-    AdPosition:
-      description: Defines the possible ad positions on a web page.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The ad position’s display name.
-            type: string
-            enum:
-            - AboveFold
-            - BelowFold
-    Error:
-      type: object
-      required:
-      - ErrorCode
-      - ErrorMessage
-      properties:
-        ErrorCode:
-          type: string
-        ErrorMessage:
-          type: string
-        Context:
-          type: object
-        Link:
-          type: string
-    RateType:
-      description: Defines a unit of measure that a cost (i.e. BasePrice) is expressed in. The API may support all or a subset of the specified values.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The rate type’s display name.
-            type: string
-            enum:
-            - CPM
-            - CPMV
-            - CPC
-            - CPD
-            - FlatRate
-    Contact:
-      description: Defines an agency or advertiser contact.
-      required:
-      - FirstName
-      - LastName
-      - Type
-      properties:
-        Address:
-          description: Required if TYPE is Billing and the preferred billing method for the organization or order is paper.
-          $ref: '#/components/schemas/Address'
-        Email:
-          description: 'The contact’s email address.
-
-            Required if TYPE is Billing and the preferred billing method for the organization or order is electronic.
-
-            '
-          type: string
-          maxLength: 254
-          x-publisher-support-required: true
-        Honorific:
-          description: Honorific such as Mr. or Ms.
-          type: string
-          maxLength: 20
-        Fax:
-          description: The contact’s fax number.
-          type: string
-          maxLength: 20
-        FirstName:
-          description: The contact’s first name.
-          type: string
-          maxLength: 20
-        LastName:
-          description: The contact’s last name.
-          type: string
-          maxLength: 20
-        Phone:
-          description: The contact’s phone number
-          type: string
-          maxLength: 20
-          x-publisher-support-required: true
-        Title:
-          description: The contact’s job title.
-          type: string
-          maxLength: 30
-          x-publisher-support-required: true
-        Type:
-          $ref: '#/components/schemas/ContactType'
-          readOnly: true
-    Country:
-      description: 'Defines a country that the API supports.
-
-        The API may support all or a subset of the countries specified in ISO 3166-1.
-
-        '
-      required:
-      - IsoCode
-      properties:
-        IsoCode:
-          description: The country’s two-character ISO code (ISO 3166-1).
-          type: string
-          minLength: 2
-          maxLength: 2
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
     Organizations:
       required:
       - Organizations
@@ -409,6 +448,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Organization'
+    InventoryType:
+      description: Defines a list of devices that the product may serve on.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The ad format’s display name.
+            type: string
+            enum:
+            - App
+            - Desktop
+            - Mobile
+            - Tablet
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
     Product:
       description: A Product resource identifies anything from an ad placement to a Run of Network product in the publisher’s product catalog. Values for all supported fields are provided by the publisher.
       allOf:
@@ -526,43 +584,33 @@ components:
           Url:
             description: A URL to the specification that describes the creative requirements.
             type: string
-    AdFormatType:
-      description: Defines the possible ad formats.
+    ContactType:
+      description: Defines the possible types of Contacts.
       allOf:
       - $ref: '#/components/schemas/Identity'
       - required:
         - Name
         properties:
           Name:
-            description: The ad format’s display name.
+            description: The type’s display name.
             type: string
             enum:
-            - HTML5
-            - HTML5Expandable
-            - Flash
-            - FlashExpandable
-            - Image
-            - Tag
-            - TagExpandable
-            - Text
-            - Video
-            - VPAID
-            - MRAID
-    MaturityLevel:
-      description: Defines a list of maturity levels. Current maturity level definitions comply with those provided in section 4.2.3 of the TAG's Inventory Quality Guidelines released December, 2015. Current guidelines can be found on the tagtoday.net website. The API may support all or a subset of the  specified values.
+            - Billing
+            - Buyer
+            - Creative
+    AdPosition:
+      description: Defines the possible ad positions on a web page.
       allOf:
       - $ref: '#/components/schemas/Identity'
       - required:
-        - Level
+        - Name
         properties:
-          Level:
-            description: The accepted maturity level for the specified inventory.
+          Name:
+            description: The ad position’s display name.
             type: string
             enum:
-            - All
-            - Over12
-            - Mature
-            - NotSpecified
+            - AboveFold
+            - BelowFold
     Size:
       description: The Size object defines the height and width (in pixels) that a publisher accepts. The size object populates publisher-accepted sizes in the GEOMETRY property of relevant resources, such as CREATIVE.
       required:
@@ -575,108 +623,46 @@ components:
         Width:
           description: The width of accepted creative size in pixels.
           type: integer
-    InventoryType:
-      description: Defines a list of devices that the product may serve on.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The ad format’s display name.
-            type: string
-            enum:
-            - App
-            - Desktop
-            - Mobile
-            - Tablet
-    ProviderData:
-      description: Common definition for all entities with provider data.
+    Currency:
+      description: 'Defines a currency that the API supports.
+
+        The API may support all or a subset of the currencies specified in ISO-4217.
+
+        '
+      required:
+      - IsoCode
       properties:
-        ProviderData:
-          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
-
-            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
-
-            '
+        IsoCode:
+          description: The currency’s three-character ISO code (ISO 4217).
           type: string
-          maxLength: 1000
-    Industry:
-      description: Defines an industry that the advertiser belongs to. Uses “IAB Tech Lab Content Taxonomy”.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        - ParentId
-        - SubIndustries
-        properties:
-          Name:
-            description: The industry’s display name.
-            type: string
-          ParentId:
-            description: The ID of the sub-industry’s parent. Is NULL for the top-level parent.
-            type: string
-          SubIndustries:
-            description: A list of sub-industries. The list is empty if the industry has no sub-industries.
-            type: array
-            items:
-              $ref: '#/components/schemas/Industry'
-    Target:
-      description: Defines a target category. The API must support the specified target categories and may support additional categories such as zip code or postal code.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The target category.
-            type: string
-            enum:
-            - Age
-            - Gender
-            - DMA
-            - Country
-            - State/Province
-            - Daypart
-            - Weekpart
-            - Behavioral
-            - Device
+          minLength: 3
+          maxLength: 3
+  parameters:
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
+    organizationId:
+      name: organizationId
+      in: path
+      required: true
+      x-example: '12345678'
+      schema:
+        type: string
+        maxLength: 36
   responses:
-    Standard500ErrorResponse:
-      description: Unexpected error occurred
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
-    Standard400ErrorResponse:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
-    Standard401ErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
-    OrganizationResponse:
-      description: Organization resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Organization'
-          example: "{\n  \"Address\": {\n    \"AddressLine1\": \"1234 Tiger Blvd\",\n    \"City\": \"Redmond\",\n    \"Country\": \"US\",\n    \"PostalCode\": \"98123\",\n    \"State\": \"WA\"\n  },\n  \"Contacts\": [\n    {\n      \"Address\": {\n      \"AddressLine1\": \"1234 Tiger Blvd\",\n      \"City\": \"Redmond\",\n      \"Country\": \"US\",\n      \"PostalCode\": \"98123\",\n      \"State\": \"WA\"\n    },\n      \"Email\": \"jsilver@contoso.com\",\n      \"Honorific\": \"Ms\",\n      \"Fax\": \"2065551212\",\n      \"FirstName\": \"Janet\",\n      \"LastName\": \"Silver\",\n      \"Phone\": \"2065550101\",\n      \"Title\": \"Comptroller\",\n      \"Type\": \"Billing\"\n    }\n  ],\n  \"Fax\": \"2065551212\",\n  \"Id\": \"12345678\",\n  \"Industry\": \"Automotive\",\n  \"Name\": \"Contoso\",\n  \"Phone\": \"2065550100\",\n  \"ProviderData\": \"cid=89345\",\n  \"Status\": \"Approved\",\n  \"Url\": \"http://contoso.com\"\n}\n"
-    ProductResponse:
-      description: Product resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Product'
-          example: "{\n  \"AdFormatTypes\": [\n    \"Flash\",\n    \"Tag\",\n    \"Image\"\n  ],\n  \"BasePrice\": 1.31,\n  \"Currency\": \"USD\",\n  \"DeliveryType\": \"Guaranteed\",\n  \"Descripion\": \"A description of the product for display purposes\",\n  \"Domain\": \"mydomain.com\",\n  \"EstimatedDailyAvails\": \"Hundreds of Thousands\",\n  \"Geometry\": [\n    {\n      \"Height\": 160\n      \"Width\": 600\n    }\n  ],\n  \"HttpsCompatible\": False,\n  \"Icon\": \"http://<domain>/<path>/icon.jpg\",\n  \"Id\": \"456366\",\n  \"InventoryType\": {\n    \"Name\": \"Desktop\",\n    \"Name\": \"Tablet\"\n  },\n  \"Languages\": [\n    \"EN\"\n  ],\n  \"Name\": \"Unique Product Name\",\n  \"MaturityLevel\": {\n    \"Level\": \"Over12\"\n  },\n  \"MaxDuration\": 30,\n  \"MinDuration\": 1,\n  \"MinSpend\": 30.00,\n  \"Position\": \"AboveFold\",\n  \"ProductTags\": \"Foo Bar Zoo\",\n  \"RateType\": \"CPM\",\n  \"TargetTypes\": [\n    \"2342\",\n    \"3355\"\n  ],\n  \"TimeZone\": \"Eastern Standard Time\"\n  \"Url\": \"http://<domain>/<path>/creativespec.aspx\"\n}\n"
     OrganizationsResponse:
       description: Collection of Organization
       headers:
@@ -689,6 +675,13 @@ components:
           schema:
             $ref: '#/components/schemas/Organizations'
           example: "{\n  \"Organizations\": [\n    {\n      \"Address\": {\n        \"AddressLine1\": \"1234 Tiger Blvd\",\n        \"City\": \"Redmond\",\n        \"Country\": \"US\",\n        \"PostalCode\": \"98123\",\n        \"State\": \"WA\"\n      },\n      \"Contacts\": [\n        {\n          \"Address\": {\n          \"AddressLine1\": \"1234 Tiger Blvd\",\n          \"City\": \"Redmond\",\n          \"Country\": \"US\",\n          \"PostalCode\": \"98123\",\n          \"State\": \"WA\"\n        },\n          \"Email\": \"jsilver@contoso.com\",\n          \"Honorific\": \"Ms\",\n          \"Fax\": \"2065551212\",\n          \"FirstName\": \"Janet\",\n          \"LastName\": \"Silver\",\n          \"Phone\": \"2065550101\",\n          \"Title\": \"Comptroller\",\n          \"Type\": \"Billing\"\n        }\n      ],\n      \"Fax\": \"2065551212\",\n      \"Id\": \"12345678\",\n      \"Industry\": \"Automotive\",\n      \"Name\": \"Contoso\",\n      \"Phone\": \"2065550100\",\n      \"ProviderData\": \"cid=89345\",\n      \"Status\": \"Approved\",\n      \"Url\": \"http://contoso.com\"\n    }\n  ]\n}\n"
+    ProductResponse:
+      description: Product resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Product'
+          example: "{\n  \"AdFormatTypes\": [\n    \"Flash\",\n    \"Tag\",\n    \"Image\"\n  ],\n  \"BasePrice\": 1.31,\n  \"Currency\": \"USD\",\n  \"DeliveryType\": \"Guaranteed\",\n  \"Descripion\": \"A description of the product for display purposes\",\n  \"Domain\": \"mydomain.com\",\n  \"EstimatedDailyAvails\": \"Hundreds of Thousands\",\n  \"Geometry\": [\n    {\n      \"Height\": 160\n      \"Width\": 600\n    }\n  ],\n  \"HttpsCompatible\": False,\n  \"Icon\": \"http://<domain>/<path>/icon.jpg\",\n  \"Id\": \"456366\",\n  \"InventoryType\": {\n    \"Name\": \"Desktop\",\n    \"Name\": \"Tablet\"\n  },\n  \"Languages\": [\n    \"EN\"\n  ],\n  \"Name\": \"Unique Product Name\",\n  \"MaturityLevel\": {\n    \"Level\": \"Over12\"\n  },\n  \"MaxDuration\": 30,\n  \"MinDuration\": 1,\n  \"MinSpend\": 30.00,\n  \"Position\": \"AboveFold\",\n  \"ProductTags\": \"Foo Bar Zoo\",\n  \"RateType\": \"CPM\",\n  \"TargetTypes\": [\n    \"2342\",\n    \"3355\"\n  ],\n  \"TimeZone\": \"Eastern Standard Time\"\n  \"Url\": \"http://<domain>/<path>/creativespec.aspx\"\n}\n"
     Standard404ErrorResponse:
       description: Not found
       content:
@@ -696,31 +689,34 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
-  parameters:
-    organizationId:
-      name: organizationId
-      in: path
-      required: true
-      x-example: '12345678'
-      schema:
-        type: string
-        maxLength: 36
-    count:
-      name: count
-      in: query
-      description: Indicates the number of desired records to be returned in the response.
-      schema:
-        type: integer
-        default: 250
-        minimum: 1
-    offset:
-      name: offset
-      in: query
-      description: Indicates the starting point from which the number of records should be returned in the response.
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    OrganizationResponse:
+      description: Organization resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Organization'
+          example: "{\n  \"Address\": {\n    \"AddressLine1\": \"1234 Tiger Blvd\",\n    \"City\": \"Redmond\",\n    \"Country\": \"US\",\n    \"PostalCode\": \"98123\",\n    \"State\": \"WA\"\n  },\n  \"Contacts\": [\n    {\n      \"Address\": {\n      \"AddressLine1\": \"1234 Tiger Blvd\",\n      \"City\": \"Redmond\",\n      \"Country\": \"US\",\n      \"PostalCode\": \"98123\",\n      \"State\": \"WA\"\n    },\n      \"Email\": \"jsilver@contoso.com\",\n      \"Honorific\": \"Ms\",\n      \"Fax\": \"2065551212\",\n      \"FirstName\": \"Janet\",\n      \"LastName\": \"Silver\",\n      \"Phone\": \"2065550101\",\n      \"Title\": \"Comptroller\",\n      \"Type\": \"Billing\"\n    }\n  ],\n  \"Fax\": \"2065551212\",\n  \"Id\": \"12345678\",\n  \"Industry\": \"Automotive\",\n  \"Name\": \"Contoso\",\n  \"Phone\": \"2065550100\",\n  \"ProviderData\": \"cid=89345\",\n  \"Status\": \"Approved\",\n  \"Url\": \"http://contoso.com\"\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
   securitySchemes:
     OauthSecurity:
       type: oauth2
@@ -730,6 +726,3 @@ components:
             https://opendirect.example.com/scope/example: Example scope
           authorizationUrl: https://opendirect.example.com/connect/authorize
       description: Example of one of OAuth 2.0 authorization flow that can be used according to specification.
-x-refined-from:
-- iab-tech-lab-opendirect-1-5-1-swagger.yaml
-- iab-tech-lab-opendirect-1-5-1-swagger.yaml
