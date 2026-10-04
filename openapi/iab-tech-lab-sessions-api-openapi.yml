@@ -176,35 +176,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    CreateSessionRequest:
-      properties:
-        seat_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Seat Id
-        agency_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Id
-        advertiser_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Id
-        is_authenticated:
-          type: boolean
-          title: Is Authenticated
-          default: false
-        agent_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Url
-      type: object
-      title: CreateSessionRequest
-      description: Request to create a new session.
     ValidationError:
       properties:
         loc:
@@ -240,6 +211,35 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    CreateSessionRequest:
+      properties:
+        seat_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Id
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        is_authenticated:
+          type: boolean
+          title: Is Authenticated
+          default: false
+        agent_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Url
+      type: object
+      title: CreateSessionRequest
+      description: Request to create a new session.
     SessionMessageRequest:
       properties:
         message:

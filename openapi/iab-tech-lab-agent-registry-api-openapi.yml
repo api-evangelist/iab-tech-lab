@@ -206,21 +206,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    UpdateTrustRequest:
-      properties:
-        trust_status:
-          type: string
-          title: Trust Status
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-      type: object
-      required:
-      - trust_status
-      title: UpdateTrustRequest
-      description: Request to update an agent's trust status.
     ValidationError:
       properties:
         loc:
@@ -266,3 +251,18 @@ components:
       - agent_url
       title: DiscoverAgentRequest
       description: Request to discover an agent by URL.
+    UpdateTrustRequest:
+      properties:
+        trust_status:
+          type: string
+          title: Trust Status
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      type: object
+      required:
+      - trust_status
+      title: UpdateTrustRequest
+      description: Request to update an agent's trust status.

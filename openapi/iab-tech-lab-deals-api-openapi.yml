@@ -101,39 +101,6 @@ components:
           schema:
             $ref: ../jsonschema/protocol/ErrorEnvelope.json
   schemas:
-    DealResponse:
-      properties:
-        deal_id:
-          type: string
-          title: Deal Id
-        deal_type:
-          type: string
-          title: Deal Type
-        price:
-          type: number
-          title: Price
-        pricing_model:
-          type: string
-          title: Pricing Model
-        openrtb_params:
-          additionalProperties: true
-          type: object
-          title: Openrtb Params
-        activation_instructions:
-          additionalProperties:
-            type: string
-          type: object
-          title: Activation Instructions
-      type: object
-      required:
-      - deal_id
-      - deal_type
-      - price
-      - pricing_model
-      - openrtb_params
-      - activation_instructions
-      title: DealResponse
-      description: Deal generation response.
     ValidationError:
       properties:
         loc:
@@ -169,6 +136,39 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    DealResponse:
+      properties:
+        deal_id:
+          type: string
+          title: Deal Id
+        deal_type:
+          type: string
+          title: Deal Type
+        price:
+          type: number
+          title: Price
+        pricing_model:
+          type: string
+          title: Pricing Model
+        openrtb_params:
+          additionalProperties: true
+          type: object
+          title: Openrtb Params
+        activation_instructions:
+          additionalProperties:
+            type: string
+          type: object
+          title: Activation Instructions
+      type: object
+      required:
+      - deal_id
+      - deal_type
+      - price
+      - pricing_model
+      - openrtb_params
+      - activation_instructions
+      title: DealResponse
+      description: Deal generation response.
     DealRequest:
       properties:
         proposal_id:

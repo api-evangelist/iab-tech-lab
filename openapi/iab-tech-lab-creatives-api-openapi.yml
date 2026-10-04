@@ -145,130 +145,7 @@ paths:
       operationId: deleteAccountsByAccountIdCreativesByCreativeId
       x-operation-id-source: derived
 components:
-  parameters:
-    offset:
-      name: offset
-      in: query
-      description: Indicates the starting point from which the number of records should be returned in the response.
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-    creativeId:
-      name: creativeId
-      in: path
-      required: true
-      x-example: '53444'
-      schema:
-        type: string
-        maxLength: 36
-    count:
-      name: count
-      in: query
-      description: Indicates the number of desired records to be returned in the response.
-      schema:
-        type: integer
-        default: 250
-        minimum: 1
-    accountId:
-      name: accountId
-      in: path
-      required: true
-      x-example: '23873345'
-      schema:
-        type: string
-        maxLength: 36
   schemas:
-    Language:
-      description: Defines a language that the API supports. The API may support all or a subset of the languages specified in ISO 639-1.
-      required:
-      - IsoCode
-      properties:
-        IsoCode:
-          description: The language’s two-character ISO code as specified in ISO 639-1.
-          type: string
-          minLength: 2
-          maxLength: 2
-    Error:
-      type: object
-      required:
-      - ErrorCode
-      - ErrorMessage
-      properties:
-        ErrorCode:
-          type: string
-        ErrorMessage:
-          type: string
-        Context:
-          type: object
-        Link:
-          type: string
-    Creatives:
-      required:
-      - Creatives
-      properties:
-        Creatives:
-          type: array
-          items:
-            $ref: '#/components/schemas/Creative'
-    ProviderData:
-      description: Common definition for all entities with provider data.
-      properties:
-        ProviderData:
-          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
-
-            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
-
-            '
-          type: string
-          maxLength: 1000
-    MaturityLevel:
-      description: Defines a list of maturity levels. Current maturity level definitions comply with those provided in section 4.2.3 of the TAG's Inventory Quality Guidelines released December, 2015. Current guidelines can be found on the tagtoday.net website. The API may support all or a subset of the  specified values.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Level
-        properties:
-          Level:
-            description: The accepted maturity level for the specified inventory.
-            type: string
-            enum:
-            - All
-            - Over12
-            - Mature
-            - NotSpecified
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
-    AdFormatType:
-      description: Defines the possible ad formats.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The ad format’s display name.
-            type: string
-            enum:
-            - HTML5
-            - HTML5Expandable
-            - Flash
-            - FlashExpandable
-            - Image
-            - Tag
-            - TagExpandable
-            - Text
-            - Video
-            - VPAID
-            - MRAID
     Creative:
       description: 'Defines a Creative resource. The Creative provides information about the ad to be displayed for a line of the order. Creative are assigned to the LINE resource of an order using the ASSIGNMENT resource.
 
@@ -378,6 +255,36 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Error'
+    Creatives:
+      required:
+      - Creatives
+      properties:
+        Creatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/Creative'
+    AdFormatType:
+      description: Defines the possible ad formats.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The ad format’s display name.
+            type: string
+            enum:
+            - HTML5
+            - HTML5Expandable
+            - Flash
+            - FlashExpandable
+            - Image
+            - Tag
+            - TagExpandable
+            - Text
+            - Video
+            - VPAID
+            - MRAID
     Size:
       description: The Size object defines the height and width (in pixels) that a publisher accepts. The size object populates publisher-accepted sizes in the GEOMETRY property of relevant resources, such as CREATIVE.
       required:
@@ -390,7 +297,74 @@ components:
         Width:
           description: The width of accepted creative size in pixels.
           type: integer
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+    Language:
+      description: Defines a language that the API supports. The API may support all or a subset of the languages specified in ISO 639-1.
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The language’s two-character ISO code as specified in ISO 639-1.
+          type: string
+          minLength: 2
+          maxLength: 2
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    MaturityLevel:
+      description: Defines a list of maturity levels. Current maturity level definitions comply with those provided in section 4.2.3 of the TAG's Inventory Quality Guidelines released December, 2015. Current guidelines can be found on the tagtoday.net website. The API may support all or a subset of the  specified values.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Level
+        properties:
+          Level:
+            description: The accepted maturity level for the specified inventory.
+            type: string
+            enum:
+            - All
+            - Over12
+            - Mature
+            - NotSpecified
   responses:
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
     Standard400ErrorResponse:
       description: Bad request
       content:
@@ -405,20 +379,6 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
-    Standard500ErrorResponse:
-      description: Unexpected error occurred
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
-    CreativeResponse:
-      description: Creative resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Creative'
-          example: "{\n  \"AccountId\": \"23873345\",\n  \"AdFormatType\": \"Tag\",\n  \"AdStatus\": \"Pending\",\n  \"CreativeAsset\": \"<third-party script goes here>\",\n  \"Geometry\": {\n    \"Height\": \"160\",\n    \"Width\": \"600\"\n  },\n  \"HttpsCompatible\": 0,\n  \"Id\": \"53444\",\n  \"Language\": \"EN\",\n  \"MaturityLevel\":  {\n    \"Level\": \"Over12\"\n  },\n  \"Name\": \"My Creative\",\n  \"ProviderData\": \"cid=54574\"\n}\n"
     CreativesResponse:
       description: Collection of Creative
       headers:
@@ -431,6 +391,13 @@ components:
           schema:
             $ref: '#/components/schemas/Creatives'
           example: "{\n  \"Creatives\": [\n    {\n      \"AccountId\": \"23873345\",\n      \"AdFormatType\": \"Tag\",\n      \"AdStatus\": \"Pending\",\n      \"CreativeAsset\": \"<third-party script goes here>\",\n      \"Geometry\": {\n        \"Height\": \"160\",\n        \"Width\": \"600\"\n      },\n      \"HttpsCompatible\": False,\n      \"Id\": \"53444\",\n      \"Language\": \"EN\",\n      \"MaturityLevel\":  {\n        \"Level\": \"Over12\"\n      },\n      \"Name\": \"My Creative\",\n      \"ProviderData\": \"cid=54574\"\n    }\n  ]\n}\n"
+    CreativeResponse:
+      description: Creative resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Creative'
+          example: "{\n  \"AccountId\": \"23873345\",\n  \"AdFormatType\": \"Tag\",\n  \"AdStatus\": \"Pending\",\n  \"CreativeAsset\": \"<third-party script goes here>\",\n  \"Geometry\": {\n    \"Height\": \"160\",\n    \"Width\": \"600\"\n  },\n  \"HttpsCompatible\": 0,\n  \"Id\": \"53444\",\n  \"Language\": \"EN\",\n  \"MaturityLevel\":  {\n    \"Level\": \"Over12\"\n  },\n  \"Name\": \"My Creative\",\n  \"ProviderData\": \"cid=54574\"\n}\n"
     Standard401ErrorResponse:
       description: Unauthorized
       content:
@@ -438,6 +405,39 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+  parameters:
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    creativeId:
+      name: creativeId
+      in: path
+      required: true
+      x-example: '53444'
+      schema:
+        type: string
+        maxLength: 36
   securitySchemes:
     OauthSecurity:
       type: oauth2

@@ -143,6 +143,10 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
     Segment:
       description: The segment object is made up of TARGET and TARGET VALUE reference data objects and is used to specify targeting options for a LINE resource
       required:
@@ -156,20 +160,45 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TargetValue'
-    Error:
-      type: object
+    FrequencyCapInterval:
+      description: 'Defines the frequency cap intervals that the API supports.
+
+        The frequency interval specifies the units in which the frequency count is expressed. For example, if a line’s frequency count is 2 and interval is Day, display the ad to the same user a Max 2 times in the same calendar day.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The name of the interval.
+            type: string
+            enum:
+            - Day
+            - Month
+            - Week
+            - Hour
+            - LineDuration
+    Lines:
       required:
-      - ErrorCode
-      - ErrorMessage
+      - Lines
       properties:
-        ErrorCode:
+        Lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/Line'
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
           type: string
-        ErrorMessage:
-          type: string
-        Context:
-          type: object
-        Link:
-          type: string
+          maxLength: 1000
     RateType:
       description: Defines a unit of measure that a cost (i.e. BasePrice) is expressed in. The API may support all or a subset of the specified values.
       allOf:
@@ -206,25 +235,63 @@ components:
             - Weekpart
             - Behavioral
             - Device
-    ProviderData:
-      description: Common definition for all entities with provider data.
-      properties:
-        ProviderData:
-          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+    TargetValue:
+      description: 'Defines a target value.
 
-            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+        The API must support the specified values per target category.
 
-            '
-          type: string
-          maxLength: 1000
-    Lines:
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Value
+        - TargetId
+        properties:
+          Value:
+            description: The target value
+            type: string
+            enum:
+            - Age - Publisher-defined age ranges
+            - Gender - Female
+            - Gender - Male
+            - DMA - Publisher-defined  source (such as Digital Envoy)
+            - Country - Publisher-defined source
+            - State-Province - Publisher-defined source
+            - Daypart - 0 through 23 hours
+            - Weekpart - Sunday
+            - Weekpart - Monday
+            - Weekpart - Tuesday
+            - Weekpart - Wednesday
+            - Weekpart - Thursday
+            - Weekpart - Friday
+            - Weekpart - Saturday
+          TargetId:
+            description: A system-generated ID that identifies the target category that this value belongs to.
+            type: string
+    Error:
+      type: object
       required:
-      - Lines
+      - ErrorCode
+      - ErrorMessage
       properties:
-        Lines:
-          type: array
-          items:
-            $ref: '#/components/schemas/Line'
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
     Line:
       description: 'Line resources are included in an order and provide details about the product being booked, status, start and end dates, and other settings for the order item.
 
@@ -379,93 +446,14 @@ components:
 
               '
             type: boolean
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
-    FrequencyCapInterval:
-      description: 'Defines the frequency cap intervals that the API supports.
-
-        The frequency interval specifies the units in which the frequency count is expressed. For example, if a line’s frequency count is 2 and interval is Day, display the ad to the same user a Max 2 times in the same calendar day.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The name of the interval.
-            type: string
-            enum:
-            - Day
-            - Month
-            - Week
-            - Hour
-            - LineDuration
-    TargetValue:
-      description: 'Defines a target value.
-
-        The API must support the specified values per target category.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Value
-        - TargetId
-        properties:
-          Value:
-            description: The target value
-            type: string
-            enum:
-            - Age - Publisher-defined age ranges
-            - Gender - Female
-            - Gender - Male
-            - DMA - Publisher-defined  source (such as Digital Envoy)
-            - Country - Publisher-defined source
-            - State-Province - Publisher-defined source
-            - Daypart - 0 through 23 hours
-            - Weekpart - Sunday
-            - Weekpart - Monday
-            - Weekpart - Tuesday
-            - Weekpart - Wednesday
-            - Weekpart - Thursday
-            - Weekpart - Friday
-            - Weekpart - Saturday
-          TargetId:
-            description: A system-generated ID that identifies the target category that this value belongs to.
-            type: string
-    Errors:
-      type: array
-      items:
-        $ref: '#/components/schemas/Error'
   responses:
-    LinesResponse:
-      description: Collection of Line
-      headers:
-        X-Total-Count:
-          description: Total number of results
-          schema:
-            type: integer
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Lines'
-          example: "{\n  \"Lines\": [\n    {\n      \"BookingStatus\": \"Draft\",\n      \"Comment\": \"Free form comment\",\n      \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n      \"FrequencyCount\": 3,\n      \"FrequencyInterval\": \"Day\",\n      \"Id\": \"345233\",\n      \"Quantity\": 30000,\n      \"Name\": \"My Line 1\",\n      \"OrderId\": \"1235872\",\n      \"ProductId\": \"456366\",\n      \"ProviderData\": \"cid=88873\",\n      \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n      \"Targeting\": [\n        {\n          \"Target\": \"Age\",\n          \"TargetValues\": [\"18-24\",\"25-34\"]\n        },\n        {\n          \"Target\": \"Gender\",\n          \"TargetValues\": [\"Male\"]\n        }\n      ]\n      \"UsesExpandables\": False\n    }\n  ]\n}\n"
-    LineResponse:
-      description: Line resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Line'
-          example: "{\n  \"BookingStatus\": \"Draft\",\n  \"Comment\": \"Free form comment\",\n  \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n  \"FrequencyCount\": 3,\n  \"FrequencyInterval\": \"Day\",\n  \"Id\": \"345233\",\n  \"Quantity\": 30000,\n  \"Name\": \"My Line 1\",\n  \"OrderId\": \"1235872\",\n  \"ProductId\": \"456366\",\n  \"ProviderData\": \"cid=88873\",\n  \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Targeting\": [\n    {\n      \"Target\": \"Age\",\n      \"TargetValues\": [\"18-24\",\"25-34\"]\n    },\n    {\n      \"Target\": \"Gender\",\n      \"TargetValues\": [\"Male\"]\n    }\n  ]\n  \"UsesExpandables\": False\n}\n"
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
     Standard400ErrorResponse:
       description: Bad request
       content:
@@ -480,13 +468,13 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
-    Standard500ErrorResponse:
-      description: Unexpected error occurred
+    LineResponse:
+      description: Line resource
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+            $ref: '#/components/schemas/Line'
+          example: "{\n  \"BookingStatus\": \"Draft\",\n  \"Comment\": \"Free form comment\",\n  \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n  \"FrequencyCount\": 3,\n  \"FrequencyInterval\": \"Day\",\n  \"Id\": \"345233\",\n  \"Quantity\": 30000,\n  \"Name\": \"My Line 1\",\n  \"OrderId\": \"1235872\",\n  \"ProductId\": \"456366\",\n  \"ProviderData\": \"cid=88873\",\n  \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Targeting\": [\n    {\n      \"Target\": \"Age\",\n      \"TargetValues\": [\"18-24\",\"25-34\"]\n    },\n    {\n      \"Target\": \"Gender\",\n      \"TargetValues\": [\"Male\"]\n    }\n  ]\n  \"UsesExpandables\": False\n}\n"
     Standard401ErrorResponse:
       description: Unauthorized
       content:
@@ -494,6 +482,18 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    LinesResponse:
+      description: Collection of Line
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Lines'
+          example: "{\n  \"Lines\": [\n    {\n      \"BookingStatus\": \"Draft\",\n      \"Comment\": \"Free form comment\",\n      \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n      \"FrequencyCount\": 3,\n      \"FrequencyInterval\": \"Day\",\n      \"Id\": \"345233\",\n      \"Quantity\": 30000,\n      \"Name\": \"My Line 1\",\n      \"OrderId\": \"1235872\",\n      \"ProductId\": \"456366\",\n      \"ProviderData\": \"cid=88873\",\n      \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n      \"Targeting\": [\n        {\n          \"Target\": \"Age\",\n          \"TargetValues\": [\"18-24\",\"25-34\"]\n        },\n        {\n          \"Target\": \"Gender\",\n          \"TargetValues\": [\"Male\"]\n        }\n      ]\n      \"UsesExpandables\": False\n    }\n  ]\n}\n"
   parameters:
     accountId:
       name: accountId
@@ -503,19 +503,19 @@ components:
       schema:
         type: string
         maxLength: 36
-    lineId:
-      name: lineId
-      in: path
-      required: true
-      x-example: '345233'
-      schema:
-        type: string
-        maxLength: 36
     changerequestId:
       name: changerequestId
       in: path
       required: true
       x-example: '398421'
+      schema:
+        type: string
+        maxLength: 36
+    lineId:
+      name: lineId
+      in: path
+      required: true
+      x-example: '345233'
       schema:
         type: string
         maxLength: 36

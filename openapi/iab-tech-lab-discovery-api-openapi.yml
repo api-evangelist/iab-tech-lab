@@ -57,30 +57,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    DiscoveryRequest:
-      properties:
-        query:
-          type: string
-          title: Query
-        buyer_tier:
-          type: string
-          title: Buyer Tier
-          default: public
-        agency_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Id
-        agent_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agent Url
-      type: object
-      required:
-      - query
-      title: DiscoveryRequest
-      description: Discovery query request.
     ValidationError:
       properties:
         loc:
@@ -116,3 +92,27 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    DiscoveryRequest:
+      properties:
+        query:
+          type: string
+          title: Query
+        buyer_tier:
+          type: string
+          title: Buyer Tier
+          default: public
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        agent_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agent Url
+      type: object
+      required:
+      - query
+      title: DiscoveryRequest
+      description: Discovery query request.

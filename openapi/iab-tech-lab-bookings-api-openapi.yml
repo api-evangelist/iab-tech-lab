@@ -188,61 +188,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    BookingStatus:
-      properties:
-        job_id:
-          type: string
-          title: Job Id
-        status:
-          type: string
-          title: Status
-        progress:
-          type: number
-          title: Progress
-        budget_allocations:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Budget Allocations
-        recommendations:
-          anyOf:
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - type: 'null'
-          title: Recommendations
-        booked_lines:
-          anyOf:
-          - items:
-              additionalProperties: true
-              type: object
-            type: array
-          - type: 'null'
-          title: Booked Lines
-        errors:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Errors
-        created_at:
-          type: string
-          title: Created At
-        updated_at:
-          type: string
-          title: Updated At
-      type: object
-      required:
-      - job_id
-      - status
-      - progress
-      - created_at
-      - updated_at
-      title: BookingStatus
-      description: Status of a booking job.
     CampaignBrief:
       properties:
         name:
@@ -311,32 +256,70 @@ components:
       - message
       title: BookingResponse
       description: Response from booking creation.
-    ValidationError:
+    BookingStatus:
       properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
+        job_id:
           type: string
-          title: Message
-        type:
+          title: Job Id
+        status:
           type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
+          title: Status
+        progress:
+          type: number
+          title: Progress
+        budget_allocations:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Budget Allocations
+        recommendations:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Recommendations
+        booked_lines:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Booked Lines
+        errors:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Errors
+        created_at:
+          type: string
+          title: Created At
+        updated_at:
+          type: string
+          title: Updated At
       type: object
       required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
+      - job_id
+      - status
+      - progress
+      - created_at
+      - updated_at
+      title: BookingStatus
+      description: Status of a booking job.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     BookingRequest:
       properties:
         brief:
@@ -363,12 +346,29 @@ components:
       - approved_product_ids
       title: ApprovalRequest
       description: Request to approve recommendations.
-    HTTPValidationError:
+    ValidationError:
       properties:
-        detail:
+        loc:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            anyOf:
+            - type: string
+            - type: integer
           type: array
-          title: Detail
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
       type: object
-      title: HTTPValidationError
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

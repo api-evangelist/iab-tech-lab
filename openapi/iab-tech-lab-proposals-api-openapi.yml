@@ -108,6 +108,15 @@ components:
         ``status="failed"`` — but ``errors[]`` is now guaranteed non-empty and
 
         causeful whenever the status is ``failed`` (seller issue #34).'
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     ProposalRequest:
       properties:
         product_id:
@@ -215,12 +224,3 @@ components:
         ProposalHandlingFlow stage that failed the proposal, and ``detail``
 
         carries the human-readable explanation.'
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError

@@ -65,44 +65,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    BulkDealRequest:
-      properties:
-        operations:
-          items:
-            $ref: '#/components/schemas/BulkDealOperation'
-          type: array
-          title: Operations
-      type: object
-      required:
-      - operations
-      title: BulkDealRequest
-      description: Batch of deal operations.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     BulkDealOperationResult:
       properties:
         index:
@@ -131,31 +93,6 @@ components:
       - success
       title: BulkDealOperationResult
       description: Result of a single bulk operation.
-    QuoteBuyerIdentityModel:
-      properties:
-        seat_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Seat Id
-        agency_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Agency Id
-        advertiser_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Advertiser Id
-        dsp_platform:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Dsp Platform
-      type: object
-      title: QuoteBuyerIdentityModel
-      description: Buyer identity in a quote request.
     BulkDealOperation:
       properties:
         action:
@@ -218,3 +155,66 @@ components:
       - results
       title: BulkDealResponse
       description: Batch results for bulk deal operations.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    QuoteBuyerIdentityModel:
+      properties:
+        seat_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Seat Id
+        agency_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Agency Id
+        advertiser_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Advertiser Id
+        dsp_platform:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dsp Platform
+      type: object
+      title: QuoteBuyerIdentityModel
+      description: Buyer identity in a quote request.
+    BulkDealRequest:
+      properties:
+        operations:
+          items:
+            $ref: '#/components/schemas/BulkDealOperation'
+          type: array
+          title: Operations
+      type: object
+      required:
+      - operations
+      title: BulkDealRequest
+      description: Batch of deal operations.

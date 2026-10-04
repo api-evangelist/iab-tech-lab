@@ -181,14 +181,6 @@ paths:
       x-operation-id-source: derived
 components:
   parameters:
-    count:
-      name: count
-      in: query
-      description: Indicates the number of desired records to be returned in the response.
-      schema:
-        type: integer
-        default: 250
-        minimum: 1
     offset:
       name: offset
       in: query
@@ -213,91 +205,15 @@ components:
       schema:
         type: string
         maxLength: 36
-  responses:
-    AssignmentResponse:
-      description: Assignment resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Assignment'
-          example: "{\n  \"CreativeId\": \"54345\",\n  \"LineId\": \"394578\",\n  \"Weight\": 25,\n  \"Id\": \"453365\",\n  \"Status\": \"Active\",\n  \"ProviderData\": \"cid=34325\"\n}\n"
-    Standard500ErrorResponse:
-      description: Unexpected error occurred
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
-    Standard400ErrorResponse:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
-    Standard404ErrorResponse:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
-    AssignmentsResponse:
-      description: Collection of Assignment
-      headers:
-        X-Total-Count:
-          description: Total number of results
-          schema:
-            type: integer
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Assignments'
-          example: "{\n  \"Assignments\": [\n    {\n      \"CreativeId\": \"394857\",\n      \"LineId\": \"394578\",\n      \"Weight\": 75,\n      \"Id\": \"34534\",\n      \"Status\": \"Active\",\n      \"ProviderData\": \"cid=98374\"\n    },\n    {\n      \"CreativeId\": \"54345\",\n      \"LineId\": \"394578\",\n      \"Weight\": 25,\n      \"Id\": \"453365\",\n      \"Status\": \"Active\",\n      \"ProviderData\": \"cid=34325\"\n    }\n  ]\n}\n"
-    Standard401ErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
   schemas:
-    Errors:
-      type: array
-      items:
-        $ref: '#/components/schemas/Error'
-    Error:
-      type: object
-      required:
-      - ErrorCode
-      - ErrorMessage
-      properties:
-        ErrorCode:
-          type: string
-        ErrorMessage:
-          type: string
-        Context:
-          type: object
-        Link:
-          type: string
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
-    Assignments:
-      required:
-      - Assignments
-      properties:
-        Assignments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Assignment'
     Assignment:
       description: 'Defines an Assignment resource. An Assignment associates a creative with a line of the order. A creative may be assigned to one or more lines and a line may be assigned one or more creative.
 
@@ -350,6 +266,10 @@ components:
             type: integer
             minimum: 1
             maximum: 100
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
     ProviderData:
       description: Common definition for all entities with provider data.
       properties:
@@ -361,6 +281,86 @@ components:
             '
           type: string
           maxLength: 1000
+    Assignments:
+      required:
+      - Assignments
+      properties:
+        Assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+  responses:
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    AssignmentsResponse:
+      description: Collection of Assignment
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Assignments'
+          example: "{\n  \"Assignments\": [\n    {\n      \"CreativeId\": \"394857\",\n      \"LineId\": \"394578\",\n      \"Weight\": 75,\n      \"Id\": \"34534\",\n      \"Status\": \"Active\",\n      \"ProviderData\": \"cid=98374\"\n    },\n    {\n      \"CreativeId\": \"54345\",\n      \"LineId\": \"394578\",\n      \"Weight\": 25,\n      \"Id\": \"453365\",\n      \"Status\": \"Active\",\n      \"ProviderData\": \"cid=34325\"\n    }\n  ]\n}\n"
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+    AssignmentResponse:
+      description: Assignment resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Assignment'
+          example: "{\n  \"CreativeId\": \"54345\",\n  \"LineId\": \"394578\",\n  \"Weight\": 25,\n  \"Id\": \"453365\",\n  \"Status\": \"Active\",\n  \"ProviderData\": \"cid=34325\"\n}\n"
   securitySchemes:
     OauthSecurity:
       type: oauth2

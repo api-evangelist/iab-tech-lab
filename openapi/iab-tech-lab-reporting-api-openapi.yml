@@ -402,32 +402,14 @@ components:
           type: object
         Link:
           type: string
-  parameters:
-    accountId:
-      name: accountId
-      in: path
-      required: true
-      x-example: '23873345'
-      schema:
-        type: string
-        maxLength: 36
-    lineId:
-      name: lineId
-      in: path
-      required: true
-      x-example: '345233'
-      schema:
-        type: string
-        maxLength: 36
-    orderId:
-      name: orderId
-      in: path
-      required: true
-      x-example: '1235872'
-      schema:
-        type: string
-        maxLength: 36
   responses:
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
     ReportingResponse:
       description: Reporting resource
       content:
@@ -442,13 +424,6 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
-    Standard500ErrorResponse:
-      description: Unexpected error occurred
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
     Standard401ErrorResponse:
       description: Unauthorized
       content:
@@ -456,6 +431,31 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+  parameters:
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    orderId:
+      name: orderId
+      in: path
+      required: true
+      x-example: '1235872'
+      schema:
+        type: string
+        maxLength: 36
+    lineId:
+      name: lineId
+      in: path
+      required: true
+      x-example: '345233'
+      schema:
+        type: string
+        maxLength: 36
   securitySchemes:
     OauthSecurity:
       type: oauth2

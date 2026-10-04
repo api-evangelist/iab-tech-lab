@@ -198,29 +198,6 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
-    ApprovalDecisionRequest:
-      properties:
-        decision:
-          type: string
-          title: Decision
-        decided_by:
-          type: string
-          title: Decided By
-          default: anonymous
-        reason:
-          type: string
-          title: Reason
-          default: ''
-        modifications:
-          additionalProperties: true
-          type: object
-          title: Modifications
-          default: {}
-      type: object
-      required:
-      - decision
-      title: ApprovalDecisionRequest
-      description: Request to submit an approval decision.
     ValidationError:
       properties:
         loc:
@@ -256,3 +233,26 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    ApprovalDecisionRequest:
+      properties:
+        decision:
+          type: string
+          title: Decision
+        decided_by:
+          type: string
+          title: Decided By
+          default: anonymous
+        reason:
+          type: string
+          title: Reason
+          default: ''
+        modifications:
+          additionalProperties: true
+          type: object
+          title: Modifications
+          default: {}
+      type: object
+      required:
+      - decision
+      title: ApprovalDecisionRequest
+      description: Request to submit an approval decision.
