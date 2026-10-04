@@ -194,6 +194,8 @@ apis:
   humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
+  - A2A
+  tags_raw:
   - A2a
   properties:
   - type: OpenAPI
@@ -258,6 +260,8 @@ apis:
   humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -514,6 +518,8 @@ apis:
   humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
+  - Audiences
+  tags_raw:
   - Audience
   properties:
   - type: OpenAPI
@@ -706,6 +712,8 @@ apis:
   humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
+  - Booking
+  tags_raw:
   - Bookings
   properties:
   - type: OpenAPI
@@ -1091,6 +1099,8 @@ apis:
   humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
+  - Creative
+  tags_raw:
   - Creatives
   properties:
   - type: OpenAPI
@@ -1475,6 +1485,8 @@ apis:
   humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
+  - Event
+  tags_raw:
   - Events
   properties:
   - type: OpenAPI
@@ -1859,6 +1871,8 @@ apis:
   humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
+  - Order
+  tags_raw:
   - Orders
   properties:
   - type: OpenAPI
@@ -1923,6 +1937,8 @@ apis:
   humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
+  - Organization
+  tags_raw:
   - Organizations
   properties:
   - type: OpenAPI
@@ -2115,6 +2131,8 @@ apis:
   humanURL: https://iabtechlab.com/standards/opendirect/
   baseURL: https://api.iabtechlab.com
   tags:
+  - Product
+  tags_raw:
   - Products
   properties:
   - type: OpenAPI
@@ -2627,6 +2645,9 @@ maintainers:
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: CapabilityMap
+  url: capabilities/iab-tech-lab-capability-edges.yml
+  name: IAB Tech Lab Business Capability Map
 - type: Overlay
   url: overlays/iab-tech-lab-opendirect-1-5-1-overlay.yaml
 - type: AgentSkill
