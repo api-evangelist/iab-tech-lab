@@ -1,0 +1,79 @@
+slug: iab-tech-lab
+provider: IAB Tech Lab
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 6
+edges:
+- tag: Deals
+  spec_file: iab-tech-lab-deals-api-openapi.yml
+  capability_id: BC-410.30
+  capability_id_l1: BC-410
+  capability_name: Opportunity & Pipeline Management
+  confidence: 0.75
+  evidence: POST /api/v1/deals  bookDeal  "Book a deal from a quote (money-mutating; idempotency_key required)";
+    GET /api/v1/deals/{deal_id} "Retrieve a deal"
+  reason: Operations create and retrieve commercial advertising deals converted from quotes — the deal
+    lifecycle in a lead-to-order motion, i.e. Opportunity & Pipeline Management. Not a payment or billing
+    API; the money-mutating step is deal booking, not invoicing.
+- tag: Quotes
+  spec_file: iab-tech-lab-quotes-api-openapi.yml
+  capability_id: BC-410.40
+  capability_id_l1: BC-410
+  capability_name: Quote & Configuration Management
+  confidence: 0.75
+  evidence: POST /api/v1/quotes createQuote "Request a non-binding quote"; schemas Quote, QuotePricing,
+    QuoteTerms, CancellationTerms
+  reason: Operations create and retrieve non-binding commercial quotes with pricing models and terms for
+    advertising products — squarely quote management (CPQ) in the sales lead-to-order chain.
+- tag: Authentication
+  spec_file: iab-tech-lab-authentication-api-openapi.yml
+  capability_id: BC-4270.40
+  capability_id_l1: BC-4270
+  capability_name: Developer Identity & Credential Management
+  confidence: 0.7
+  evidence: POST /auth/api-keys "Create Api Key"; DELETE /auth/api-keys/{key_id} "Revoke Api Key"
+  reason: Operations issue, list and revoke API keys used by external integrators of this seller-agent
+    API, which matches Developer Identity & Credential Management. Confidence held back because authentication
+    endpoints are often pure plumbing rather than a managed developer-credential programme.
+- tag: Deal Booking
+  spec_file: iab-tech-lab-deal-booking-api-openapi.yml
+  capability_id: BC-410
+  capability_id_l1: BC-410
+  capability_name: Sales Management
+  confidence: 0.7
+  evidence: POST /api/v1/deals "Book Deal"; POST /api/v1/deals/push "Push Deal To Buyers"; POST /api/v1/deals/distribute
+    "Distribute Deal Via Ssp"; schemas DealBookingRequest, QuoteTerms, PricingModel
+  reason: Sell-side execution of advertising deals — booking, quoting terms, pushing to buyers, migrating
+    and deprecating deals — which is inventory sales/deal lifecycle for the publisher. Not clearly one
+    L2 (deal lifecycle vs quoting vs channel), so L1 only.
+- tag: Negotiation
+  spec_file: iab-tech-lab-negotiation-api-openapi.yml
+  capability_id: BC-410.30
+  capability_id_l1: BC-410
+  capability_name: Opportunity & Pipeline Management
+  confidence: 0.7
+  evidence: POST /proposals/{proposal_id}/counter  Counter Proposal; GET /proposals/{proposal_id}/negotiation  Get
+    Negotiation Status; schemas CounterOfferRequest, NegotiationRound, Money, BuyerIdentity
+  reason: Multi-round proposal/counter-offer exchange with monetary terms between buyer and seller — deal
+    negotiation within the opportunity-to-order lifecycle. Some ambiguity versus quote management (BC-410.40)
+    and contract negotiation, hence 0.7.
+- tag: Negotiations
+  spec_file: iab-tech-lab-negotiations-api-openapi.yml
+  capability_id: BC-410.30
+  capability_id_l1: BC-410
+  capability_name: Opportunity & Pipeline Management
+  confidence: 0.7
+  evidence: 'POST /api/v1/negotiations/messages  "One negotiation move: offer/counter/accept/decline";
+    GET /api/v1/negotiations/{negotiation_id}  "Full negotiation history"'
+  reason: Wire protocol for offer/counter/accept/decline moves between buyer and seller agents on an advertising
+    deal — deal negotiation in the lead-to-order pipeline. Residual ambiguity with quote management keeps
+    confidence at 0.7.
