@@ -97,84 +97,21 @@ paths:
       operationId: getAccountsByAccountId
       x-operation-id-source: derived
 components:
-  responses:
-    AccountResponse:
-      description: Account resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Account'
-          example: "{\n  \"AdvertiserId\": \"1234987\",\n  \"BuyerId\": \"34587\",\n  \"Id\": \"23873345\",\n  \"Name\": \"Brand A\",\n  \"ProviderData\": \"cid=934759\"\n}\n"
-    Standard500ErrorResponse:
-      description: Unexpected error occurred
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
-    Standard400ErrorResponse:
-      description: Bad request
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
-    AccountsResponse:
-      description: Collection of Account
-      headers:
-        X-Total-Count:
-          description: Total number of results
-          schema:
-            type: integer
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Accounts'
-          example: "{\n  \"Accounts\": [\n    {\n      \"AdvertiserId\": \"1234987\",\n      \"BuyerId\": \"1234987\",\n      \"Id\": \"9876542\",\n      \"Name\": \"Brand B\",\n      \"ProviderData\": \"cid=8934579\"\n    },\n    {\n      \"AdvertiserId\": \"1234987\",\n      \"BuyerId\": \"34587\",\n      \"Id\": \"23873345\",\n      \"Name\": \"Brand A\",\n      \"ProviderData\": \"cid=934759\"\n    }\n  ]\n}\n"
-    Standard404ErrorResponse:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
-    Standard401ErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
-  parameters:
-    offset:
-      name: offset
-      in: query
-      description: Indicates the starting point from which the number of records should be returned in the response.
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-    accountId:
-      name: accountId
-      in: path
-      required: true
-      x-example: '23873345'
-      schema:
-        type: string
-        maxLength: 36
-    count:
-      name: count
-      in: query
-      description: Indicates the number of desired records to be returned in the response.
-      schema:
-        type: integer
-        default: 250
-        minimum: 1
   schemas:
     Errors:
       type: array
       items:
         $ref: '#/components/schemas/Error'
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
     ProviderData:
       description: Common definition for all entities with provider data.
       properties:
@@ -186,30 +123,6 @@ components:
             '
           type: string
           maxLength: 1000
-    Error:
-      type: object
-      required:
-      - ErrorCode
-      - ErrorMessage
-      properties:
-        ErrorCode:
-          type: string
-        ErrorMessage:
-          type: string
-        Context:
-          type: object
-        Link:
-          type: string
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
     Account:
       description: 'An account defines a buyer-advertiser relationship. A buyer is typically an agency that places orders on behalf of several advertisers. Each account associates a buyer with one advertiser and is used to manage orders for one publisher. An advertiser may also work with several buyers, and therefore, advertisers have a separate account for each buyer they work with. If an advertiser represents itself, the account identifies the advertiser as both the buyer and the advertiser.
 
@@ -246,6 +159,93 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Account'
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+  responses:
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
+    Standard500ErrorResponse:
+      description: Unexpected error occurred
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    AccountsResponse:
+      description: Collection of Account
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Accounts'
+          example: "{\n  \"Accounts\": [\n    {\n      \"AdvertiserId\": \"1234987\",\n      \"BuyerId\": \"1234987\",\n      \"Id\": \"9876542\",\n      \"Name\": \"Brand B\",\n      \"ProviderData\": \"cid=8934579\"\n    },\n    {\n      \"AdvertiserId\": \"1234987\",\n      \"BuyerId\": \"34587\",\n      \"Id\": \"23873345\",\n      \"Name\": \"Brand A\",\n      \"ProviderData\": \"cid=934759\"\n    }\n  ]\n}\n"
+    Standard400ErrorResponse:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    AccountResponse:
+      description: Account resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Account'
+          example: "{\n  \"AdvertiserId\": \"1234987\",\n  \"BuyerId\": \"34587\",\n  \"Id\": \"23873345\",\n  \"Name\": \"Brand A\",\n  \"ProviderData\": \"cid=934759\"\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
+  parameters:
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
   securitySchemes:
     OauthSecurity:
       type: oauth2

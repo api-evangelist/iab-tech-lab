@@ -423,18 +423,13 @@ components:
         application/json:
           schema:
             $ref: ../jsonschema/protocol/ErrorEnvelope.json
-    ChangeRequestsResponse:
-      description: Collection of Change Request
-      headers:
-        X-Total-Count:
-          description: Total number of results
-          schema:
-            type: integer
+    Standard404ErrorResponse:
+      description: Not found
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ChangeRequests'
-          example: "{\n  \"ChangeRequests\": [\n    {\n      \"AccountId\": \"23873345\",\n      \"Comments\": \"Please, remove this order\",\n      \"Id\": \"398421\"\n      \"OrderId\": \"1235872\",\n      \"ProviderData\": \"cid=563364\",\n      \"RequesterId\": \"1234987\",\n      \"Status\": \"PENDING\",\n      \"Webhook\": \"https://example.com/listen/ab32ce459aafc73a\"\n    }\n  ]\n}\n"
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
     Standard500ErrorResponse:
       description: Unexpected error occurred
       content:
@@ -449,20 +444,6 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
-    ChangeRequestResponse:
-      description: Change Reques resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ChangeRequest'
-          example: "{\n  \"AccountId\": \"23873345\",\n  \"Comments\": \"Please, remove this order\",\n  \"Id\": \"398421\"\n  \"OrderId\": \"1235872\",\n  \"ProviderData\": \"cid=563364\",\n  \"RequesterId\": \"1234987\",\n  \"Status\": \"PENDING\",\n  \"Webhook\": \"https://example.com/listen/ab32ce459aafc73a\"\n}\n"
-    Standard404ErrorResponse:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
     Standard401ErrorResponse:
       description: Unauthorized
       content:
@@ -470,90 +451,30 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
-  schemas:
-    ChangeRequests:
-      required:
-      - ChangeRequests
-      properties:
-        ChangeRequests:
-          type: array
-          items:
+    ChangeRequestResponse:
+      description: Change Reques resource
+      content:
+        application/json:
+          schema:
             $ref: '#/components/schemas/ChangeRequest'
+          example: "{\n  \"AccountId\": \"23873345\",\n  \"Comments\": \"Please, remove this order\",\n  \"Id\": \"398421\"\n  \"OrderId\": \"1235872\",\n  \"ProviderData\": \"cid=563364\",\n  \"RequesterId\": \"1234987\",\n  \"Status\": \"PENDING\",\n  \"Webhook\": \"https://example.com/listen/ab32ce459aafc73a\"\n}\n"
+    ChangeRequestsResponse:
+      description: Collection of Change Request
+      headers:
+        X-Total-Count:
+          description: Total number of results
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ChangeRequests'
+          example: "{\n  \"ChangeRequests\": [\n    {\n      \"AccountId\": \"23873345\",\n      \"Comments\": \"Please, remove this order\",\n      \"Id\": \"398421\"\n      \"OrderId\": \"1235872\",\n      \"ProviderData\": \"cid=563364\",\n      \"RequesterId\": \"1234987\",\n      \"Status\": \"PENDING\",\n      \"Webhook\": \"https://example.com/listen/ab32ce459aafc73a\"\n    }\n  ]\n}\n"
+  schemas:
     Errors:
       type: array
       items:
         $ref: '#/components/schemas/Error'
-    Country:
-      description: 'Defines a country that the API supports.
-
-        The API may support all or a subset of the countries specified in ISO 3166-1.
-
-        '
-      required:
-      - IsoCode
-      properties:
-        IsoCode:
-          description: The country’s two-character ISO code (ISO 3166-1).
-          type: string
-          minLength: 2
-          maxLength: 2
-    ProviderData:
-      description: Common definition for all entities with provider data.
-      properties:
-        ProviderData:
-          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
-
-            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
-
-            '
-          type: string
-          maxLength: 1000
-    Address:
-      description: The address object is used to provide values for the ORGANIZAION resource.
-      required:
-      - City
-      - Country
-      - AddressLine1
-      properties:
-        City:
-          description: The city name of an organization or contact for which this address is associated.
-          type: string
-          maxLength: 35
-        Country:
-          $ref: '#/components/schemas/Country'
-        AddressLine1:
-          description: The first line of the address of an organization or contact for which this address is associated.
-          type: string
-          maxLength: 255
-        AddressLine2:
-          description: The optional second line of the address.
-          type: string
-          maxLength: 255
-          x-publisher-support-required: true
-        PostalCode:
-          description: The postal or ZIP code for the address.
-          type: string
-          maxLength: 15
-          x-publisher-support-required: true
-        State:
-          description: The state or province for the address.
-          type: string
-          maxLength: 35
-          x-publisher-support-required: true
-    Error:
-      type: object
-      required:
-      - ErrorCode
-      - ErrorMessage
-      properties:
-        ErrorCode:
-          type: string
-        ErrorMessage:
-          type: string
-        Context:
-          type: object
-        Link:
-          type: string
     Contact:
       description: Defines an agency or advertiser contact.
       required:
@@ -602,6 +523,67 @@ components:
         Type:
           $ref: '#/components/schemas/ContactType'
           readOnly: true
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    ChangeRequests:
+      required:
+      - ChangeRequests
+      properties:
+        ChangeRequests:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChangeRequest'
+    Address:
+      description: The address object is used to provide values for the ORGANIZAION resource.
+      required:
+      - City
+      - Country
+      - AddressLine1
+      properties:
+        City:
+          description: The city name of an organization or contact for which this address is associated.
+          type: string
+          maxLength: 35
+        Country:
+          $ref: '#/components/schemas/Country'
+        AddressLine1:
+          description: The first line of the address of an organization or contact for which this address is associated.
+          type: string
+          maxLength: 255
+        AddressLine2:
+          description: The optional second line of the address.
+          type: string
+          maxLength: 255
+          x-publisher-support-required: true
+        PostalCode:
+          description: The postal or ZIP code for the address.
+          type: string
+          maxLength: 15
+          x-publisher-support-required: true
+        State:
+          description: The state or province for the address.
+          type: string
+          maxLength: 35
+          x-publisher-support-required: true
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
     ContactType:
       description: Defines the possible types of Contacts.
       allOf:
@@ -616,16 +598,6 @@ components:
             - Billing
             - Buyer
             - Creative
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
     ChangeRequest:
       description: 'When an order has already been placed and a change is needed, the ChangeRequest resource can be used to request a change and subsequently modify the order pending the approval of the change request.
 
@@ -684,33 +656,47 @@ components:
               '
             type: string
             maxLength: 1024
-    ReviewChangeRequestModel:
-      properties:
-        decision:
-          type: string
-          title: Decision
-        decided_by:
-          type: string
-          title: Decided By
-          default: system
-        reason:
-          type: string
-          title: Reason
-          default: ''
+    Error:
       type: object
       required:
-      - decision
-      title: ReviewChangeRequestModel
-      description: Approve or reject a change request.
-    HTTPValidationError:
+      - ErrorCode
+      - ErrorMessage
       properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Country:
+      description: 'Defines a country that the API supports.
+
+        The API may support all or a subset of the countries specified in ISO 3166-1.
+
+        '
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The country’s two-character ISO code (ISO 3166-1).
+          type: string
+          minLength: 2
+          maxLength: 2
+    FieldDiffModel:
+      properties:
+        field:
+          type: string
+          title: Field
+        old_value:
+          title: Old Value
+        new_value:
+          title: New Value
       type: object
-      title: HTTPValidationError
+      required:
+      - field
+      title: FieldDiffModel
     CreateChangeRequestModel:
       properties:
         order_id:
@@ -771,19 +757,33 @@ components:
       - msg
       - type
       title: ValidationError
-    FieldDiffModel:
+    HTTPValidationError:
       properties:
-        field:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ReviewChangeRequestModel:
+      properties:
+        decision:
           type: string
-          title: Field
-        old_value:
-          title: Old Value
-        new_value:
-          title: New Value
+          title: Decision
+        decided_by:
+          type: string
+          title: Decided By
+          default: system
+        reason:
+          type: string
+          title: Reason
+          default: ''
       type: object
       required:
-      - field
-      title: FieldDiffModel
+      - decision
+      title: ReviewChangeRequestModel
+      description: Approve or reject a change request.
   parameters:
     accountId:
       name: accountId

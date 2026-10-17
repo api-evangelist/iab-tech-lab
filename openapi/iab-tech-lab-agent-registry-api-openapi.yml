@@ -206,6 +206,16 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    DiscoverAgentRequest:
+      properties:
+        agent_url:
+          type: string
+          title: Agent Url
+      type: object
+      required:
+      - agent_url
+      title: DiscoverAgentRequest
+      description: Request to discover an agent by URL.
     ValidationError:
       properties:
         loc:
@@ -241,16 +251,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    DiscoverAgentRequest:
-      properties:
-        agent_url:
-          type: string
-          title: Agent Url
-      type: object
-      required:
-      - agent_url
-      title: DiscoverAgentRequest
-      description: Request to discover an agent by URL.
     UpdateTrustRequest:
       properties:
         trust_status:

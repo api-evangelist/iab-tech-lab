@@ -146,6 +146,46 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
+    Error:
+      type: object
+      required:
+      - ErrorCode
+      - ErrorMessage
+      properties:
+        ErrorCode:
+          type: string
+        ErrorMessage:
+          type: string
+        Context:
+          type: object
+        Link:
+          type: string
+    Size:
+      description: The Size object defines the height and width (in pixels) that a publisher accepts. The size object populates publisher-accepted sizes in the GEOMETRY property of relevant resources, such as CREATIVE.
+      required:
+      - Height
+      - Width
+      properties:
+        Height:
+          description: The height of accepted creative size in pixels.
+          type: integer
+        Width:
+          description: The width of accepted creative size in pixels.
+          type: integer
     Creative:
       description: 'Defines a Creative resource. The Creative provides information about the ad to be displayed for a line of the order. Creative are assigned to the LINE resource of an order using the ASSIGNMENT resource.
 
@@ -251,10 +291,6 @@ components:
           MaturityLevel:
             Level: Over12
           Name: My Creative
-    Errors:
-      type: array
-      items:
-        $ref: '#/components/schemas/Error'
     Creatives:
       required:
       - Creatives
@@ -285,18 +321,6 @@ components:
             - Video
             - VPAID
             - MRAID
-    Size:
-      description: The Size object defines the height and width (in pixels) that a publisher accepts. The size object populates publisher-accepted sizes in the GEOMETRY property of relevant resources, such as CREATIVE.
-      required:
-      - Height
-      - Width
-      properties:
-        Height:
-          description: The height of accepted creative size in pixels.
-          type: integer
-        Width:
-          description: The width of accepted creative size in pixels.
-          type: integer
     ProviderData:
       description: Common definition for all entities with provider data.
       properties:
@@ -308,40 +332,6 @@ components:
             '
           type: string
           maxLength: 1000
-    Language:
-      description: Defines a language that the API supports. The API may support all or a subset of the languages specified in ISO 639-1.
-      required:
-      - IsoCode
-      properties:
-        IsoCode:
-          description: The language’s two-character ISO code as specified in ISO 639-1.
-          type: string
-          minLength: 2
-          maxLength: 2
-    Error:
-      type: object
-      required:
-      - ErrorCode
-      - ErrorMessage
-      properties:
-        ErrorCode:
-          type: string
-        ErrorMessage:
-          type: string
-        Context:
-          type: object
-        Link:
-          type: string
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
     MaturityLevel:
       description: Defines a list of maturity levels. Current maturity level definitions comply with those provided in section 4.2.3 of the TAG's Inventory Quality Guidelines released December, 2015. Current guidelines can be found on the tagtoday.net website. The API may support all or a subset of the  specified values.
       allOf:
@@ -357,7 +347,24 @@ components:
             - Over12
             - Mature
             - NotSpecified
+    Language:
+      description: Defines a language that the API supports. The API may support all or a subset of the languages specified in ISO 639-1.
+      required:
+      - IsoCode
+      properties:
+        IsoCode:
+          description: The language’s two-character ISO code as specified in ISO 639-1.
+          type: string
+          minLength: 2
+          maxLength: 2
   responses:
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
     Standard500ErrorResponse:
       description: Unexpected error occurred
       content:
@@ -372,6 +379,13 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    CreativeResponse:
+      description: Creative resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Creative'
+          example: "{\n  \"AccountId\": \"23873345\",\n  \"AdFormatType\": \"Tag\",\n  \"AdStatus\": \"Pending\",\n  \"CreativeAsset\": \"<third-party script goes here>\",\n  \"Geometry\": {\n    \"Height\": \"160\",\n    \"Width\": \"600\"\n  },\n  \"HttpsCompatible\": 0,\n  \"Id\": \"53444\",\n  \"Language\": \"EN\",\n  \"MaturityLevel\":  {\n    \"Level\": \"Over12\"\n  },\n  \"Name\": \"My Creative\",\n  \"ProviderData\": \"cid=54574\"\n}\n"
     Standard404ErrorResponse:
       description: Not found
       content:
@@ -391,37 +405,7 @@ components:
           schema:
             $ref: '#/components/schemas/Creatives'
           example: "{\n  \"Creatives\": [\n    {\n      \"AccountId\": \"23873345\",\n      \"AdFormatType\": \"Tag\",\n      \"AdStatus\": \"Pending\",\n      \"CreativeAsset\": \"<third-party script goes here>\",\n      \"Geometry\": {\n        \"Height\": \"160\",\n        \"Width\": \"600\"\n      },\n      \"HttpsCompatible\": False,\n      \"Id\": \"53444\",\n      \"Language\": \"EN\",\n      \"MaturityLevel\":  {\n        \"Level\": \"Over12\"\n      },\n      \"Name\": \"My Creative\",\n      \"ProviderData\": \"cid=54574\"\n    }\n  ]\n}\n"
-    CreativeResponse:
-      description: Creative resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Creative'
-          example: "{\n  \"AccountId\": \"23873345\",\n  \"AdFormatType\": \"Tag\",\n  \"AdStatus\": \"Pending\",\n  \"CreativeAsset\": \"<third-party script goes here>\",\n  \"Geometry\": {\n    \"Height\": \"160\",\n    \"Width\": \"600\"\n  },\n  \"HttpsCompatible\": 0,\n  \"Id\": \"53444\",\n  \"Language\": \"EN\",\n  \"MaturityLevel\":  {\n    \"Level\": \"Over12\"\n  },\n  \"Name\": \"My Creative\",\n  \"ProviderData\": \"cid=54574\"\n}\n"
-    Standard401ErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
   parameters:
-    accountId:
-      name: accountId
-      in: path
-      required: true
-      x-example: '23873345'
-      schema:
-        type: string
-        maxLength: 36
-    count:
-      name: count
-      in: query
-      description: Indicates the number of desired records to be returned in the response.
-      schema:
-        type: integer
-        default: 250
-        minimum: 1
     offset:
       name: offset
       in: query
@@ -438,6 +422,22 @@ components:
       schema:
         type: string
         maxLength: 36
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
   securitySchemes:
     OauthSecurity:
       type: oauth2

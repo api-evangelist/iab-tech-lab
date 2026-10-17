@@ -124,6 +124,72 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    CuratorRegistrationRequest:
+      properties:
+        curator_id:
+          type: string
+          title: Curator Id
+        name:
+          type: string
+          title: Name
+        domain:
+          type: string
+          title: Domain
+        curator_type:
+          type: string
+          title: Curator Type
+          default: full_service
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        fee_type:
+          type: string
+          title: Fee Type
+          default: percent
+        fee_value:
+          type: number
+          title: Fee Value
+          default: 0.0
+        contact_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact Email
+        api_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Api Key
+        audience_segments:
+          items:
+            type: string
+          type: array
+          title: Audience Segments
+          default: []
+        content_categories:
+          items:
+            type: string
+          type: array
+          title: Content Categories
+          default: []
+        supported_deal_types:
+          items:
+            type: string
+          type: array
+          title: Supported Deal Types
+          default:
+          - pmp
+          - preferred
+          - pg
+      type: object
+      required:
+      - curator_id
+      - name
+      - domain
+      title: CuratorRegistrationRequest
+      description: Request to register a new curator.
     ValidationError:
       properties:
         loc:
@@ -216,69 +282,3 @@ components:
       - curator_id
       title: CuratedDealRequest
       description: Request to create a curated deal.
-    CuratorRegistrationRequest:
-      properties:
-        curator_id:
-          type: string
-          title: Curator Id
-        name:
-          type: string
-          title: Name
-        domain:
-          type: string
-          title: Domain
-        curator_type:
-          type: string
-          title: Curator Type
-          default: full_service
-        description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description
-        fee_type:
-          type: string
-          title: Fee Type
-          default: percent
-        fee_value:
-          type: number
-          title: Fee Value
-          default: 0.0
-        contact_email:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Contact Email
-        api_key:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Api Key
-        audience_segments:
-          items:
-            type: string
-          type: array
-          title: Audience Segments
-          default: []
-        content_categories:
-          items:
-            type: string
-          type: array
-          title: Content Categories
-          default: []
-        supported_deal_types:
-          items:
-            type: string
-          type: array
-          title: Supported Deal Types
-          default:
-          - pmp
-          - preferred
-          - pg
-      type: object
-      required:
-      - curator_id
-      - name
-      - domain
-      title: CuratorRegistrationRequest
-      description: Request to register a new curator.

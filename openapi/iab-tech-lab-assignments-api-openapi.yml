@@ -180,40 +180,19 @@ paths:
       operationId: putAccountsByAccountIdAssignments{assignmentId}?disable
       x-operation-id-source: derived
 components:
-  parameters:
-    offset:
-      name: offset
-      in: query
-      description: Indicates the starting point from which the number of records should be returned in the response.
-      schema:
-        type: integer
-        default: 0
-        minimum: 0
-    accountId:
-      name: accountId
-      in: path
-      required: true
-      x-example: '23873345'
-      schema:
-        type: string
-        maxLength: 36
-    assignmentId:
-      name: assignmentId
-      in: path
-      required: true
-      x-example: '453365'
-      schema:
-        type: string
-        maxLength: 36
-    count:
-      name: count
-      in: query
-      description: Indicates the number of desired records to be returned in the response.
-      schema:
-        type: integer
-        default: 250
-        minimum: 1
   schemas:
+    Assignments:
+      required:
+      - Assignments
+      properties:
+        Assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
     Assignment:
       description: 'Defines an Assignment resource. An Assignment associates a creative with a line of the order. A creative may be assigned to one or more lines and a line may be assigned one or more creative.
 
@@ -266,10 +245,16 @@ components:
             type: integer
             minimum: 1
             maximum: 100
-    Errors:
-      type: array
-      items:
-        $ref: '#/components/schemas/Error'
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
     ProviderData:
       description: Common definition for all entities with provider data.
       properties:
@@ -281,14 +266,6 @@ components:
             '
           type: string
           maxLength: 1000
-    Assignments:
-      required:
-      - Assignments
-      properties:
-        Assignments:
-          type: array
-          items:
-            $ref: '#/components/schemas/Assignment'
     Error:
       type: object
       required:
@@ -303,17 +280,14 @@ components:
           type: object
         Link:
           type: string
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
   responses:
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
     Standard500ErrorResponse:
       description: Unexpected error occurred
       content:
@@ -321,6 +295,13 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"internalError\",\n  \"ErrorMessage\": \"Unexpected error occurred\"\n}\n"
+    AssignmentResponse:
+      description: Assignment resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Assignment'
+          example: "{\n  \"CreativeId\": \"54345\",\n  \"LineId\": \"394578\",\n  \"Weight\": 25,\n  \"Id\": \"453365\",\n  \"Status\": \"Active\",\n  \"ProviderData\": \"cid=34325\"\n}\n"
     Standard400ErrorResponse:
       description: Bad request
       content:
@@ -328,6 +309,13 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"badRequest\",\n  \"ErrorMessage\": \"Request contains invalid data\"\n}\n"
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
     AssignmentsResponse:
       description: Collection of Assignment
       headers:
@@ -340,27 +328,39 @@ components:
           schema:
             $ref: '#/components/schemas/Assignments'
           example: "{\n  \"Assignments\": [\n    {\n      \"CreativeId\": \"394857\",\n      \"LineId\": \"394578\",\n      \"Weight\": 75,\n      \"Id\": \"34534\",\n      \"Status\": \"Active\",\n      \"ProviderData\": \"cid=98374\"\n    },\n    {\n      \"CreativeId\": \"54345\",\n      \"LineId\": \"394578\",\n      \"Weight\": 25,\n      \"Id\": \"453365\",\n      \"Status\": \"Active\",\n      \"ProviderData\": \"cid=34325\"\n    }\n  ]\n}\n"
-    Standard404ErrorResponse:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
-    Standard401ErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
-    AssignmentResponse:
-      description: Assignment resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Assignment'
-          example: "{\n  \"CreativeId\": \"54345\",\n  \"LineId\": \"394578\",\n  \"Weight\": 25,\n  \"Id\": \"453365\",\n  \"Status\": \"Active\",\n  \"ProviderData\": \"cid=34325\"\n}\n"
+  parameters:
+    accountId:
+      name: accountId
+      in: path
+      required: true
+      x-example: '23873345'
+      schema:
+        type: string
+        maxLength: 36
+    offset:
+      name: offset
+      in: query
+      description: Indicates the starting point from which the number of records should be returned in the response.
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    assignmentId:
+      name: assignmentId
+      in: path
+      required: true
+      x-example: '453365'
+      schema:
+        type: string
+        maxLength: 36
+    count:
+      name: count
+      in: query
+      description: Indicates the number of desired records to be returned in the response.
+      schema:
+        type: integer
+        default: 250
+        minimum: 1
   securitySchemes:
     OauthSecurity:
       type: oauth2

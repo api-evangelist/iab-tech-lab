@@ -176,6 +176,25 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    SessionMessageRequest:
+      properties:
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: SessionMessageRequest
+      description: Request to send a message within a session.
     ValidationError:
       properties:
         loc:
@@ -202,15 +221,6 @@ components:
       - msg
       - type
       title: ValidationError
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
     CreateSessionRequest:
       properties:
         seat_id:
@@ -240,13 +250,3 @@ components:
       type: object
       title: CreateSessionRequest
       description: Request to create a new session.
-    SessionMessageRequest:
-      properties:
-        message:
-          type: string
-          title: Message
-      type: object
-      required:
-      - message
-      title: SessionMessageRequest
-      description: Request to send a message within a session.

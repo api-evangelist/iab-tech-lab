@@ -65,6 +65,32 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     BulkDealOperationResult:
       properties:
         index:
@@ -93,6 +119,18 @@ components:
       - success
       title: BulkDealOperationResult
       description: Result of a single bulk operation.
+    BulkDealRequest:
+      properties:
+        operations:
+          items:
+            $ref: '#/components/schemas/BulkDealOperation'
+          type: array
+          title: Operations
+      type: object
+      required:
+      - operations
+      title: BulkDealRequest
+      description: Batch of deal operations.
     BulkDealOperation:
       properties:
         action:
@@ -131,56 +169,6 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
-    BulkDealResponse:
-      properties:
-        total:
-          type: integer
-          title: Total
-        succeeded:
-          type: integer
-          title: Succeeded
-        failed:
-          type: integer
-          title: Failed
-        results:
-          items:
-            $ref: '#/components/schemas/BulkDealOperationResult'
-          type: array
-          title: Results
-      type: object
-      required:
-      - total
-      - succeeded
-      - failed
-      - results
-      title: BulkDealResponse
-      description: Batch results for bulk deal operations.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
     QuoteBuyerIdentityModel:
       properties:
         seat_id:
@@ -206,15 +194,27 @@ components:
       type: object
       title: QuoteBuyerIdentityModel
       description: Buyer identity in a quote request.
-    BulkDealRequest:
+    BulkDealResponse:
       properties:
-        operations:
+        total:
+          type: integer
+          title: Total
+        succeeded:
+          type: integer
+          title: Succeeded
+        failed:
+          type: integer
+          title: Failed
+        results:
           items:
-            $ref: '#/components/schemas/BulkDealOperation'
+            $ref: '#/components/schemas/BulkDealOperationResult'
           type: array
-          title: Operations
+          title: Results
       type: object
       required:
-      - operations
-      title: BulkDealRequest
-      description: Batch of deal operations.
+      - total
+      - succeeded
+      - failed
+      - results
+      title: BulkDealResponse
+      description: Batch results for bulk deal operations.

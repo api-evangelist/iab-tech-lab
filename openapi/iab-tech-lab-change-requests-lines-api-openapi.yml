@@ -160,26 +160,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TargetValue'
-    FrequencyCapInterval:
-      description: 'Defines the frequency cap intervals that the API supports.
-
-        The frequency interval specifies the units in which the frequency count is expressed. For example, if a line’s frequency count is 2 and interval is Day, display the ad to the same user a Max 2 times in the same calendar day.
-
-        '
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The name of the interval.
-            type: string
-            enum:
-            - Day
-            - Month
-            - Week
-            - Hour
-            - LineDuration
     Lines:
       required:
       - Lines
@@ -188,53 +168,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Line'
-    ProviderData:
-      description: Common definition for all entities with provider data.
-      properties:
-        ProviderData:
-          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
-
-            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
-
-            '
-          type: string
-          maxLength: 1000
-    RateType:
-      description: Defines a unit of measure that a cost (i.e. BasePrice) is expressed in. The API may support all or a subset of the specified values.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The rate type’s display name.
-            type: string
-            enum:
-            - CPM
-            - CPMV
-            - CPC
-            - CPD
-            - FlatRate
-    Target:
-      description: Defines a target category. The API must support the specified target categories and may support additional categories such as zip code or postal code.
-      allOf:
-      - $ref: '#/components/schemas/Identity'
-      - required:
-        - Name
-        properties:
-          Name:
-            description: The target category.
-            type: string
-            enum:
-            - Age
-            - Gender
-            - DMA
-            - Country
-            - State/Province
-            - Daypart
-            - Weekpart
-            - Behavioral
-            - Device
     TargetValue:
       description: 'Defines a target value.
 
@@ -268,6 +201,16 @@ components:
           TargetId:
             description: A system-generated ID that identifies the target category that this value belongs to.
             type: string
+    Identity:
+      description: Common definition for all entities with identity.
+      required:
+      - Id
+      properties:
+        Id:
+          description: A system-generated opaque ID that uniquely identifies this resource.
+          type: string
+          maxLength: 36
+          readOnly: true
     Error:
       type: object
       required:
@@ -282,16 +225,6 @@ components:
           type: object
         Link:
           type: string
-    Identity:
-      description: Common definition for all entities with identity.
-      required:
-      - Id
-      properties:
-        Id:
-          description: A system-generated opaque ID that uniquely identifies this resource.
-          type: string
-          maxLength: 36
-          readOnly: true
     Line:
       description: 'Line resources are included in an order and provide details about the product being booked, status, start and end dates, and other settings for the order item.
 
@@ -446,7 +379,81 @@ components:
 
               '
             type: boolean
+    FrequencyCapInterval:
+      description: 'Defines the frequency cap intervals that the API supports.
+
+        The frequency interval specifies the units in which the frequency count is expressed. For example, if a line’s frequency count is 2 and interval is Day, display the ad to the same user a Max 2 times in the same calendar day.
+
+        '
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The name of the interval.
+            type: string
+            enum:
+            - Day
+            - Month
+            - Week
+            - Hour
+            - LineDuration
+    RateType:
+      description: Defines a unit of measure that a cost (i.e. BasePrice) is expressed in. The API may support all or a subset of the specified values.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The rate type’s display name.
+            type: string
+            enum:
+            - CPM
+            - CPMV
+            - CPC
+            - CPD
+            - FlatRate
+    ProviderData:
+      description: Common definition for all entities with provider data.
+      properties:
+        ProviderData:
+          description: 'An opaque blob of provider-defined data. Providers may use this field as needed (for example, to store an ID that correlates this object with resources within their system).
+
+            Note that any provider that edits this object may override the data in this field. The data should include a marker that you can identify to ensure the data is yours.
+
+            '
+          type: string
+          maxLength: 1000
+    Target:
+      description: Defines a target category. The API must support the specified target categories and may support additional categories such as zip code or postal code.
+      allOf:
+      - $ref: '#/components/schemas/Identity'
+      - required:
+        - Name
+        properties:
+          Name:
+            description: The target category.
+            type: string
+            enum:
+            - Age
+            - Gender
+            - DMA
+            - Country
+            - State/Province
+            - Daypart
+            - Weekpart
+            - Behavioral
+            - Device
   responses:
+    Standard401ErrorResponse:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
     Standard500ErrorResponse:
       description: Unexpected error occurred
       content:
@@ -468,20 +475,6 @@ components:
           schema:
             $ref: '#/components/schemas/Errors'
           example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
-    LineResponse:
-      description: Line resource
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Line'
-          example: "{\n  \"BookingStatus\": \"Draft\",\n  \"Comment\": \"Free form comment\",\n  \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n  \"FrequencyCount\": 3,\n  \"FrequencyInterval\": \"Day\",\n  \"Id\": \"345233\",\n  \"Quantity\": 30000,\n  \"Name\": \"My Line 1\",\n  \"OrderId\": \"1235872\",\n  \"ProductId\": \"456366\",\n  \"ProviderData\": \"cid=88873\",\n  \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Targeting\": [\n    {\n      \"Target\": \"Age\",\n      \"TargetValues\": [\"18-24\",\"25-34\"]\n    },\n    {\n      \"Target\": \"Gender\",\n      \"TargetValues\": [\"Male\"]\n    }\n  ]\n  \"UsesExpandables\": False\n}\n"
-    Standard401ErrorResponse:
-      description: Unauthorized
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"unauthorized\",\n  \"ErrorMessage\": \"You are not authorized to use this service\"\n}\n"
     LinesResponse:
       description: Collection of Line
       headers:
@@ -494,12 +487,19 @@ components:
           schema:
             $ref: '#/components/schemas/Lines'
           example: "{\n  \"Lines\": [\n    {\n      \"BookingStatus\": \"Draft\",\n      \"Comment\": \"Free form comment\",\n      \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n      \"FrequencyCount\": 3,\n      \"FrequencyInterval\": \"Day\",\n      \"Id\": \"345233\",\n      \"Quantity\": 30000,\n      \"Name\": \"My Line 1\",\n      \"OrderId\": \"1235872\",\n      \"ProductId\": \"456366\",\n      \"ProviderData\": \"cid=88873\",\n      \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n      \"Targeting\": [\n        {\n          \"Target\": \"Age\",\n          \"TargetValues\": [\"18-24\",\"25-34\"]\n        },\n        {\n          \"Target\": \"Gender\",\n          \"TargetValues\": [\"Male\"]\n        }\n      ]\n      \"UsesExpandables\": False\n    }\n  ]\n}\n"
+    LineResponse:
+      description: Line resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Line'
+          example: "{\n  \"BookingStatus\": \"Draft\",\n  \"Comment\": \"Free form comment\",\n  \"EndDate\": \"2014-12-10T18:00:00.000Z\",\n  \"FrequencyCount\": 3,\n  \"FrequencyInterval\": \"Day\",\n  \"Id\": \"345233\",\n  \"Quantity\": 30000,\n  \"Name\": \"My Line 1\",\n  \"OrderId\": \"1235872\",\n  \"ProductId\": \"456366\",\n  \"ProviderData\": \"cid=88873\",\n  \"StartDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Targeting\": [\n    {\n      \"Target\": \"Age\",\n      \"TargetValues\": [\"18-24\",\"25-34\"]\n    },\n    {\n      \"Target\": \"Gender\",\n      \"TargetValues\": [\"Male\"]\n    }\n  ]\n  \"UsesExpandables\": False\n}\n"
   parameters:
-    accountId:
-      name: accountId
+    lineId:
+      name: lineId
       in: path
       required: true
-      x-example: '23873345'
+      x-example: '345233'
       schema:
         type: string
         maxLength: 36
@@ -511,11 +511,11 @@ components:
       schema:
         type: string
         maxLength: 36
-    lineId:
-      name: lineId
+    accountId:
+      name: accountId
       in: path
       required: true
-      x-example: '345233'
+      x-example: '23873345'
       schema:
         type: string
         maxLength: 36

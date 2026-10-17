@@ -188,6 +188,32 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
     CampaignBrief:
       properties:
         name:
@@ -311,6 +337,18 @@ components:
       - updated_at
       title: BookingStatus
       description: Status of a booking job.
+    ApprovalRequest:
+      properties:
+        approved_product_ids:
+          items:
+            type: string
+          type: array
+          title: Approved Product Ids
+      type: object
+      required:
+      - approved_product_ids
+      title: ApprovalRequest
+      description: Request to approve recommendations.
     HTTPValidationError:
       properties:
         detail:
@@ -334,41 +372,3 @@ components:
       - brief
       title: BookingRequest
       description: Request to start a booking workflow.
-    ApprovalRequest:
-      properties:
-        approved_product_ids:
-          items:
-            type: string
-          type: array
-          title: Approved Product Ids
-      type: object
-      required:
-      - approved_product_ids
-      title: ApprovalRequest
-      description: Request to approve recommendations.
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError

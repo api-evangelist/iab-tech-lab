@@ -159,6 +159,15 @@ paths:
                 $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
+    NegotiationStatus:
+      type: string
+      enum:
+      - active
+      - accepted
+      - rejected
+      - expired
+      title: NegotiationStatus
+      description: Status of a negotiation (typed; was a raw string in the seller repo).
     ValidationError:
       properties:
         loc:
@@ -185,6 +194,130 @@ components:
       - msg
       - type
       title: ValidationError
+    NegotiationRoundResponse:
+      properties:
+        negotiation_id:
+          type: string
+          title: Negotiation Id
+          description: Seller-issued negotiation identifier.
+        status:
+          $ref: '#/components/schemas/NegotiationStatus'
+          description: '''active'' or terminal (''accepted''/''rejected''/''expired''); terminal negotiations refuse further messages (negotiation_closed).'
+        round:
+          $ref: '#/components/schemas/NegotiationRound'
+        rounds_remaining:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Rounds Remaining
+          description: Rounds left before the seller walks away, if disclosed.
+      type: object
+      required:
+      - negotiation_id
+      - status
+      - round
+      title: NegotiationRoundResponse
+      description: 'The seller''s answer to a :class:`NegotiationMessage`.
+
+
+        Embeds the shared
+
+        :class:`~iab_agentic_primitives.primitives.NegotiationRound` primitive
+
+        — the same record appended to the Negotiation history — so the two
+
+        sides cannot disagree about what a round contains. ``round.action`` is
+
+        the SELLER''s move (accept/counter/reject/final_offer); when
+
+        ``status`` is terminal the round is the last one.'
+    Money:
+      properties:
+        amount_micros:
+          type: integer
+          title: Amount Micros
+          description: Amount in micros; 1,000,000 micros = 1 currency unit.
+        currency:
+          type: string
+          pattern: ^[A-Z]{3}$
+          title: Currency
+          description: ISO 4217 alpha-3 currency code.
+          default: USD
+      type: object
+      required:
+      - amount_micros
+      title: Money
+      description: 'Exact money amount in integer micros (flagged decision FD-11).
+
+
+        ``1_000_000`` micros = 1 currency unit — the ad-industry convention
+
+        (Google Ad Manager, among others, prices in micros). Float is BANNED on
+
+        the wire for money: IEEE 754 floating point is non-deterministic for
+
+        money math (``0.1 + 0.2 != 0.3``, and repeated CPM — cost per mille —
+
+        arithmetic accumulates error), and the two source repos used ``float``
+
+        end-to-end; that defect must not be fossilized into the spec. Every
+
+        price, rate, budget, and offer in the shared contract is a ``Money``.
+
+
+        ``amount_micros`` is a strict integer: float inputs are rejected at
+
+        validation time rather than silently truncated.'
+    NegotiationRound:
+      properties:
+        round_number:
+          type: integer
+          minimum: 1.0
+          title: Round Number
+        buyer_price:
+          $ref: '#/components/schemas/Money'
+          description: What the buyer offered this round.
+        seller_price:
+          $ref: '#/components/schemas/Money'
+          description: What the seller countered (or accepted at) this round.
+        action:
+          $ref: '#/components/schemas/NegotiationAction'
+        concession_pct:
+          type: number
+          title: Concession Pct
+          description: Seller concession this round (0-1).
+          default: 0.0
+        cumulative_concession_pct:
+          type: number
+          title: Cumulative Concession Pct
+          description: Total seller concession so far (0-1).
+          default: 0.0
+        rationale:
+          type: string
+          title: Rationale
+          default: ''
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+      type: object
+      required:
+      - round_number
+      - buyer_price
+      - seller_price
+      - action
+      title: NegotiationRound
+      description: A single offer/counter round in a negotiation.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
     NegotiationMessage:
       properties:
         idempotency_key:
@@ -247,130 +380,6 @@ components:
         continue, or ``proposal_id``/``quote_id`` to open (the seller mints
 
         ``negotiation_id`` on open).'
-    NegotiationRound:
-      properties:
-        round_number:
-          type: integer
-          minimum: 1.0
-          title: Round Number
-        buyer_price:
-          $ref: '#/components/schemas/Money'
-          description: What the buyer offered this round.
-        seller_price:
-          $ref: '#/components/schemas/Money'
-          description: What the seller countered (or accepted at) this round.
-        action:
-          $ref: '#/components/schemas/NegotiationAction'
-        concession_pct:
-          type: number
-          title: Concession Pct
-          description: Seller concession this round (0-1).
-          default: 0.0
-        cumulative_concession_pct:
-          type: number
-          title: Cumulative Concession Pct
-          description: Total seller concession so far (0-1).
-          default: 0.0
-        rationale:
-          type: string
-          title: Rationale
-          default: ''
-        timestamp:
-          type: string
-          format: date-time
-          title: Timestamp
-      type: object
-      required:
-      - round_number
-      - buyer_price
-      - seller_price
-      - action
-      title: NegotiationRound
-      description: A single offer/counter round in a negotiation.
-    Money:
-      properties:
-        amount_micros:
-          type: integer
-          title: Amount Micros
-          description: Amount in micros; 1,000,000 micros = 1 currency unit.
-        currency:
-          type: string
-          pattern: ^[A-Z]{3}$
-          title: Currency
-          description: ISO 4217 alpha-3 currency code.
-          default: USD
-      type: object
-      required:
-      - amount_micros
-      title: Money
-      description: 'Exact money amount in integer micros (flagged decision FD-11).
-
-
-        ``1_000_000`` micros = 1 currency unit — the ad-industry convention
-
-        (Google Ad Manager, among others, prices in micros). Float is BANNED on
-
-        the wire for money: IEEE 754 floating point is non-deterministic for
-
-        money math (``0.1 + 0.2 != 0.3``, and repeated CPM — cost per mille —
-
-        arithmetic accumulates error), and the two source repos used ``float``
-
-        end-to-end; that defect must not be fossilized into the spec. Every
-
-        price, rate, budget, and offer in the shared contract is a ``Money``.
-
-
-        ``amount_micros`` is a strict integer: float inputs are rejected at
-
-        validation time rather than silently truncated.'
-    NegotiationRoundResponse:
-      properties:
-        negotiation_id:
-          type: string
-          title: Negotiation Id
-          description: Seller-issued negotiation identifier.
-        status:
-          $ref: '#/components/schemas/NegotiationStatus'
-          description: '''active'' or terminal (''accepted''/''rejected''/''expired''); terminal negotiations refuse further messages (negotiation_closed).'
-        round:
-          $ref: '#/components/schemas/NegotiationRound'
-        rounds_remaining:
-          anyOf:
-          - type: integer
-            minimum: 0.0
-          - type: 'null'
-          title: Rounds Remaining
-          description: Rounds left before the seller walks away, if disclosed.
-      type: object
-      required:
-      - negotiation_id
-      - status
-      - round
-      title: NegotiationRoundResponse
-      description: 'The seller''s answer to a :class:`NegotiationMessage`.
-
-
-        Embeds the shared
-
-        :class:`~iab_agentic_primitives.primitives.NegotiationRound` primitive
-
-        — the same record appended to the Negotiation history — so the two
-
-        sides cannot disagree about what a round contains. ``round.action`` is
-
-        the SELLER''s move (accept/counter/reject/final_offer); when
-
-        ``status`` is terminal the round is the last one.'
-    NegotiationAction:
-      type: string
-      enum:
-      - accept
-      - counter
-      - reject
-      - final_offer
-      title: NegotiationAction
-      description: Action taken in a negotiation round.
     BuyerIdentity:
       properties:
         seat_id:
@@ -475,21 +484,12 @@ components:
       - buyer_price
       title: CounterOfferRequest
       description: Request to submit a counter-offer in a negotiation.
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    NegotiationStatus:
+    NegotiationAction:
       type: string
       enum:
-      - active
-      - accepted
-      - rejected
-      - expired
-      title: NegotiationStatus
-      description: Status of a negotiation (typed; was a raw string in the seller repo).
+      - accept
+      - counter
+      - reject
+      - final_offer
+      title: NegotiationAction
+      description: Action taken in a negotiation round.

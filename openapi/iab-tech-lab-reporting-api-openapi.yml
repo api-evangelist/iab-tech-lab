@@ -362,6 +362,10 @@ components:
           title: Detail
       type: object
       title: HTTPValidationError
+    Errors:
+      type: array
+      items:
+        $ref: '#/components/schemas/Error'
     Reporting:
       required:
       - Clicks
@@ -384,10 +388,6 @@ components:
         Spend:
           description: The amount spent to date.
           type: number
-    Errors:
-      type: array
-      items:
-        $ref: '#/components/schemas/Error'
     Error:
       type: object
       required:
@@ -403,6 +403,13 @@ components:
         Link:
           type: string
   responses:
+    Standard404ErrorResponse:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Errors'
+          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
     Standard500ErrorResponse:
       description: Unexpected error occurred
       content:
@@ -417,13 +424,6 @@ components:
           schema:
             $ref: '#/components/schemas/Reporting'
           example: "{\n  \"Clicks\": 32573,\n  \"CTR\": 7.54,\n  \"ImpressionsServed\": 432009,\n  \"ReportDate\": \"2014-12-05T06:00:00.000Z\",\n  \"Spend\": 371523.41\n}\n"
-    Standard404ErrorResponse:
-      description: Not found
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Errors'
-          example: "{\n  \"ErrorCode\": \"notFound\",\n  \"ErrorMessage\": \"Requested resource is not found\"\n}\n"
     Standard401ErrorResponse:
       description: Unauthorized
       content:
